@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VANTICK - Catálogo 3D Interactivo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+  :root {
+    --vt-cream: #FDFBF4;
+    --vt-gold-light: #F3C969;
+    --vt-gold: #D49B2A;
+    --vt-gold-dark: #8C5E14;
+    --vt-espresso: #140C05;
+    --vt-glass-bg: rgba(32, 20, 10, 0.44);
+    --vt-glass-border: rgba(253, 251, 244, 0.24);
+    --vt-glass-highlight: rgba(243, 201, 105, 0.22);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    overflow: hidden;
+    background: #0B0603;
+    color: var(--vt-cream);
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #app-viewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #120A04;
+    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                border-radius 0.45s ease;
+  }
+
+  #app-viewport.mobile-frame {
+    border-radius: 28px;
+    border: 2px solid rgba(243, 201, 105, 0.35);
+    box-shadow: 0 0 0 9999px rgba(5, 3, 1, 0.88), 0 20px 60px rgba(0, 0, 0, 0.95);
+  }
+
+  #canvas-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    cursor: grab;
+    transition: background 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    background: radial-gradient(circle at 50% 42%, #3D2410 0%, #0E0804 78%);
+  }
+  #canvas-container:active {
+    cursor: grabbing;
+  }
+
+  #bg-giant-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+    font-size: 13vw;
+    font-weight: 900;
+    letter-spacing: 6px;
+    line-height: 0.88;
+    text-align: center;
+    color: rgba(243, 201, 105, 0.06);
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.6s ease;
+  }
+  #app-viewport.compact-ui #bg-giant-text {
+    font-size: 52px;
+  }
+
+  /* Indicador superior */
+  #loader-badge {
+    position: absolute;
+    top: 88px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--vt-glass-bg);
+    border: 1px solid var(--vt-glass-border);
+    color: var(--vt-cream);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    z-index: 60;
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    transition: opacity 0.4s ease;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  #app-viewport.compact-ui #loader-badge {
+    top: 102px;
+    font-size: 8.5px;
+    padding: 4px 10px;
+  }
+
+  /* Barra superior con efecto vidrio esmerilado */
+  header {
+    position: absolute;
+    top: 12px;
+    left: 2%;
+    width: 96%;
+    padding: 9px 18px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 55;
+    background: var(--vt-glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--vt-glass-border);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px var(--vt-glass-highlight);
+  }
+
+  /* Logo VANTICK perfectamente encapsulado dentro de la silueta del boleto */
+  .ticket-logo-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 236px;
+    height: 54px;
+    padding: 8px 24px 8px 66px;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.55));
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .ticket-logo-badge:hover {
+    transform: scale(1.025);
+  }
+  .ticket-logo-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .ticket-logo-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+  }
+  .ticket-logo-title {
+    font-size: 18.5px;
+    font-weight: 900;
+    letter-spacing: 3.2px;
+    line-height: 1.05;
+    background: linear-gradient(90deg, #FDFBF4 0%, #F3C969 48%, #D49B2A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(212, 155, 42, 0.22);
+    white-space: nowrap;
+  }
+  .ticket-logo-sub {
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 1.9px;
+    color: var(--vt-gold-light);
+    margin-top: 3px;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0.95;
+  }
+
+  .header-controls {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-btn {
+    background: rgba(253, 251, 244, 0.08);
+    border: 1px solid rgba(253, 251, 244, 0.24);
+    color: var(--vt-cream);
+    padding: 8px 14px;
+    border-radius: 22px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    transition: all 0.22s ease;
+    white-space: nowrap;
+  }
+  .nav-btn.active, .nav-btn:hover {
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #1A0F05;
+    border-color: #FDFBF4;
+    box-shadow: 0 4px 15px rgba(212, 155, 42, 0.4);
+  }
+
+  /* Botón de Carrito en la barra superior (al lado de 2. VISTA 360°) */
+  .cart-header-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(243, 201, 105, 0.14);
+    border: 1.5px solid rgba(243, 201, 105, 0.45);
+    color: var(--vt-cream);
+    padding: 7px 14px;
+    border-radius: 22px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    transition: all 0.22s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+  }
+  .cart-header-btn:hover, .cart-header-btn.active {
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #1A0F05;
+    border-color: #FDFBF4;
+    box-shadow: 0 4px 18px rgba(243, 201, 105, 0.55);
+  }
+  .cart-header-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    fill: none;
+    flex-shrink: 0;
+  }
+  .cart-badge-count {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #F3C969 0%, #D49B2A 100%);
+    color: #1A0E04;
+    font-size: 10.5px;
+    font-weight: 900;
+    border: 1.5px solid #FDFBF4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    line-height: 1;
+  }
+  .cart-badge-count.show {
+    display: inline-flex;
+  }
+  .cart-header-btn:hover .cart-badge-count,
+  .cart-header-btn.active .cart-badge-count {
+    background: #1A0E04;
+    color: #F3C969;
+    border-color: #1A0E04;
+  }
+
+  .format-btn {
+    background: linear-gradient(135deg, #8C5E14, #D49B2A);
+    border: 1px solid rgba(253, 251, 244, 0.45);
+    color: var(--vt-cream);
+    padding: 8px 14px;
+    border-radius: 22px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    box-shadow: 0 4px 14px rgba(140, 94, 20, 0.5);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .format-btn:hover {
+    filter: brightness(1.12);
+  }
+
+  /* Cabecera compacta en Modo Celular / Vertical */
+  #app-viewport.compact-ui header {
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+    top: 8px;
+  }
+  #app-viewport.compact-ui .ticket-logo-badge {
+    min-width: 198px;
+    height: 44px;
+    padding: 6px 18px 6px 54px;
+  }
+  #app-viewport.compact-ui .ticket-logo-title {
+    font-size: 15px;
+    letter-spacing: 2.5px;
+  }
+  #app-viewport.compact-ui .ticket-logo-sub {
+    font-size: 6px;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+  }
+  #app-viewport.compact-ui .header-controls {
+    gap: 4px;
+    width: 100%;
+  }
+  #app-viewport.compact-ui .nav-btn {
+    padding: 5px 8px;
+    font-size: 8.6px;
+    letter-spacing: 0.2px;
+  }
+  #app-viewport.compact-ui .cart-header-btn {
+    padding: 4.5px 9px;
+    font-size: 8.6px;
+    gap: 4px;
+  }
+  #app-viewport.compact-ui .cart-header-btn svg {
+    width: 12.5px;
+    height: 12.5px;
+  }
+  #app-viewport.compact-ui .cart-badge-count {
+    min-width: 15px;
+    height: 15px;
+    font-size: 8.5px;
+    padding: 0 3.5px;
+  }
+  #app-viewport.compact-ui .format-btn {
+    padding: 5px 8px;
+    font-size: 8.6px;
+  }
+
+  /* Controles inferiores del carrusel (Vidrio Esmerilado) */
+  #carousel-ui {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 55;
+    text-align: center;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    width: max-content;
+    max-width: 95%;
+    background: var(--vt-glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 12px 20px;
+    border-radius: 24px;
+    border: 1px solid var(--vt-glass-border);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65), inset 0 1px 1px var(--vt-glass-highlight);
+  }
+  .banner-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .flavor-banner {
+    background: linear-gradient(135deg, rgba(74, 44, 17, 0.85), rgba(34, 19, 7, 0.92));
+    padding: 9px 24px;
+    transform: skewX(-8deg);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+    cursor: pointer;
+    border: 1px solid rgba(243, 201, 105, 0.45);
+    border-radius: 8px;
+    transition: transform 0.2s ease, background 0.4s ease;
+    min-width: 240px;
+  }
+  .flavor-banner:hover {
+    transform: skewX(-8deg) scale(1.03);
+  }
+  .flavor-banner h2 {
+    transform: skewX(8deg);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--vt-cream);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
+  }
+  .arrow-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(253, 251, 244, 0.4);
+    background: rgba(253, 251, 244, 0.1);
+    color: var(--vt-cream);
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+  }
+  .arrow-btn:hover, .arrow-btn:active {
+    background: var(--vt-cream);
+    color: #1A0F05;
+    transform: scale(1.08);
+  }
+  .inspect-hint {
+    font-size: 9.5px;
+    color: rgba(253, 251, 244, 0.85);
+    letter-spacing: 0.8px;
+    display: block;
+    font-weight: 600;
+  }
+
+  #app-viewport.compact-ui #carousel-ui {
+    bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 18px;
+  }
+  #app-viewport.compact-ui .banner-row {
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  #app-viewport.compact-ui .flavor-banner {
+    padding: 6px 12px;
+    min-width: 175px;
+  }
+  #app-viewport.compact-ui .flavor-banner h2 {
+    font-size: 11.5px;
+    letter-spacing: 0.6px;
+  }
+  #app-viewport.compact-ui .arrow-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  #app-viewport.compact-ui .inspect-hint {
+    font-size: 7.8px;
+    letter-spacing: 0.4px;
+  }
+
+  /* Panel izquierdo de información y precios (Vidrio Esmerilado Translúcido) */
+  #detail-panel {
+    position: absolute;
+    left: 2.5%;
+    bottom: 22px;
+    width: 345px;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    background: var(--vt-glass-bg);
+    backdrop-filter: blur(22px) saturate(190%);
+    -webkit-backdrop-filter: blur(22px) saturate(190%);
+    padding: 18px 20px;
+    border-radius: 22px;
+    border: 1px solid var(--vt-glass-border);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.65), inset 0 1px 2px var(--vt-glass-highlight);
+  }
+  #detail-panel.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #detail-tag {
+    font-size: 9.5px;
+    letter-spacing: 2px;
+    color: var(--vt-gold-light);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  #detail-title {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 4px 0 8px;
+    line-height: 1.15;
+    color: var(--vt-cream);
+  }
+  .callout-line {
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--vt-gold-light), rgba(253, 251, 244, 0.08));
+    margin: 6px 0 12px;
+    position: relative;
+  }
+  .callout-line::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--vt-gold-light);
+    box-shadow: 0 0 10px var(--vt-gold-light);
+  }
+
+  /* Lista de puntos (INFO y PRECIO) con acabado translúcido */
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 0;
+  }
+  .feature-list li.menu-info-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(253, 251, 244, 0.07);
+    border: 1px solid rgba(253, 251, 244, 0.18);
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--vt-cream);
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.25s ease;
+  }
+  .menu-info-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .feature-list li.menu-info-item.clickable-pair {
+    cursor: pointer;
+  }
+  .feature-list li.menu-info-item.clickable-pair:hover {
+    border-color: rgba(243, 201, 105, 0.5);
+    background: rgba(253, 251, 244, 0.12);
+  }
+  .pair-return-hint {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--vt-gold-light);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .feature-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--vt-gold-light);
+    box-shadow: 0 0 8px var(--vt-gold-light);
+    flex-shrink: 0;
+  }
+
+  /* Botón interactivo exclusivo para "1 boleto por $65" (se hace más grande al presionarse) */
+  .single-ticket-btn-item {
+    list-style: none;
+    margin-top: 2px;
+  }
+  .single-ticket-cta-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 13px;
+    border: 1.5px solid #F3C969;
+    background: linear-gradient(135deg, rgba(212, 155, 42, 0.28) 0%, rgba(110, 68, 14, 0.68) 100%);
+    color: var(--vt-cream);
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(253, 251, 244, 0.35);
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    text-align: left;
+  }
+  .single-ticket-cta-btn:hover {
+    transform: translateY(-1px);
+    border-color: #FDFBF4;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55), 0 0 16px rgba(243, 201, 105, 0.35);
+  }
+  /* Cuando el usuario presiona "1 boleto por $65", el botón se hace más grande y destacado */
+  .single-ticket-cta-btn.active {
+    padding: 14px 16px;
+    font-size: 14.5px;
+    border-radius: 15px;
+    transform: scale(1.03);
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 55%, #D49B2A 100%);
+    color: #1A0E04;
+    border: 2px solid #FDFBF4;
+    box-shadow: 0 10px 28px rgba(243, 201, 105, 0.55), inset 0 1px 2px #FFFFFF;
+    margin: 4px 0 2px;
+  }
+  .single-btn-left {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .single-btn-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(253, 251, 244, 0.2);
+    border: 1px solid rgba(253, 251, 244, 0.5);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+  }
+  .single-ticket-cta-btn.active .single-btn-icon {
+    width: 25px;
+    height: 25px;
+    font-size: 12.5px;
+    background: #1A0E04;
+    color: #F3C969;
+    border-color: #1A0E04;
+  }
+  .single-btn-badge {
+    font-size: 8.8px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: rgba(20, 12, 5, 0.65);
+    color: #F3C969;
+    border: 1px solid rgba(243, 201, 105, 0.45);
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+  }
+  .single-ticket-cta-btn.active .single-btn-badge {
+    background: #1A0E04;
+    color: #FDFBF4;
+    border-color: #1A0E04;
+    font-size: 9.2px;
+    padding: 4.5px 9px;
+  }
+
+  /* Contenedor del botón "Agregar al carrito" y su versión con [- cantidad +] */
+  .add-to-cart-row {
+    list-style: none;
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+  .add-to-cart-main-btn {
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: 13px;
+    border: 1.5px solid rgba(253, 251, 244, 0.65);
+    background: linear-gradient(135deg, #F3C969 0%, #D49B2A 55%, #9B6714 100%);
+    color: #160B03;
+    font-size: 12.5px;
+    font-weight: 900;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 22px rgba(212, 155, 42, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.65);
+    transition: all 0.22s ease;
+  }
+  .add-to-cart-main-btn:hover {
+    transform: translateY(-1.5px);
+    filter: brightness(1.08);
+    box-shadow: 0 10px 26px rgba(243, 201, 105, 0.55);
+  }
+  .add-to-cart-main-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* Selector integrado [-  cantidad  +] dentro del mismo botón */
+  .inline-cart-stepper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(22, 12, 4, 0.72);
+    border: 1.5px solid #F3C969;
+    border-radius: 13px;
+    padding: 4px 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(243, 201, 105, 0.3);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .stepper-side-btn {
+    width: 34px;
+    height: 32px;
+    border-radius: 9px;
+    border: 1px solid rgba(253, 251, 244, 0.35);
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #180C03;
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+    line-height: 1;
+  }
+  .stepper-side-btn:hover {
+    transform: scale(1.06);
+    filter: brightness(1.08);
+    box-shadow: 0 0 12px rgba(243, 201, 105, 0.6);
+  }
+  .stepper-side-btn:active {
+    transform: scale(0.94);
+  }
+  .stepper-center-qty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 900;
+    color: var(--vt-cream);
+    letter-spacing: 0.5px;
+  }
+  .stepper-center-qty span.qty-num {
+    font-size: 15px;
+    color: var(--vt-gold-light);
+    min-width: 18px;
+    text-align: center;
+  }
+
+  .detail-nav-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .detail-nav-row .nav-btn {
+    flex: 1;
+    padding: 7px 6px;
+    font-size: 9.5px;
+    text-align: center;
+  }
+
+  /* Compact UI para panel de detalles en modo móvil */
+  #app-viewport.compact-ui #detail-panel {
+    left: 3%;
+    right: 3%;
+    width: 94%;
+    top: auto;
+    bottom: 10px;
+    transform: none;
+    padding: 11px 13px;
+    border-radius: 18px;
+  }
+  #app-viewport.compact-ui #detail-tag {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+  }
+  #app-viewport.compact-ui #detail-title {
+    font-size: 14.5px;
+    margin: 2px 0 4px;
+  }
+  #app-viewport.compact-ui .callout-line {
+    margin: 3px 0 7px;
+  }
+  #app-viewport.compact-ui .feature-list {
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  #app-viewport.compact-ui .feature-list li.menu-info-item {
+    padding: 6px 10px;
+    font-size: 10.5px;
+    border-radius: 9px;
+  }
+  #app-viewport.compact-ui .single-ticket-cta-btn {
+    padding: 7.5px 11px;
+    font-size: 10.8px;
+    border-radius: 10px;
+  }
+  #app-viewport.compact-ui .single-ticket-cta-btn.active {
+    padding: 10px 13px;
+    font-size: 12.2px;
+    border-radius: 12px;
+    transform: scale(1.02);
+  }
+  #app-viewport.compact-ui .single-btn-badge {
+    font-size: 7.5px;
+    padding: 3px 6px;
+  }
+  #app-viewport.compact-ui .add-to-cart-main-btn {
+    padding: 8.5px 12px;
+    font-size: 10.8px;
+    border-radius: 10px;
+  }
+  #app-viewport.compact-ui .inline-cart-stepper {
+    padding: 3px 5px;
+    border-radius: 10px;
+  }
+  #app-viewport.compact-ui .stepper-side-btn {
+    width: 28px;
+    height: 26px;
+    font-size: 15px;
+    border-radius: 7px;
+  }
+  #app-viewport.compact-ui .stepper-center-qty {
+    font-size: 11.5px;
+  }
+  #app-viewport.compact-ui .stepper-center-qty span.qty-num {
+    font-size: 13px;
+  }
+  #app-viewport.compact-ui .detail-nav-row .nav-btn {
+    padding: 5px 5px;
+    font-size: 8.5px;
+  }
+
+  /* Botones laterales derechos en Vista 360° (INFO y PRECIO en Vidrio Esmerilado) */
+  #side-controls {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 52;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.35s;
+  }
+  #side-controls.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .step-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid var(--vt-glass-border);
+    background: var(--vt-glass-bg);
+    color: var(--vt-cream);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55), inset 0 1px 1px var(--vt-glass-highlight);
+  }
+  .step-btn.active, .step-btn:hover {
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #1A0F05;
+    border-color: #FDFBF4;
+    transform: scale(1.12);
+    box-shadow: 0 0 20px rgba(243, 201, 105, 0.65);
+  }
+
+  #app-viewport.compact-ui #side-controls {
+    right: 10px;
+    top: 36%;
+    gap: 10px;
+  }
+  #app-viewport.compact-ui .step-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 8.5px;
+  }
+
+  /* ============================================================================
+     APARTADO DE CARRITO (RECTÁNGULO VERTICAL TRANSLÚCIDO + FONDO DESENFOCADO)
+     ============================================================================ */
+  #cart-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 80;
+    background: rgba(10, 5, 2, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #cart-backdrop.open {
+    pointer-events: auto;
+  }
+
+  #cart-modal {
+    position: relative;
+    width: 390px;
+    max-width: 92%;
+    height: 530px;
+    max-height: 85%;
+    border-radius: 26px;
+    background: rgba(36, 22, 10, 0.48);
+    backdrop-filter: blur(26px) saturate(190%);
+    -webkit-backdrop-filter: blur(26px) saturate(190%);
+    border: 1.5px solid rgba(253, 251, 244, 0.3);
+    box-shadow: 0 25px 65px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(243, 201, 105, 0.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform-origin: center center;
+  }
+
+  /* Encabezado del Carrito con botón "<- Atrás" */
+  .cart-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 18px 13px;
+    border-bottom: 1px solid rgba(253, 251, 244, 0.16);
+    flex-shrink: 0;
+  }
+  .cart-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(253, 251, 244, 0.1);
+    border: 1px solid rgba(253, 251, 244, 0.28);
+    color: var(--vt-cream);
+    padding: 7px 13px;
+    border-radius: 18px;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .cart-back-btn:hover {
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #1A0E04;
+    border-color: #FDFBF4;
+    transform: translateX(-2px);
+  }
+  .cart-header-title {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--vt-gold-light);
+    text-transform: uppercase;
+  }
+
+  /* Cuerpo central del carrito */
+  .cart-modal-body {
+     position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px;
+    overflow: hidden;
+  }
+
+  /* Estado vacío ("No hay artículos agregados" + botón "Agregar") */
+  #cart-empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+    padding: 20px;
+  }
+  .empty-ticket-illust {
+    width: 74px;
+    height: 46px;
+    opacity: 0.78;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+  }
+  .cart-empty-text {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--vt-cream);
+    letter-spacing: 0.5px;
+    opacity: 0.92;
+  }
+  .cart-empty-add-btn {
+    padding: 10px 26px;
+    border-radius: 22px;
+    border: 1.5px solid #FDFBF4;
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 55%, #D49B2A 100%);
+    color: #1A0E04;
+    font-size: 12.5px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(212, 155, 42, 0.45);
+    transition: all 0.22s ease;
+  }
+  .cart-empty-add-btn:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 10px 26px rgba(243, 201, 105, 0.65);
+  }
+
+  /* Lista de artículos en el carrito (scroll dinámico solo si supera el límite visible) */
+  #cart-items-list {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: hidden;
+    padding-right: 2px;
+    scroll-behavior: smooth;
+  }
+  #cart-items-list.scrollable {
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+  #cart-items-list::-webkit-scrollbar {
+    width: 5px;
+  }
+  #cart-items-list::-webkit-scrollbar-track {
+    background: rgba(253, 251, 244, 0.05);
+    border-radius: 10px;
+  }
+  #cart-items-list::-webkit-scrollbar-thumb {
+    background: rgba(243, 201, 105, 0.45);
+    border-radius: 10px;
+  }
+
+  /* Tarjeta individual de artículo dentro del carrito */
+  .cart-item-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 11px;
+    border-radius: 15px;
+    background: rgba(253, 251, 244, 0.08);
+    border: 1px solid rgba(253, 251, 244, 0.2);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
+    flex-shrink: 0;
+    transform-origin: center center;
+    overflow: hidden;
+  }
+  .cart-item-thumb {
+    width: 54px;
+    height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+  }
+  .cart-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cart-item-name {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--vt-cream);
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .cart-item-meta {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--vt-gold-light);
+    letter-spacing: 0.3px;
+  }
+  .cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .cart-ctrl-btn {
+    width: 27px;
+    height: 27px;
+    border-radius: 8px;
+    border: 1px solid rgba(253, 251, 244, 0.3);
+    background: rgba(253, 251, 244, 0.12);
+    color: var(--vt-cream);
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+  }
+  .cart-ctrl-btn:hover {
+    background: var(--vt-cream);
+    color: #1A0E04;
+    border-color: var(--vt-cream);
+    transform: scale(1.07);
+  }
+  .cart-ctrl-btn.delete-btn {
+    background: rgba(185, 28, 28, 0.25);
+    border-color: rgba(248, 113, 113, 0.45);
+    color: #FCA5A5;
+  }
+  .cart-ctrl-btn.delete-btn:hover {
+    background: #DC2626;
+    color: #FFFFFF;
+    border-color: #FCA5A5;
+  }
+  .cart-ctrl-btn svg {
+    width: 13px;
+    height: 13px;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    fill: none;
+  }
+
+  /* Pie del Carrito: Botón "Enviar carrito" a la izquierda + Contador de dinero a la derecha */
+  .cart-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 16px 15px;
+    border-top: 1px solid rgba(253, 251, 244, 0.18);
+    background: rgba(18, 10, 4, 0.45);
+    flex-shrink: 0;
+  }
+  .send-whatsapp-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 15px;
+    border: 1.5px solid #FDFBF4;
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 52%, #D49B2A 100%);
+    color: #1A0E04;
+    font-size: 12.5px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(212, 155, 42, 0.42);
+    transition: all 0.22s ease;
+    white-space: nowrap;
+  }
+  .send-whatsapp-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(243, 201, 105, 0.65);
+    filter: brightness(1.06);
+  }
+  .send-whatsapp-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    border-color: rgba(253, 251, 244, 0.25);
+    box-shadow: none;
+  }
+  .send-whatsapp-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  .cart-total-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 13px;
+    background: rgba(253, 251, 244, 0.08);
+    border: 1px solid rgba(243, 201, 105, 0.4);
+    min-width: 102px;
+    flex-shrink: 0;
+  }
+  .cart-total-label {
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    color: rgba(253, 251, 244, 0.72);
+    text-transform: uppercase;
+  }
+  .cart-total-amount {
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--vt-gold-light);
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+
+  /* Ajustes del Carrito para Modo Celular 9:16 / Compact UI */
+  #app-viewport.compact-ui #cart-modal {
+    width: 90%;
+    max-width: 332px;
+    height: 465px;
+    max-height: 82%;
+    border-radius: 22px;
+  }
+  #app-viewport.compact-ui .cart-modal-header {
+    padding: 12px 14px 10px;
+  }
+  #app-viewport.compact-ui .cart-back-btn {
+    padding: 5.5px 10px;
+    font-size: 10.5px;
+  }
+  #app-viewport.compact-ui .cart-header-title {
+    font-size: 11.5px;
+    letter-spacing: 1.5px;
+  }
+  #app-viewport.compact-ui .cart-modal-body {
+    padding: 10px 12px;
+  }
+  #app-viewport.compact-ui .cart-item-card {
+    padding: 8px 9px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+  #app-viewport.compact-ui .cart-item-thumb {
+    width: 44px;
+    height: 30px;
+  }
+  #app-viewport.compact-ui .cart-item-name {
+    font-size: 10.8px;
+  }
+  #app-viewport.compact-ui .cart-item-meta {
+    font-size: 9.5px;
+  }
+  #app-viewport.compact-ui .cart-ctrl-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 13px;
+    border-radius: 7px;
+  }
+  #app-viewport.compact-ui .cart-modal-footer {
+    padding: 10px 12px 12px;
+    gap: 8px;
+  }
+  #app-viewport.compact-ui .send-whatsapp-btn {
+    padding: 10px 12px;
+    font-size: 11px;
+    border-radius: 12px;
+  }
+  #app-viewport.compact-ui .cart-total-box {
+    min-width: 88px;
+    padding: 5px 10px;
+  }
+  #app-viewport.compact-ui .cart-total-amount {
+    font-size: 14.5px;
+  }
+
+  /* Boleto 2D volador para la animación de "Agregar al carrito" */
+  .flying-ticket-token {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58px;
+    height: 34px;
+    z-index: 95;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px rgba(243, 201, 105, 0.7));
+  }
+</style>
+</head>
+<body>
+  <div id="app-viewport">
+    <div id="loader-badge">BOLETOS 3D VANTICK LISTOS</div>
+
+    <header>
+      <!-- Logotipo VANTICK alineado dentro del cuerpo principal de la silueta del boleto -->
+      <div class="ticket-logo-badge" title="VANTICK - Tu dinero vale más">
+        <svg class="ticket-logo-svg" viewBox="0 0 268 76" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="vtTicketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2A180A" stop-opacity="0.95"/>
+              <stop offset="55%" stop-color="#4A2C12" stop-opacity="0.90"/>
+              <stop offset="100%" stop-color="#1A0E05" stop-opacity="0.96"/>
+            </linearGradient>
+            <linearGradient id="vtGoldStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#FDFBF4"/>
+              <stop offset="50%" stop-color="#F3C969"/>
+              <stop offset="100%" stop-color="#C88A1E"/>
+            </linearGradient>
+          </defs>
+          <path d="M 14,4 H 49 A 7,7 0 0 0 63,4 H 254 A 10,10 0 0 1 264,14 V 25 A 13,13 0 0 0 264,51 V 62 A 10,10 0 0 1 254,72 H 63 A 7,7 0 0 0 49,72 H 14 A 10,10 0 0 1 4,62 V 51 A 13,13 0 0 0 4,25 V 14 A 10,10 0 0 1 14,4 Z"
+                fill="url(#vtTicketGrad)" stroke="url(#vtGoldStroke)" stroke-width="2.2"/>
+          <line x1="56" y1="13" x2="56" y2="63" stroke="#F3C969" stroke-width="1.6" stroke-dasharray="4 4" opacity="0.72"/>
+          <g fill="#FDFBF4" opacity="0.62">
+            <rect x="21" y="16" width="23" height="2.8" rx="0.5"/>
+            <rect x="21" y="21.5" width="23" height="1.6" rx="0.5"/>
+            <rect x="21" y="25.5" width="23" height="3.8" rx="0.5"/>
+            <rect x="21" y="32" width="23" height="1.8" rx="0.5"/>
+            <rect x="21" y="36.5" width="23" height="3.2" rx="0.5"/>
+            <rect x="21" y="42" width="23" height="1.6" rx="0.5"/>
+            <rect x="21" y="46.5" width="23" height="3.5" rx="0.5"/>
+            <rect x="21" y="52.5" width="23" height="2.2" rx="0.5"/>
+            <rect x="21" y="57" width="23" height="2.5" rx="0.5"/>
+          </g>
+        </svg>
+        <div class="ticket-logo-content">
+          <div class="ticket-logo-title">VANTICK</div>
+          <span class="ticket-logo-sub" id="brand-sub">CINE &amp; EXPERIENCIAS</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <button class="nav-btn active" data-mode="carousel" onclick="setMode('carousel')">1. CARRUSEL</button>
+        <button class="nav-btn" data-mode="detail" onclick="setMode('detail')">2. VISTA 360°</button>
+        <!-- Nuevo botón de carrito ubicado exactamente al lado de 2. VISTA 360° -->
+        <button class="cart-header-btn" id="header-cart-btn" title="Ver Carrito de Compras" onclick="toggleCartModal()">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1.6"></circle>
+            <circle cx="20" cy="21" r="1.6"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="cart-badge-count" id="cart-badge-count">0</span>
+        </button>
+        <button class="nav-btn" data-mode="lineup" onclick="setMode('lineup')">3. COLECCIÓN</button>
+        <button class="format-btn" id="format-toggle-btn" onclick="toggleScreenFormat()">📱 MODO CELULAR 9:16</button>
+      </div>
+    </header>
+
+    <div id="bg-giant-text">VANTICK</div>
+    <div id="canvas-container"></div>
+
+    <!-- Barra inferior integrada con flechas + nombre del boleto -->
+    <div id="carousel-ui">
+      <div class="banner-row">
+        <button class="arrow-btn" title="Boleto Anterior" onclick="changeTicket(-1)">&#8592;</button>
+        <div class="flavor-banner" id="flavor-banner" onclick="setMode('detail')">
+          <h2 id="flavor-name">Boletos a sala 2D</h2>
+        </div>
+        <button class="arrow-btn" title="Siguiente Boleto" onclick="changeTicket(1)">&#8594;</button>
+      </div>
+      <span class="inspect-hint" id="inspect-hint">TOCA LAS FLECHAS PARA CAMBIAR O LOS BOLETOS PARA INSPECCIONAR</span>
+    </div>
+
+    <!-- Panel izquierdo de detalles e interacción en vidrio esmerilado -->
+    <div id="detail-panel">
+      <div id="detail-tag">INFORMACIÓN OFICIAL</div>
+      <h1 id="detail-title">Boletos a sala 2D</h1>
+      <div class="callout-line" id="callout-line"></div>
+
+      <ul class="feature-list" id="detail-list"></ul>
+
+      <div class="detail-nav-row">
+        <button class="nav-btn" onclick="changeTicket(-1)">&#8592; ANTERIOR</button>
+        <button class="nav-btn" onclick="setMode('carousel')">CARRUSEL</button>
+        <button class="nav-btn" onclick="changeTicket(1)">SIGUIENTE &#8594;</button>
+      </div>
+    </div>
+
+    <!-- Botones laterales de Vista 360° (Únicamente INFO y PRECIO) -->
+    <div id="side-controls">
+      <button class="step-btn active" title="Información del Boleto" onclick="inspectStep(0)">INFO</button>
+      <button class="step-btn" title="Precios Oficiales" onclick="inspectStep(1)">PRECIO</button>
+    </div>
+
+    <!-- Apartado de Carrito (Rectángulo vertical centrado con vidrio esmerilado y desenfoque de fondo) -->
+    <div id="cart-backdrop" onclick="handleBackdropClick(event)">
+      <div id="cart-modal" onclick="event.stopPropagation()">
+        <div class="cart-modal-header">
+          <button type="button" class="cart-back-btn" onclick="closeCartModal()">&#8592; Atrás</button>
+          <span class="cart-header-title">MI CARRITO</span>
+        </div>
+
+        <div class="cart-modal-body">
+          <!-- Estado cuando no hay artículos agregados -->
+          <div id="cart-empty-state">
+            <svg class="empty-ticket-illust" viewBox="0 0 120 72">
+              <path d="M 10,6 H 34 A 6,6 0 0 0 46,6 H 110 A 6,6 0 0 1 116,12 V 24 A 10,10 0 0 0 116,48 V 60 A 6,6 0 0 1 110,66 H 46 A 6,6 0 0 0 34,66 H 10 A 6,6 0 0 1 4,60 V 48 A 10,10 0 0 0 4,24 V 12 A 6,6 0 0 1 10,6 Z"
+                    fill="rgba(74,44,18,0.55)" stroke="#F3C969" stroke-width="2.5"/>
+              <line x1="40" y1="14" x2="40" y2="58" stroke="#F3C969" stroke-width="2" stroke-dasharray="4 4"/>
+              <text x="78" y="41" fill="#FDFBF4" font-size="14" font-weight="900" text-anchor="middle" letter-spacing="1.5">VANTICK</text>
+            </svg>
+            <div class="cart-empty-text">No hay artículos agregados</div>
+            <button type="button" class="cart-empty-add-btn" onclick="goToCarouselFromEmptyCart()">Agregar</button>
+          </div>
+
+          <!-- Lista de productos agregados -->
+          <div id="cart-items-list"></div>
+        </div>
+
+        <div class="cart-modal-footer">
+          <button type="button" class="send-whatsapp-btn" id="send-whatsapp-btn" onclick="sendCartToWhatsApp()" disabled>
+            <svg viewBox="0 0 24 24">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.127.558 4.198 1.617 6.031l-1.617 5.969 6.135-1.608c1.787.989 3.806 1.512 5.865 1.512 6.627 0 12-5.373 12-12s-5.373-11.904-12-11.904z"/>
+            </svg>
+            <span>Enviar carrito</span>
+          </button>
+
+          <div class="cart-total-box">
+            <span class="cart-total-label">TOTAL</span>
+            <span class="cart-total-amount" id="cart-total-amount">$0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const INFO_BULLETS = [
+  "Disponibles para todo México",
+  "Entrega rápida",
+  "Duración de 30 días desde que son entregados",
+  "Disponibles para películas en preventa"
+];
+
+const TICKETS = [
+  {
+    name: "Boletos a sala 2D",
+    shortBadge: "SALA TRADICIONAL 2D",
+    code: "VT-2D-001",
+    primaryBrown: "#36200D",
+    secondaryBrown: "#1C0F05",
+    stubColor: "#FDFBF4",
+    stubText: "#261507",
+    foilGold: "#E5B24C",
+    bannerBg: "linear-gradient(135deg, rgba(62, 36, 14, 0.88), rgba(28, 15, 5, 0.94))",
+    bgRadial: "#472A12",
+    accent: "#E5B24C",
+    prices: [
+      "2 boletos por $125",
+      "1 boleto por $65"
+    ],
+    skus: [
+      { id: "vt_2d_pair", name: "Boletos a sala 2D (2 boletos)", packDesc: "2 boletos por $125", unitPrice: 125, isSingle: false },
+      { id: "vt_2d_single", name: "Boletos a sala 2D (1 boleto)", packDesc: "1 boleto por $65", unitPrice: 65, isSingle: true }
+    ]
+  },
+  {
+    name: "Boletos a sala VIP 2D",
+    shortBadge: "EXPERIENCIA SALA VIP 2D",
+    code: "VT-VIP-002",
+    primaryBrown: "#5C3A16",
+    secondaryBrown: "#2D1A08",
+    stubColor: "#FDFBF4",
+    stubText: "#36200A",
+    foilGold: "#F7CF75",
+    bannerBg: "linear-gradient(135deg, rgba(96, 60, 22, 0.88), rgba(45, 26, 8, 0.94))",
+    bgRadial: "#694218",
+    accent: "#F7CF75",
+    prices: [
+      "2 boletos por $280"
+    ],
+    skus: [
+      { id: "vt_vip_pair", name: "Boletos a sala VIP 2D (2 boletos)", packDesc: "2 boletos por $280", unitPrice: 280, isSingle: false }
+    ]
+  },
+  {
+    name: "Boletos a sala 3D/PLUUS",
+    shortBadge: "SALA 3D / PLUUS",
+    code: "VT-3DP-003",
+    primaryBrown: "#754A1F",
+    secondaryBrown: "#42270E",
+    stubColor: "#FDFBF4",
+    stubText: "#42270E",
+    foilGold: "#F0C15A",
+    bannerBg: "linear-gradient(135deg, rgba(118, 74, 31, 0.88), rgba(62, 37, 13, 0.94))",
+    bgRadial: "#7D4F22",
+    accent: "#F0C15A",
+    prices: [
+      "2 boletos por $190"
+    ],
+    skus: [
+      { id: "vt_3d_pair", name: "Boletos a sala 3D/PLUUS (2 boletos)", packDesc: "2 boletos por $190", unitPrice: 190, isSingle: false }
+    ]
+  },
+  {
+    name: "Boletos a sala 4DX/Macro XE/IMAX",
+    shortBadge: "4DX • MACRO XE • IMAX",
+    code: "VT-MAX-004",
+    primaryBrown: "#4A2410",
+    secondaryBrown: "#241006",
+    stubColor: "#FDFBF4",
+    stubText: "#2E1508",
+    foilGold: "#E8A838",
+    bannerBg: "linear-gradient(135deg, rgba(82, 39, 17, 0.88), rgba(38, 16, 6, 0.94))",
+    bgRadial: "#5E2E14",
+    accent: "#E8A838",
+    prices: [
+      "2 boletos por $225"
+    ],
+    skus: [
+      { id: "vt_4dx_pair", name: "Boletos a sala 4DX/Macro XE/IMAX (2 boletos)", packDesc: "2 boletos por $225", unitPrice: 225, isSingle: false }
+    ]
+  }
+];
+
+// Mapa rápido de todos los artículos por ID para gestión del carrito
+const SKU_CATALOG = {};
+TICKETS.forEach((t, tIdx) => {
+  t.skus.forEach(s => {
+    SKU_CATALOG[s.id] = {
+      ...s,
+      ticketIndex: tIdx,
+      primaryBrown: t.primaryBrown,
+      secondaryBrown: t.secondaryBrown,
+      foilGold: t.foilGold
+    };
+  });
+});
+
+let currentIndex = 0;
+let currentMode = 'carousel';
+let previousModeBeforeCart = 'carousel';
+let currentStep = 0;
+let isSingleTicket2D = false;
+let isCartOpen = false;
+
+// Estado del carrito: { [skuId]: quantity }
+const cartState = {};
+const moneyCounterAnim = { val: 0 };
+
+const viewport = document.getElementById('app-viewport');
+const container = document.getElementById('canvas-container');
+
+function getSafeWindowSize() {
+  const vw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 360);
+  const vh = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, 640);
+  return { vw, vh };
+}
+
+let isMobileFormat = getSafeWindowSize().vw < getSafeWindowSize().vh;
+
+function isCompactView() {
+  const { vw, vh } = getSafeWindowSize();
+  return isMobileFormat || (vw < vh);
+}
+
+function applyViewportDimensions() {
+  const { vw, vh } = getSafeWindowSize();
+  const nativePortrait = vw < vh;
+
+  if (!isMobileFormat) {
+    viewport.style.width = vw + 'px';
+    viewport.style.height = vh + 'px';
+    viewport.classList.remove('mobile-frame');
+  } else {
+    if (nativePortrait) {
+      viewport.style.width = vw + 'px';
+      viewport.style.height = vh + 'px';
+      viewport.classList.remove('mobile-frame');
+    } else {
+      const availH = Math.max(vh - 12, 320);
+      const availW = Math.max(vw - 12, 240);
+      let targetW = availH * (9 / 16);
+      let targetH = availH;
+      if (targetW > availW) {
+        targetW = availW;
+        targetH = Math.min(availH, targetW * (16 / 9));
+      }
+      viewport.style.width = Math.floor(targetW) + 'px';
+      viewport.style.height = Math.floor(targetH) + 'px';
+      viewport.classList.add('mobile-frame');
+    }
+  }
+
+  const compact = isCompactView();
+  viewport.classList.toggle('compact-ui', compact);
+
+  const btn = document.getElementById('format-toggle-btn');
+  if (btn) {
+    btn.textContent = isMobileFormat ? "💻 MODO HORIZONTAL" : "📱 MODO CELULAR 9:16";
+  }
+
+  if (isCartOpen) {
+    requestAnimationFrame(updateCartScrollLock);
+  }
+}
+
+applyViewportDimensions();
+
+const initW = Math.max(container.clientWidth || getSafeWindowSize().vw, 320);
+const initH = Math.max(container.clientHeight || getSafeWindowSize().vh, 480);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(36, initW / initH, 0.1, 100);
+camera.position.set(0, 0.15, 11.2);
+const cameraTarget = new THREE.Vector3(0, 0.05, 1.5);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(initW, initH);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+container.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xFFF6E5, 0.68));
+
+const keyLight = new THREE.DirectionalLight(0xFFFDF8, 1.05);
+keyLight.position.set(4, 6, 6.5);
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0xF3C969, 0.52);
+fillLight.position.set(-4.5, 2.5, 4.5);
+scene.add(fillLight);
+
+const rimLight = new THREE.PointLight(0xE5B24C, 1.15, 18);
+rimLight.position.set(0, 2.2, -3.2);
+scene.add(rimLight);
+
+const pedestalGroup = new THREE.Group();
+const baseMesh = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.18, 1.34, 0.09, 48),
+  new THREE.MeshStandardMaterial({ color: 0x1A0F06, metalness: 0.55, roughness: 0.45 })
+);
+const ringMat = new THREE.MeshBasicMaterial({ color: 0xE5B24C, transparent: true, opacity: 0.65 });
+const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.016, 16, 64), ringMat);
+ringMesh.rotation.x = Math.PI / 2;
+ringMesh.position.y = 0.046;
+pedestalGroup.add(baseMesh, ringMesh);
+pedestalGroup.position.set(0, -1.28, 2.6);
+scene.add(pedestalGroup);
+
+function drawSparkleStar(ctx, cx, cy, outerR, innerR, color) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const angle = (i * Math.PI) / 4;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawFilmStripBand(ctx, x, y, width, height, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, width, height);
+  const holeW = 14;
+  const holeH = 7;
+  const step = 24;
+  for (let hx = x + 8; hx < x + width - holeW; hx += step) {
+    ctx.fillRect(hx, y + 3, holeW, holeH);
+    ctx.fillRect(hx, y + height - holeH - 3, holeW, holeH);
+  }
+  ctx.restore();
+}
+
+function createTicketFrontTexture(ticketData, variantIdx) {
+  const c = document.createElement('canvas');
+  c.width = 2048;
+  c.height = 1024;
+  const ctx = c.getContext('2d');
+
+  const W = c.width;
+  const H = c.height;
+  const stubX = Math.floor(W * 0.28);
+
+  const stubGrad = ctx.createLinearGradient(0, 0, stubX, H);
+  stubGrad.addColorStop(0, "#FDFBF4");
+  stubGrad.addColorStop(1, "#F2E8CF");
+  ctx.fillStyle = stubGrad;
+  ctx.fillRect(0, 0, stubX, H);
+
+  const mainGrad = ctx.createLinearGradient(stubX, 0, W, H);
+  mainGrad.addColorStop(0, ticketData.primaryBrown);
+  mainGrad.addColorStop(0.55, ticketData.secondaryBrown);
+  mainGrad.addColorStop(1, "#120903");
+  ctx.fillStyle = mainGrad;
+  ctx.fillRect(stubX, 0, W - stubX, H);
+
+  const glowGrad = ctx.createRadialGradient(stubX + (W - stubX) * 0.52, H * 0.48, 40, stubX + (W - stubX) * 0.52, H * 0.48, 680);
+  glowGrad.addColorStop(0, "rgba(243, 201, 105, 0.22)");
+  glowGrad.addColorStop(1, "rgba(243, 201, 105, 0)");
+  ctx.fillStyle = glowGrad;
+  ctx.fillRect(stubX, 0, W - stubX, H);
+
+  ctx.save();
+  ctx.globalAlpha = 0.14;
+  drawFilmStripBand(ctx, stubX + 40, H - 125, W - stubX - 90, 62, ticketData.foilGold);
+  ctx.restore();
+
+  ctx.save();
+  ctx.strokeStyle = ticketData.foilGold;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(stubX + 38, 42, W - stubX - 82, H - 84);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(stubX + 52, 56, W - stubX - 110, H - 112);
+  ctx.restore();
+
+  ctx.save();
+  ctx.strokeStyle = ticketData.foilGold;
+  ctx.lineWidth = 7;
+  ctx.setLineDash([22, 18]);
+  ctx.beginPath();
+  ctx.moveTo(stubX, 50);
+  ctx.lineTo(stubX, H - 50);
+  ctx.stroke();
+  ctx.restore();
+
+  const barX = 115;
+  const barY = 135;
+  const barW = 290;
+  const barH = H - 270;
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(140, 94, 20, 0.45)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(barX - 22, barY - 22, barW + 44, barH + 44);
+
+  const pattern = [14, 6, 8, 12, 22, 8, 6, 14, 18, 10, 6, 20, 8, 12, 16, 6, 10, 22, 8, 14, 6, 12, 18, 8, 10, 6, 16, 12, 8, 20, 6, 14];
+  let currY = barY + 12;
+  ctx.fillStyle = ticketData.stubText;
+  for (let i = 0; i < pattern.length; i++) {
+    const h = pattern[i];
+    if (currY + h > barY + barH - 12) break;
+    if (i % 2 === 0) {
+      ctx.fillRect(barX, currY, barW, h);
+    }
+    currY += h + 7;
+  }
+
+  ctx.translate(barX + barW + 65, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = ticketData.stubText;
+  ctx.font = '900 34px "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${ticketData.code}-${variantIdx}`, 0, 0);
+  ctx.font = '700 22px "Segoe UI", sans-serif';
+  ctx.fillStyle = "#8C5E14";
+  ctx.fillText("VANTICK PASS", 0, 34);
+  ctx.restore();
+
+  const centerX = stubX + (W - stubX) * 0.5;
+
+  drawSparkleStar(ctx, stubX + 145, 155, 42, 10, ticketData.foilGold);
+  drawSparkleStar(ctx, stubX + 200, 120, 20, 5, "#FDFBF4");
+  drawSparkleStar(ctx, W - 155, 165, 40, 10, ticketData.foilGold);
+  drawSparkleStar(ctx, W - 115, 220, 18, 4, "#FDFBF4");
+  drawSparkleStar(ctx, W - 165, H - 165, 34, 8, ticketData.foilGold);
+
+  ctx.save();
+  ctx.fillStyle = ticketData.foilGold;
+  ctx.font = '800 32px "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = "6px";
+  ctx.fillText("★ PASE OFICIAL DE CINE ★", centerX, 155);
+
+  const titleGrad = ctx.createLinearGradient(centerX - 380, 240, centerX + 380, 440);
+  titleGrad.addColorStop(0, "#FDFBF4");
+  titleGrad.addColorStop(0.5, ticketData.foilGold);
+  titleGrad.addColorStop(1, "#C88A1E");
+  ctx.fillStyle = titleGrad;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.65)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 6;
+  ctx.font = '900 185px "Segoe UI", Impact, sans-serif';
+  ctx.fillText("VANTICK", centerX, 385);
+  ctx.restore();
+
+  const pillW = 980;
+  const pillH = 122;
+  const pillX = centerX - pillW / 2;
+  const pillY = 465;
+
+  ctx.save();
+  const pillGrad = ctx.createLinearGradient(pillX, pillY, pillX + pillW, pillY + pillH);
+  pillGrad.addColorStop(0, "#FDFBF4");
+  pillGrad.addColorStop(0.5, ticketData.foilGold);
+  pillGrad.addColorStop(1, "#D49B2A");
+  ctx.fillStyle = pillGrad;
+  ctx.beginPath();
+  ctx.roundRect(pillX, pillY, pillW, pillH, 24);
+  ctx.fill();
+
+  ctx.fillStyle = "#1A0E04";
+  ctx.font = '900 50px "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(ticketData.name.toUpperCase(), centerX, pillY + pillH / 2 + 2);
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = "#FDFBF4";
+  ctx.font = '700 32px "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${ticketData.shortBadge}  •  VÁLIDO EN TODO MÉXICO`, centerX, 690);
+
+  ctx.fillStyle = ticketData.foilGold;
+  ctx.font = '800 26px "Segoe UI", sans-serif';
+  ctx.fillText("CON VANTICK TU DINERO VALE MÁS", centerX, 755);
+  ctx.restore();
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.encoding = THREE.sRGBEncoding;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+function createTicketBackTexture(ticketData) {
+  const c = document.createElement('canvas');
+  c.width = 2048;
+  c.height = 1024;
+  const ctx = c.getContext('2d');
+  const W = c.width;
+  const H = c.height;
+
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, ticketData.secondaryBrown);
+  bgGrad.addColorStop(0.5, ticketData.primaryBrown);
+  bgGrad.addColorStop(1, "#120903");
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = ticketData.foilGold;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(48, 48, W - 96, H - 96);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(64, 64, W - 128, H - 128);
+
+  ctx.globalAlpha = 0.16;
+  drawFilmStripBand(ctx, 90, 95, W - 180, 58, ticketData.foilGold);
+  drawFilmStripBand(ctx, 90, H - 153, W - 180, 58, ticketData.foilGold);
+  ctx.globalAlpha = 1;
+
+  drawSparkleStar(ctx, 260, H / 2, 55, 14, ticketData.foilGold);
+  drawSparkleStar(ctx, W - 260, H / 2, 55, 14, ticketData.foilGold);
+
+  ctx.fillStyle = "#FDFBF4";
+  ctx.font = '900 140px "Segoe UI", Impact, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText("VANTICK", W / 2, H / 2 - 20);
+
+  ctx.fillStyle = ticketData.foilGold;
+  ctx.font = '800 44px "Segoe UI", sans-serif';
+  ctx.fillText(ticketData.name.toUpperCase(), W / 2, H / 2 + 70);
+
+  ctx.fillStyle = "rgba(253, 251, 244, 0.8)";
+  ctx.font = '700 28px "Segoe UI", sans-serif';
+  ctx.fillText("ENTREGA RÁPIDA  •  VIGENCIA DE 30 DÍAS  •  PREVENTAS DISPONIBLES", W / 2, H / 2 + 145);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.encoding = THREE.sRGBEncoding;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+const TICKET_W = 2.65;
+const TICKET_H = 1.28;
+const TICKET_DEPTH = 0.036;
+const BEVEL_THICK = 0.008;
+
+function createCinemaTicketShape(w, h) {
+  const hw = w / 2;
+  const hh = h / 2;
+  const stubX = -w * 0.22;
+  const notchR = 0.058;
+  const sideNotchR = 0.055;
+  const sideY = [-0.28, 0, 0.28];
+
+  const shape = new THREE.Shape();
+  shape.moveTo(-hw, -hh);
+
+  shape.lineTo(stubX - notchR, -hh);
+  shape.absarc(stubX, -hh, notchR, Math.PI, 0, true);
+  shape.lineTo(hw, -hh);
+
+  for (let i = 0; i < sideY.length; i++) {
+    const ny = sideY[i];
+    shape.lineTo(hw, ny - sideNotchR);
+    shape.absarc(hw, ny, sideNotchR, -Math.PI / 2, Math.PI / 2, true);
+  }
+  shape.lineTo(hw, hh);
+
+  shape.lineTo(stubX + notchR, hh);
+  shape.absarc(stubX, hh, notchR, 0, Math.PI, true);
+  shape.lineTo(-hw, hh);
+
+  for (let i = sideY.length - 1; i >= 0; i--) {
+    const ny = sideY[i];
+    shape.lineTo(-hw, ny + sideNotchR);
+    shape.absarc(-hw, ny, sideNotchR, Math.PI / 2, -Math.PI / 2, true);
+  }
+  shape.closePath();
+  return shape;
+}
+
+const sharedTicketShape = createCinemaTicketShape(TICKET_W, TICKET_H);
+
+const sharedExtrudeGeo = new THREE.ExtrudeGeometry(sharedTicketShape, {
+  depth: TICKET_DEPTH,
+  bevelEnabled: true,
+  bevelSegments: 4,
+  steps: 1,
+  bevelSize: 0.008,
+  bevelThickness: BEVEL_THICK
+});
+sharedExtrudeGeo.translate(0, 0, -TICKET_DEPTH / 2);
+sharedExtrudeGeo.computeVertexNormals();
+
+function createNormalizedFaceGeometry(shape, w, h) {
+  const geo = new THREE.ShapeGeometry(shape, 24);
+  const pos = geo.attributes.position;
+  const uvs = new Float32Array(pos.count * 2);
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    uvs[i * 2] = (x + w / 2) / w;
+    uvs[i * 2 + 1] = (y + h / 2) / h;
+  }
+  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  return geo;
+}
+
+const sharedFaceGeo = createNormalizedFaceGeometry(sharedTicketShape, TICKET_W, TICKET_H);
+
+function createSingle3DTicket(ticketData, variantIdx) {
+  const singleGroup = new THREE.Group();
+
+  const rimMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(ticketData.foilGold),
+    roughness: 0.30,
+    metalness: 0.68
+  });
+  const bodyMesh = new THREE.Mesh(sharedExtrudeGeo, rimMat);
+  singleGroup.add(bodyMesh);
+
+  const zOffset = TICKET_DEPTH / 2 + BEVEL_THICK + 0.0015;
+
+  const frontMat = new THREE.MeshStandardMaterial({
+    map: createTicketFrontTexture(ticketData, variantIdx),
+    roughness: 0.38,
+    metalness: 0.14
+  });
+  const frontMesh = new THREE.Mesh(sharedFaceGeo, frontMat);
+  frontMesh.position.z = zOffset;
+  singleGroup.add(frontMesh);
+
+  const backMat = new THREE.MeshStandardMaterial({
+    map: createTicketBackTexture(ticketData),
+    roughness: 0.42,
+    metalness: 0.18
+  });
+  const backMesh = new THREE.Mesh(sharedFaceGeo, backMat);
+  backMesh.rotation.y = Math.PI;
+  backMesh.position.z = -zOffset;
+  singleGroup.add(backMesh);
+
+  return singleGroup;
+}
+
+function createTicketPairGroup(ticketData, idx) {
+  const rootGroup = new THREE.Group();
+  rootGroup.userData = { ticketIndex: idx };
+
+  const ticketA = createSingle3DTicket(ticketData, 1);
+  const ticketB = createSingle3DTicket(ticketData, 2);
+
+  ticketA.position.set(0.10, -0.14, 0.065);
+  ticketA.rotation.set(0.02, 0.04, -0.09);
+
+  ticketB.position.set(-0.14, 0.18, -0.065);
+  ticketB.rotation.set(-0.02, -0.05, 0.12);
+
+  rootGroup.add(ticketB);
+  rootGroup.add(ticketA);
+
+  rootGroup.userData.ticketA = ticketA;
+  rootGroup.userData.ticketB = ticketB;
+
+  scene.add(rootGroup);
+  return rootGroup;
+}
+
+const ticketModels = TICKETS.map((data, idx) => createTicketPairGroup(data, idx));
+
+function animateTicketPairPose(group, modePose, dur = 0.75) {
+  const { ticketA, ticketB } = group.userData;
+  if (!ticketA || !ticketB) return;
+
+  gsap.killTweensOf([ticketA.position, ticketA.rotation, ticketA.scale, ticketB.position, ticketB.rotation, ticketB.scale]);
+
+  if (modePose === 'single') {
+    gsap.to(ticketA.position, { x: 0.0, y: 0.02, z: 0.12, duration: dur, ease: "expo.out", overwrite: "auto" });
+    gsap.to(ticketA.rotation, { x: 0.02, y: -0.08, z: -0.02, duration: dur, ease: "expo.out", overwrite: "auto" });
+    gsap.to(ticketA.scale, { x: 1.07, y: 1.07, z: 1.07, duration: dur, ease: "back.out(1.4)", overwrite: "auto" });
+
+    gsap.to(ticketB.position, { x: 0.0, y: 0.02, z: 0.04, duration: dur * 0.72, ease: "expo.inOut", overwrite: "auto" });
+    gsap.to(ticketB.rotation, { x: 0.02, y: -0.08, z: -0.02, duration: dur * 0.72, ease: "expo.inOut", overwrite: "auto" });
+    gsap.to(ticketB.scale, {
+      x: 0.001,
+      y: 0.001,
+      z: 0.001,
+      duration: dur * 0.75,
+      ease: "power3.inOut",
+      overwrite: "auto",
+      onComplete: () => {
+        if (isSingleTicket2D && currentMode === 'detail' && currentStep === 1 && currentIndex === 0) {
+          ticketB.visible = false;
+        }
+      }
+    });
+  } else if (modePose === 'price') {
+    ticketB.visible = true;
+    gsap.to(ticketA.position, { x: 0.28, y: -0.32, z: 0.22, duration: dur, ease: "back.out(1.4)", overwrite: "auto" });
+    gsap.to(ticketA.rotation, { x: 0.10, y: -0.22, z: -0.20, duration: dur, ease: "expo.out", overwrite: "auto" });
+    gsap.to(ticketA.scale, { x: 1.0, y: 1.0, z: 1.0, duration: dur, ease: "power3.out", overwrite: "auto" });
+
+    gsap.to(ticketB.position, { x: -0.28, y: 0.34, z: -0.14, duration: dur, ease: "back.out(1.4)", overwrite: "auto" });
+    gsap.to(ticketB.rotation, { x: -0.08, y: 0.20, z: 0.22, duration: dur, ease: "expo.out", overwrite: "auto" });
+    gsap.to(ticketB.scale, { x: 1.0, y: 1.0, z: 1.0, duration: dur, ease: "back.out(1.3)", overwrite: "auto" });
+  } else {
+    ticketB.visible = true;
+    gsap.to(ticketA.position, { x: 0.10, y: -0.14, z: 0.065, duration: dur, ease: "power3.out", overwrite: "auto" });
+    gsap.to(ticketA.rotation, { x: 0.02, y: 0.04, z: -0.09, duration: dur, ease: "power3.out", overwrite: "auto" });
+    gsap.to(ticketA.scale, { x: 1.0, y: 1.0, z: 1.0, duration: dur, ease: "power3.out", overwrite: "auto" });
+
+    gsap.to(ticketB.position, { x: -0.14, y: 0.18, z: -0.065, duration: dur, ease: "power3.out", overwrite: "auto" });
+    gsap.to(ticketB.rotation, { x: -0.02, y: -0.05, z: 0.12, duration: dur, ease: "power3.out", overwrite: "auto" });
+    gsap.to(ticketB.scale, { x: 1.0, y: 1.0, z: 1.0, duration: dur, ease: "power3.out", overwrite: "auto" });
+  }
+}
+
+// Alterna entre 1 solo boleto ($65) y 2 boletos ($125) en Sala 2D
+function toggleSingleTicket2D(forceState) {
+  if (currentIndex !== 0 || currentMode !== 'detail' || currentStep !== 1) return;
+
+  isSingleTicket2D = typeof forceState === 'boolean' ? forceState : !isSingleTicket2D;
+  renderDetailPanelContent(false);
+
+  const item = ticketModels[0];
+  const useCompact = isCompactView();
+  const baseY = useCompact ? 0.78 : 0.14;
+
+  if (isSingleTicket2D) {
+    animateTicketPairPose(item, 'single', 0.8);
+    const targetCamZ = useCompact ? 11.2 : 9.15;
+    gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY + 0.05, duration: 0.8, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { z: targetCamZ, duration: 0.8, ease: "expo.out", overwrite: "auto" });
+  } else {
+    animateTicketPairPose(item, 'price', 0.8);
+    const targetCamZ = useCompact ? 11.8 : 9.6;
+    gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.85, ease: "back.out(1.35)", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY + 0.08, duration: 0.8, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { z: targetCamZ, duration: 0.8, ease: "expo.out", overwrite: "auto" });
+  }
+}
+
+setTimeout(() => {
+  const badge = document.getElementById('loader-badge');
+  if (badge) badge.style.opacity = '0';
+}, 1400);
+
+function toggleScreenFormat() {
+  isMobileFormat = !isMobileFormat;
+  applyViewportDimensions();
+
+  const start = performance.now();
+  function syncCanvas(now) {
+    handleResize();
+    if (now - start < 520) requestAnimationFrame(syncCanvas);
+  }
+  requestAnimationFrame(syncCanvas);
+  updatePositions(0.6);
+}
+
+function getBaseScale(isFront) {
+  const useCompact = isCompactView();
+
+  if (currentMode === 'detail') {
+    return useCompact ? 0.64 : 0.90;
+  } else if (currentMode === 'lineup') {
+    return useCompact ? 0.48 : 0.68;
+  } else {
+    return isFront ? (useCompact ? 0.66 : 0.88) : (useCompact ? 0.40 : 0.58);
+  }
+}
+
+function updatePositions(dur = 0.8) {
+  const tData = TICKETS[currentIndex];
+  document.getElementById('flavor-name').textContent = tData.name;
+  document.getElementById('flavor-banner').style.background = tData.bannerBg;
+  document.getElementById('brand-sub').style.color = tData.accent;
+  ringMat.color.set(tData.accent);
+  rimLight.color.set(tData.accent);
+
+  const useCompact = isCompactView();
+  camera.fov = useCompact ? 45 : 36;
+  camera.updateProjectionMatrix();
+
+  const hintEl = document.getElementById('inspect-hint');
+  if (hintEl) {
+    hintEl.textContent = currentMode === 'lineup'
+      ? "TOCA CUALQUIER BOLETO DE LA COLECCIÓN PARA ABRIR SU INFO EN 360°"
+      : "TOCA LAS FLECHAS PARA CAMBIAR O LOS BOLETOS PARA INSPECCIONAR";
+  }
+
+  if (currentMode === 'carousel') {
+    isSingleTicket2D = false;
+    container.style.background = `radial-gradient(circle at 50% 42%, ${tData.bgRadial} 0%, #0B0603 78%)`;
+    const pedScale = useCompact ? 0.62 : 0.88;
+    gsap.to(pedestalGroup.scale, { x: pedScale, y: pedScale, z: pedScale, duration: 0.5, overwrite: "auto" });
+    gsap.to(pedestalGroup.position, {
+      x: 0,
+      y: useCompact ? -0.95 : -1.22,
+      z: useCompact ? 2.0 : 2.6,
+      duration: 0.5,
+      overwrite: "auto"
+    });
+    gsap.to(camera.position, {
+      x: 0,
+      y: 0.15,
+      z: useCompact ? 13.5 : 11.2,
+      duration: dur,
+      ease: "power3.out",
+      overwrite: "auto"
+    });
+
+    const radiusX = useCompact ? 1.45 : 2.85;
+    const radiusZ = useCompact ? 2.0 : 2.6;
+
+    ticketModels.forEach((item, i) => {
+      animateTicketPairPose(item, 'default', dur);
+      const off = (i - currentIndex + ticketModels.length) % ticketModels.length;
+      const ang = (off / ticketModels.length) * Math.PI * 2;
+      const front = off === 0;
+      const sc = getBaseScale(front);
+
+      gsap.to(item.position, {
+        x: Math.sin(ang) * radiusX,
+        y: front ? (useCompact ? 0.16 : 0.10) : (useCompact ? 0.30 : 0.25),
+        z: Math.cos(ang) * radiusZ,
+        duration: dur,
+        ease: "power3.out",
+        overwrite: "auto"
+      });
+      gsap.to(item.rotation, {
+        x: front ? 0.04 : 0.06,
+        y: -ang * 0.65,
+        z: 0,
+        duration: dur,
+        ease: "power3.out",
+        overwrite: "auto"
+      });
+      gsap.to(item.scale, {
+        x: sc,
+        y: sc,
+        z: sc,
+        duration: dur,
+        ease: "power3.out",
+        overwrite: "auto"
+      });
+    });
+  } else if (currentMode === 'detail') {
+    container.style.background = `radial-gradient(circle at 50% 40%, ${tData.bgRadial} 0%, #090502 88%)`;
+    gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, overwrite: "auto" });
+
+    ticketModels.forEach((item, i) => {
+      if (i === currentIndex) {
+        const targetX = useCompact ? 0.0 : 0.32;
+        const targetY = useCompact ? 0.78 : 0.14;
+        const targetZ = useCompact ? 3.8 : 4.35;
+        const sc = getBaseScale(true);
+        gsap.to(item.position, { x: targetX, y: targetY, z: targetZ, duration: dur, ease: "power3.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "power3.out", overwrite: "auto" });
+      } else {
+        animateTicketPairPose(item, 'default', 0.4);
+        gsap.to(item.position, { x: (i - currentIndex) * 6.5, y: -8.0, z: -4, duration: 0.5, overwrite: "auto" });
+      }
+    });
+    inspectStep(currentStep);
+  } else if (currentMode === 'lineup') {
+    isSingleTicket2D = false;
+    container.style.background = `radial-gradient(circle at 50% 48%, ${tData.bgRadial} 0%, #090502 85%)`;
+    gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, overwrite: "auto" });
+    gsap.to(camera.position, { x: 0, y: 0.15, z: useCompact ? 13.4 : 11.4, duration: dur, ease: "power3.out", overwrite: "auto" });
+
+    const sc = getBaseScale(false);
+    if (useCompact) {
+      const coords = [
+        { x: -0.82, y: 0.75, z: 1.8 },
+        { x: 0.82, y: 0.75, z: 1.8 },
+        { x: -0.82, y: -0.68, z: 1.8 },
+        { x: 0.82, y: -0.68, z: 1.8 }
+      ];
+      ticketModels.forEach((item, i) => {
+        animateTicketPairPose(item, 'default', dur);
+        gsap.to(item.position, { x: coords[i].x, y: coords[i].y, z: coords[i].z, duration: dur, ease: "back.out(1.15)", overwrite: "auto" });
+        gsap.to(item.rotation, { x: 0.04, y: -0.14, z: 0, duration: dur, ease: "power3.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, overwrite: "auto" });
+      });
+    } else {
+      const spacing = 2.15;
+      const startX = -((ticketModels.length - 1) * spacing) / 2;
+      ticketModels.forEach((item, i) => {
+        animateTicketPairPose(item, 'default', dur);
+        gsap.to(item.position, { x: startX + i * spacing, y: 0.12, z: 2.0, duration: dur, ease: "back.out(1.15)", overwrite: "auto" });
+        gsap.to(item.rotation, { x: 0.04, y: -0.15, z: 0, duration: dur, ease: "power3.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, overwrite: "auto" });
+      });
+    }
+  }
+}
+
+function changeTicket(dir) {
+  isSingleTicket2D = false;
+  currentIndex = (currentIndex + dir + ticketModels.length) % ticketModels.length;
+  updatePositions(0.75);
+}
+
+function setMode(m) {
+  if (isCartOpen) {
+    closeCartModal(true);
+  }
+  currentMode = m;
+  isSingleTicket2D = false;
+  if (m === 'detail') currentStep = 0;
+
+  document.querySelectorAll('header .nav-btn').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-mode') === m);
+  });
+
+  document.getElementById('carousel-ui').style.opacity = m === 'detail' ? '0' : '1';
+  document.getElementById('carousel-ui').style.pointerEvents = m === 'detail' ? 'none' : 'auto';
+  document.getElementById('detail-panel').classList.toggle('visible', m === 'detail');
+  document.getElementById('side-controls').classList.toggle('visible', m === 'detail');
+  document.getElementById('bg-giant-text').style.opacity = m === 'lineup' ? '1' : '0';
+  document.getElementById('bg-giant-text').style.transform = m === 'lineup' ? 'scale(1)' : 'scale(0.9)';
+
+  updatePositions(0.8);
+}
+
+// Genera el HTML del botón "Agregar al carrito" o el selector [- cantidad +] según el estado del SKU
+function createAddOrStepperHTML(skuId) {
+  const qty = cartState[skuId] || 0;
+  if (qty <= 0) {
+    return `
+      <button type="button" class="add-to-cart-main-btn" onclick="handleAddToCartClick('${skuId}', this)">
+        <span>🛒 Agregar al carrito</span>
+      </button>
+    `;
+  } else {
+    return `
+      <div class="inline-cart-stepper">
+        <button type="button" class="stepper-side-btn" title="Quitar 1" onclick="changeSkuQtyFromDetail('${skuId}', -1, this)">&#8722;</button>
+        <div class="stepper-center-qty">
+          <span class="qty-num">${qty}</span>
+        </div>
+        <button type="button" class="stepper-side-btn" title="Agregar 1 más" onclick="changeSkuQtyFromDetail('${skuId}', 1, this)">&#43;</button>
+      </div>
+    `;
+  }
+}
+
+// Renderiza el contenido de la tarjeta izquierda (INFO o PRECIO)
+function renderDetailPanelContent(animateTransition = true) {
+  const ticketData = TICKETS[currentIndex];
+  const tagEl = document.getElementById('detail-tag');
+  const titleEl = document.getElementById('detail-title');
+  const listEl = document.getElementById('detail-list');
+
+  tagEl.textContent = currentStep === 0 ? "INFORMACIÓN DEL BOLETO" : "PRECIOS OFICIALES VANTICK";
+  titleEl.textContent = ticketData.name;
+  listEl.innerHTML = '';
+
+  if (currentStep === 0) {
+    INFO_BULLETS.forEach(text => {
+      const li = document.createElement('li');
+      li.className = 'menu-info-item';
+      li.innerHTML = `
+        <div class="menu-info-left">
+          <span class="feature-dot" style="background:${ticketData.accent}; box-shadow:0 0 8px ${ticketData.accent};"></span>
+          <span>${text}</span>
+        </div>
+      `;
+      listEl.appendChild(li);
+    });
+  } else {
+    if (currentIndex === 0) {
+      // Estructura especial para Boletos a sala 2D:
+      // 1. Precio de 2 boletos por $125
+      const liPairPrice = document.createElement('li');
+      liPairPrice.className = 'menu-info-item clickable-pair';
+      liPairPrice.title = "Seleccionar paquete de 2 boletos";
+      liPairPrice.onclick = () => {
+        if (isSingleTicket2D) toggleSingleTicket2D(false);
+      };
+      liPairPrice.innerHTML = `
+        <div class="menu-info-left">
+          <span class="feature-dot" style="background:${ticketData.accent}; box-shadow:0 0 8px ${ticketData.accent};"></span>
+          <span>${ticketData.prices[0]}</span>
+        </div>
+        ${isSingleTicket2D ? '<span class="pair-return-hint">Ver 2</span>' : ''}
+      `;
+      listEl.appendChild(liPairPrice);
+
+      // 2. Si NO está presionado el botón de 1 solo boleto, aparece aquí "Agregar al carrito" para los 2 boletos
+      if (!isSingleTicket2D) {
+        const liPairAdd = document.createElement('li');
+        liPairAdd.className = 'add-to-cart-row';
+        liPairAdd.innerHTML = createAddOrStepperHTML('vt_2d_pair');
+        listEl.appendChild(liPairAdd);
+      }
+
+      // 3. Botón de "1 boleto por $65" (se hace más grande cuando isSingleTicket2D es true)
+      const liSingleBtn = document.createElement('li');
+      liSingleBtn.className = 'single-ticket-btn-item';
+      liSingleBtn.innerHTML = `
+        <button type="button" class="single-ticket-cta-btn ${isSingleTicket2D ? 'active' : ''}" id="single-ticket-2d-btn" onclick="toggleSingleTicket2D()">
+          <span class="single-btn-left">
+            <span class="single-btn-icon">🎟️</span>
+            <span>${ticketData.prices[1]}</span>
+          </span>
+          <span class="single-btn-badge" id="single-ticket-2d-badge">${isSingleTicket2D ? 'MOSTRANDO 1 ✓' : 'VER 1 BOLETO'}</span>
+        </button>
+      `;
+      listEl.appendChild(liSingleBtn);
+
+      // 4. Si el usuario presionó "1 boleto por $65", aparece debajo la opción "Agregar al carrito" para este único boleto
+      if (isSingleTicket2D) {
+        const liSingleAdd = document.createElement('li');
+        liSingleAdd.className = 'add-to-cart-row';
+        liSingleAdd.innerHTML = createAddOrStepperHTML('vt_2d_single');
+        listEl.appendChild(liSingleAdd);
+      }
+    } else {
+      // Resto de boletos (VIP 2D, 3D/PLUUS, 4DX/Macro XE/IMAX)
+      const skuObj = ticketData.skus[0];
+      const liPrice = document.createElement('li');
+      liPrice.className = 'menu-info-item';
+      liPrice.innerHTML = `
+        <div class="menu-info-left">
+          <span class="feature-dot" style="background:${ticketData.accent}; box-shadow:0 0 8px ${ticketData.accent};"></span>
+          <span>${ticketData.prices[0]}</span>
+        </div>
+      `;
+      listEl.appendChild(liPrice);
+
+      const liAdd = document.createElement('li');
+      liAdd.className = 'add-to-cart-row';
+      liAdd.innerHTML = createAddOrStepperHTML(skuObj.id);
+      listEl.appendChild(liAdd);
+    }
+  }
+
+  if (animateTransition) {
+    const panelElements = [tagEl, titleEl, listEl];
+    gsap.fromTo(panelElements, { opacity: 0.25, x: -8 }, { opacity: 1, x: 0, duration: 0.32, stagger: 0.04, overwrite: "auto" });
+  }
+}
+
+// Inspección de los 2 submenús en Vista 360°: 0 = INFO, 1 = PRECIO
+function inspectStep(s) {
+  if (s === 0) isSingleTicket2D = false;
+  currentStep = s;
+
+  const item = ticketModels[currentIndex];
+  const useCompact = isCompactView();
+
+  document.querySelectorAll('.step-btn').forEach((b, i) => b.classList.toggle('active', i === s));
+
+  renderDetailPanelContent(true);
+
+  const baseY = useCompact ? 0.78 : 0.14;
+
+  if (s === 0) {
+    animateTicketPairPose(item, 'default', 0.75);
+    const targetCamZ = useCompact ? 12.6 : 10.4;
+    gsap.to(item.rotation, { x: 0.04, y: -0.16, z: 0.0, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { z: targetCamZ, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+  } else {
+    if (currentIndex === 0 && isSingleTicket2D) {
+      animateTicketPairPose(item, 'single', 0.8);
+      const targetCamZ = useCompact ? 11.2 : 9.15;
+      gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+      gsap.to(item.position, { y: baseY + 0.05, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+      gsap.to(camera.position, { z: targetCamZ, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+    } else {
+      animateTicketPairPose(item, 'price', 0.85);
+      const targetCamZ = useCompact ? 11.8 : 9.6;
+      gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.9, ease: "back.out(1.35)", overwrite: "auto" });
+      gsap.to(item.position, { y: baseY + 0.08, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+      gsap.to(camera.position, { z: targetCamZ, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+    }
+  }
+}
+
+/* ============================================================================
+   LÓGICA DEL CARRITO, BOLETO VOLADOR, SCROLL INTELIGENTE Y WHATSAPP BUSINESS
+   ============================================================================ */
+
+function getTotalCartItemsCount() {
+  return Object.values(cartState).reduce((acc, q) => acc + q, 0);
+}
+
+function getTotalCartMoneyAmount() {
+  return Object.entries(cartState).reduce((acc, [skuId, q]) => {
+    const sku = SKU_CATALOG[skuId];
+    return acc + (sku ? sku.unitPrice * q : 0);
+  }, 0);
+}
+
+function updateCartHeaderBadge(pulse = false) {
+  const totalCount = getTotalCartItemsCount();
+  const badgeEl = document.getElementById('cart-badge-count');
+  const cartBtn = document.getElementById('header-cart-btn');
+  if (!badgeEl || !cartBtn) return;
+
+  badgeEl.textContent = totalCount;
+  badgeEl.classList.toggle('show', totalCount > 0);
+
+  if (pulse) {
+    gsap.fromTo(
+      cartBtn,
+      { scale: 1.22 },
+      { scale: 1.0, duration: 0.42, ease: "elastic.out(1.2, 0.4)", overwrite: "auto" }
+    );
+  }
+}
+
+function animateCartTotalMoney() {
+  const targetTotal = getTotalCartMoneyAmount();
+  const amountEl = document.getElementById('cart-total-amount');
+  const sendBtn = document.getElementById('send-whatsapp-btn');
+
+  if (sendBtn) {
+    sendBtn.disabled = getTotalCartItemsCount() === 0;
+  }
+
+  gsap.to(moneyCounterAnim, {
+    val: targetTotal,
+    duration: 0.45,
+    ease: "power2.out",
+    overwrite: "auto",
+    onUpdate: () => {
+      if (amountEl) {
+        amountEl.textContent = `$${Math.round(moneyCounterAnim.val)}`;
+      }
+    }
+  });
+}
+
+// Genera el SVG 2D de la silueta del boleto para el carrito y la animación de vuelo
+function build2DTicketThumbSVG(sku, isFlying = false) {
+  const gradId = `thumbGrad_${sku.id}_${isFlying ? 'fly' : 'list'}`;
+  const secondTicketLayer = !sku.isSingle
+    ? `<path d="M 12,4 H 108 A 5,5 0 0 1 113,9 V 51 A 5,5 0 0 1 108,56 H 12 A 5,5 0 0 1 7,51 V 9 A 5,5 0 0 1 12,4 Z"
+             transform="rotate(-6 60 32) translate(-3, -4)"
+             fill="${sku.secondaryBrown}" stroke="${sku.foilGold}" stroke-width="1.6" opacity="0.85"/>`
+    : '';
+
+  return `
+    <svg viewBox="0 0 120 68" width="100%" height="100%">
+      <defs>
+        <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${sku.primaryBrown}"/>
+          <stop offset="100%" stop-color="${sku.secondaryBrown}"/>
+        </linearGradient>
+      </defs>
+      ${secondTicketLayer}
+      <path d="M 10,8 H 34 A 5,5 0 0 0 44,8 H 108 A 6,6 0 0 1 114,14 V 25 A 8,8 0 0 0 114,43 V 54 A 6,6 0 0 1 108,60 H 44 A 5,5 0 0 0 34,60 H 10 A 6,6 0 0 1 4,54 V 43 A 8,8 0 0 0 4,25 V 14 A 6,6 0 0 1 10,8 Z"
+            fill="url(#${gradId})" stroke="${sku.foilGold}" stroke-width="2.2"/>
+      <path d="M 10,9.5 H 35 V 58.5 H 10 A 4.5,4.5 0 0 1 5.5,54 V 43 A 8,8 0 0 0 5.5,25 V 14 A 4.5,4.5 0 0 1 10,9.5 Z"
+            fill="#FDFBF4"/>
+      <line x1="39" y1="14" x2="39" y2="54" stroke="${sku.foilGold}" stroke-width="1.6" stroke-dasharray="3.5 3.5"/>
+      <text x="76" y="36" fill="#FDFBF4" font-size="11.5" font-weight="900" text-anchor="middle" letter-spacing="1">VANTICK</text>
+      <rect x="52" y="42" width="48" height="8" rx="3" fill="${sku.foilGold}"/>
+    </svg>
+  `;
+}
+
+// Animación fluida del pequeño boleto de cine viajando rápido hacia el botón de carrito superior
+function spawnFlyingTicketToCart(skuId, sourceElement) {
+  const sku = SKU_CATALOG[skuId];
+  const cartBtn = document.getElementById('header-cart-btn');
+  if (!sku || !sourceElement || !cartBtn) {
+    updateCartHeaderBadge(true);
+    return;
+  }
+
+  const vpRect = viewport.getBoundingClientRect();
+  const srcRect = sourceElement.getBoundingClientRect();
+  const destRect = cartBtn.getBoundingClientRect();
+
+  const startX = srcRect.left - vpRect.left + srcRect.width / 2 - 29;
+  const startY = srcRect.top - vpRect.top + srcRect.height / 2 - 17;
+  const endX = destRect.left - vpRect.left + destRect.width / 2 - 29;
+  const endY = destRect.top - vpRect.top + destRect.height / 2 - 17;
+
+  const flyer = document.createElement('div');
+  flyer.className = 'flying-ticket-token';
+  flyer.innerHTML = build2DTicketThumbSVG(sku, true);
+  viewport.appendChild(flyer);
+
+  const motion = { t: 0 };
+  const ctrlX = (startX + endX) * 0.5 - 60;
+  const ctrlY = Math.min(startY, endY) - 90;
+
+  gsap.set(flyer, { x: startX, y: startY, scale: 0.85, rotation: -12, opacity: 1 });
+
+  gsap.to(motion, {
+    t: 1,
+    duration: 0.56,
+    ease: "power2.inOut",
+    onUpdate: () => {
+      const p = motion.t;
+      const inv = 1 - p;
+      const curX = inv * inv * startX + 2 * inv * p * ctrlX + p * p * endX;
+      const curY = inv * inv * startY + 2 * inv * p * ctrlY + p * p * endY;
+      const sc = p < 0.4 ? 0.85 + p * 0.8 : 1.17 - (p - 0.4) * 1.35;
+      const rot = -12 + p * 372;
+      gsap.set(flyer, { x: curX, y: curY, scale: Math.max(0.25, sc), rotation: rot });
+    },
+    onComplete: () => {
+      flyer.remove();
+      updateCartHeaderBadge(true);
+    }
+  });
+}
+
+function handleAddToCartClick(skuId, btnEl) {
+  cartState[skuId] = (cartState[skuId] || 0) + 1;
+  spawnFlyingTicketToCart(skuId, btnEl);
+  renderDetailPanelContent(false);
+  animateCartTotalMoney();
+  if (isCartOpen) renderCartItemsList();
+}
+
+function changeSkuQtyFromDetail(skuId, delta, btnEl) {
+  const currentQty = cartState[skuId] || 0;
+  const nextQty = currentQty + delta;
+
+  if (delta > 0) {
+    cartState[skuId] = nextQty;
+    spawnFlyingTicketToCart(skuId, btnEl);
+  } else {
+    if (nextQty <= 0) {
+      delete cartState[skuId];
+    } else {
+      cartState[skuId] = nextQty;
+    }
+    updateCartHeaderBadge(true);
+  }
+
+  renderDetailPanelContent(false);
+  animateCartTotalMoney();
+  if (isCartOpen) renderCartItemsList();
+}
+
+// Verifica si los items superan el límite visible del menú del carrito para activar o bloquear el scroll vertical
+function updateCartScrollLock() {
+  const listEl = document.getElementById('cart-items-list');
+  if (!listEl || listEl.style.display === 'none') return;
+
+  const exceedsVisibleLimit = listEl.scrollHeight > listEl.clientHeight + 2;
+  if (exceedsVisibleLimit) {
+    listEl.style.overflowY = 'auto';
+    listEl.classList.add('scrollable');
+  } else {
+    listEl.scrollTop = 0;
+    listEl.style.overflowY = 'hidden';
+    listEl.classList.remove('scrollable');
+  }
+}
+
+function renderCartItemsList() {
+  const emptyEl = document.getElementById('cart-empty-state');
+  const listEl = document.getElementById('cart-items-list');
+  const entries = Object.entries(cartState).filter(([, q]) => q > 0);
+
+  animateCartTotalMoney();
+
+  if (entries.length === 0) {
+    emptyEl.style.display = 'flex';
+    listEl.style.display = 'none';
+    listEl.innerHTML = '';
+    listEl.classList.remove('scrollable');
+    listEl.style.overflowY = 'hidden';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  listEl.style.display = 'flex';
+  listEl.innerHTML = '';
+
+  entries.forEach(([skuId, qty]) => {
+    const sku = SKU_CATALOG[skuId];
+    if (!sku) return;
+    const subtotal = sku.unitPrice * qty;
+
+    const card = document.createElement('div');
+    card.className = 'cart-item-card';
+    card.id = `cart-card-${skuId}`;
+    card.innerHTML = `
+      <div class="cart-item-thumb">
+        ${build2DTicketThumbSVG(sku, false)}
+      </div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${sku.name}</div>
+        <div class="cart-item-meta">${qty}x $${sku.unitPrice} &bull; <strong>$${subtotal}</strong></div>
+      </div>
+      <div class="cart-item-controls">
+        <button type="button" class="cart-ctrl-btn" title="Quitar 1 artículo" onclick="changeSkuQtyFromCart('${skuId}', -1)">&#8722;</button>
+        <button type="button" class="cart-ctrl-btn" title="Agregar 1 artículo más" onclick="changeSkuQtyFromCart('${skuId}', 1)">&#43;</button>
+        <button type="button" class="cart-ctrl-btn delete-btn" title="Eliminar artículo" onclick="removeSkuFromCartAnimated('${skuId}')">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
+
+  requestAnimationFrame(updateCartScrollLock);
+}
+
+function changeSkuQtyFromCart(skuId, delta) {
+  const currentQty = cartState[skuId] || 0;
+  const nextQty = currentQty + delta;
+
+  if (nextQty <= 0) {
+    removeSkuFromCartAnimated(skuId);
+    return;
+  }
+
+  cartState[skuId] = nextQty;
+  updateCartHeaderBadge(true);
+  renderCartItemsList();
+  if (currentMode === 'detail' && currentStep === 1) {
+    renderDetailPanelContent(false);
+  }
+}
+
+// Animación especial cuando se decide eliminar un artículo del carrito
+function removeSkuFromCartAnimated(skuId) {
+  const cardEl = document.getElementById(`cart-card-${skuId}`);
+  if (!cardEl) {
+    delete cartState[skuId];
+    updateCartHeaderBadge(false);
+    renderCartItemsList();
+    if (currentMode === 'detail' && currentStep === 1) renderDetailPanelContent(false);
+    return;
+  }
+
+  cardEl.style.pointerEvents = 'none';
+  const currentHeight = cardEl.offsetHeight;
+  cardEl.style.height = currentHeight + 'px';
+
+  const tl = gsap.timeline({
+    onComplete: () => {
+      delete cartState[skuId];
+      updateCartHeaderBadge(false);
+      renderCartItemsList();
+      if (currentMode === 'detail' && currentStep === 1) {
+        renderDetailPanelContent(false);
+      }
+    }
+  });
+
+  tl.to(cardEl, {
+    borderColor: '#F87171',
+    backgroundColor: 'rgba(220, 38, 38, 0.24)',
+    scale: 0.96,
+    x: -7,
+    duration: 0.12,
+    ease: "power2.out"
+  })
+  .to(cardEl, {
+    x: 110,
+    rotationZ: 4,
+    opacity: 0,
+    duration: 0.25,
+    ease: "power3.in"
+  })
+  .to(cardEl, {
+    height: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    marginTop: 0,
+    marginBottom: -10,
+    borderWidth: 0,
+    duration: 0.2,
+    ease: "power2.inOut"
+  });
+}
+
+// Calcula el desplazamiento entre el botón de carrito superior y el centro del viewport para la animación expansiva
+function getCartButtonOffsetFromCenter() {
+  const cartBtn = document.getElementById('header-cart-btn');
+  const vpRect = viewport.getBoundingClientRect();
+  if (!cartBtn) return { dx: 0, dy: -200 };
+
+  const btnRect = cartBtn.getBoundingClientRect();
+  const btnCenterX = btnRect.left - vpRect.left + btnRect.width / 2;
+  const btnCenterY = btnRect.top - vpRect.top + btnRect.height / 2;
+
+  const vpCenterX = vpRect.width / 2;
+  const vpCenterY = vpRect.height / 2;
+
+  return {
+    dx: btnCenterX - vpCenterX,
+    dy: btnCenterY - vpCenterY
+  };
+}
+
+function openCartModal() {
+  if (isCartOpen) return;
+  isCartOpen = true;
+  previousModeBeforeCart = currentMode;
+
+  const backdrop = document.getElementById('cart-backdrop');
+  const modal = document.getElementById('cart-modal');
+  const cartBtn = document.getElementById('header-cart-btn');
+
+  if (cartBtn) cartBtn.classList.add('active');
+  renderCartItemsList();
+
+  backdrop.classList.add('open');
+  const { dx, dy } = getCartButtonOffsetFromCenter();
+
+  gsap.killTweensOf([backdrop, modal]);
+  gsap.to(backdrop, { opacity: 1, duration: 0.32, ease: "power2.out" });
+
+  // Animación donde el menú se expande desde el botón de carrito hasta el rectángulo vertical central
+  gsap.fromTo(
+    modal,
+    {
+      x: dx,
+      y: dy,
+      scaleX: 0.12,
+      scaleY: 0.08,
+      opacity: 0.15,
+      borderRadius: "48px"
+    },
+    {
+      x: 0,
+      y: 0,
+      scaleX: 1,
+      scaleY: 1,
+      opacity: 1,
+      borderRadius: isCompactView() ? "22px" : "26px",
+      duration: 0.5,
+      ease: "expo.out",
+      onComplete: updateCartScrollLock
+    }
+  );
+}
+
+function closeCartModal(instant = false) {
+  if (!isCartOpen) return;
+  isCartOpen = false;
+
+  const backdrop = document.getElementById('cart-backdrop');
+  const modal = document.getElementById('cart-modal');
+  const cartBtn = document.getElementById('header-cart-btn');
+
+  if (cartBtn) cartBtn.classList.remove('active');
+  backdrop.classList.remove('open');
+
+  gsap.killTweensOf([backdrop, modal]);
+
+  if (instant) {
+    gsap.set(backdrop, { opacity: 0 });
+    return;
+  }
+
+  const { dx, dy } = getCartButtonOffsetFromCenter();
+
+  gsap.to(backdrop, { opacity: 0, duration: 0.3, ease: "power2.inOut" });
+  gsap.to(modal, {
+    x: dx,
+    y: dy,
+    scaleX: 0.12,
+    scaleY: 0.08,
+    opacity: 0,
+    duration: 0.34,
+    ease: "power3.inOut"
+  });
+}
+
+function toggleCartModal() {
+  if (isCartOpen) {
+    closeCartModal(false);
+  } else {
+    openCartModal();
+  }
+}
+
+function handleBackdropClick(e) {
+  if (e.target.id === 'cart-backdrop') {
+    closeCartModal(false);
+  }
+}
+
+// Redirecciona al carrusel cuando el usuario presiona "Agregar" desde el carrito vacío
+function goToCarouselFromEmptyCart() {
+  closeCartModal(false);
+  if (currentMode !== 'carousel') {
+    setMode('carousel');
+  }
+}
+
+// Envía el carrito completo a la cuenta oficial de WhatsApp Business de VANTICK
+function sendCartToWhatsApp() {
+  const entries = Object.entries(cartState).filter(([, q]) => q > 0);
+  if (entries.length === 0) return;
+
+  const lines = ["¡Hola!, ¡Gracias por comprar con nosotros!, te envío mi carrito", ""];
+  let grandTotal = 0;
+
+  entries.forEach(([skuId, qty]) => {
+    const sku = SKU_CATALOG[skuId];
+    if (!sku) return;
+    const subtotal = sku.unitPrice * qty;
+    grandTotal += subtotal;
+    lines.push(`• ${qty}x ${sku.name} ($${sku.unitPrice} c/u) = $${subtotal}`);
+  });
+
+  lines.push("");
+  lines.push(`Total: $${grandTotal}`);
+
+  const messageText = lines.join("\n");
+  const whatsappUrl = `https://wa.me/5218143707239?text=${encodeURIComponent(messageText)}`;
+  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+}
+
+// Interacción táctil y clic con Raycaster (funciona en CARRUSEL y en COLECCIÓN)
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let touchStartX = 0;
+let touchStartY = 0;
+
+container.addEventListener('pointerdown', (e) => {
+  touchStartX = e.clientX;
+  touchStartY = e.clientY;
+});
+
+container.addEventListener('pointerup', (e) => {
+  if (isCartOpen) return;
+
+  const deltaX = e.clientX - touchStartX;
+  const deltaY = e.clientY - touchStartY;
+
+  if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) && currentMode === 'carousel') {
+    changeTicket(deltaX < 0 ? 1 : -1);
+    return;
+  }
+
+  if (currentMode !== 'carousel' && currentMode !== 'lineup') return;
+
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObjects(ticketModels, true);
+
+  if (intersects.length > 0) {
+    let obj = intersects[0].object;
+    while (obj.parent && obj.userData.ticketIndex === undefined) {
+      obj = obj.parent;
+    }
+    if (obj.userData.ticketIndex !== undefined) {
+      const clickedIndex = obj.userData.ticketIndex;
+
+      if (currentMode === 'lineup') {
+        currentIndex = clickedIndex;
+        currentStep = 0;
+        setMode('detail');
+      } else if (currentMode === 'carousel') {
+        if (clickedIndex === currentIndex) {
+          currentStep = 0;
+          setMode('detail');
+        } else {
+          currentIndex = clickedIndex;
+          updatePositions(0.75);
+        }
+      }
+    }
+  }
+});
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  ticketModels.forEach((item, i) => {
+    item.position.y += Math.sin(t * 2.1 + i) * 0.00065;
+    if (currentMode === 'detail' && i === currentIndex && currentStep === 1) {
+      const baseZ = (currentIndex === 0 && isSingleTicket2D) ? 0.02 : 0.08;
+      item.rotation.z = baseZ + Math.sin(t * 2.4) * 0.022;
+    }
+  });
+
+  camera.lookAt(cameraTarget);
+  renderer.render(scene, camera);
+}
+
+function handleResize() {
+  applyViewportDimensions();
+  const w = Math.max(container.clientWidth || getSafeWindowSize().vw, 1);
+  const h = Math.max(container.clientHeight || getSafeWindowSize().vh, 1);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  updatePositions(0.3);
+}
+
+window.addEventListener('resize', handleResize);
+window.addEventListener('load', handleResize);
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => handleResize()).observe(container);
+}
+
+updatePositions(0);
+animate();
+</script>
+</body>
+</html>
