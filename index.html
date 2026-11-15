@@ -13,7 +13,7 @@
     --vt-gold: #D49B2A;
     --vt-gold-dark: #8C5E14;
     --vt-espresso: #140C05;
-    --vt-glass-bg: rgba(32, 20, 10, 0.44);
+    --vt-glass-bg: rgba(32, 20, 10, 0.46);
     --vt-glass-border: rgba(253, 251, 244, 0.24);
     --vt-glass-highlight: rgba(243, 201, 105, 0.22);
   }
@@ -45,16 +45,29 @@
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
-    background: #120A04;
-    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-                height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-                border-radius 0.45s ease;
+    background: #0D0703;
+    transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                border-radius 0.35s ease;
   }
 
   #app-viewport.mobile-frame {
     border-radius: 28px;
     border: 2px solid rgba(243, 201, 105, 0.35);
     box-shadow: 0 0 0 9999px rgba(5, 3, 1, 0.88), 0 20px 60px rgba(0, 0, 0, 0.95);
+  }
+
+  /* Iluminación de fondo acelerada por GPU para evitar repintados lentos a 120 FPS */
+  #bg-radial-glow {
+    position: absolute;
+    inset: -15%;
+    z-index: 0;
+    pointer-events: none;
+    color: #472A12;
+    background: radial-gradient(circle at 50% 42%, currentColor 0%, transparent 68%);
+    transition: color 0.45s ease;
+    will-change: color;
+    transform: translateZ(0);
   }
 
   #canvas-container {
@@ -64,8 +77,7 @@
     height: 100%;
     z-index: 1;
     cursor: grab;
-    transition: background 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    background: radial-gradient(circle at 50% 42%, #3D2410 0%, #0E0804 78%);
+    transform: translateZ(0);
   }
   #canvas-container:active {
     cursor: grabbing;
@@ -84,14 +96,64 @@
     letter-spacing: 6px;
     line-height: 0.88;
     text-align: center;
-    color: rgba(243, 201, 105, 0.06);
+    color: rgba(243, 201, 105, 0.055);
     pointer-events: none;
     opacity: 0;
-    transform: scale(0.9);
-    transition: all 0.6s ease;
+    transform: scale(0.92) translateZ(0);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    will-change: opacity, transform;
   }
   #app-viewport.compact-ui #bg-giant-text {
     font-size: 52px;
+  }
+
+  /* Contenedor de nombres individuales debajo de cada boleto en 3. COLECCIÓN */
+  #lineup-labels-container {
+    position: absolute;
+    inset: 0;
+    z-index: 45;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.28s ease;
+    will-change: opacity;
+  }
+  #lineup-labels-container.visible {
+    opacity: 1;
+  }
+  .lineup-item-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: auto;
+    cursor: pointer;
+    padding: 7px 14px;
+    border-radius: 14px;
+    background: rgba(28, 16, 7, 0.72);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(243, 201, 105, 0.45);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(253, 251, 244, 0.25);
+    color: var(--vt-cream);
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-align: center;
+    white-space: nowrap;
+    will-change: transform;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .lineup-item-label:hover {
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #1A0E04;
+    border-color: #FDFBF4;
+  }
+  #app-viewport.compact-ui .lineup-item-label {
+    padding: 5px 9px;
+    font-size: 9.2px;
+    border-radius: 10px;
+    max-width: 148px;
+    white-space: normal;
+    line-height: 1.15;
   }
 
   /* Indicador superior */
@@ -99,7 +161,7 @@
     position: absolute;
     top: 88px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateZ(0);
     background: var(--vt-glass-bg);
     border: 1px solid var(--vt-glass-border);
     color: var(--vt-cream);
@@ -109,10 +171,10 @@
     font-weight: 700;
     letter-spacing: 1.4px;
     z-index: 60;
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-    transition: opacity 0.4s ease;
+    transition: opacity 0.35s ease;
     white-space: nowrap;
     pointer-events: none;
   }
@@ -135,10 +197,11 @@
     align-items: center;
     z-index: 55;
     background: var(--vt-glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     border: 1px solid var(--vt-glass-border);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px var(--vt-glass-highlight);
+    transform: translateZ(0);
   }
 
   /* Logo VANTICK perfectamente encapsulado dentro de la silueta del boleto */
@@ -150,12 +213,12 @@
     min-width: 236px;
     height: 54px;
     padding: 8px 24px 8px 66px;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.55));
-    transition: transform 0.25s ease;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+    transition: transform 0.2s ease;
     flex-shrink: 0;
   }
   .ticket-logo-badge:hover {
-    transform: scale(1.025);
+    transform: scale(1.02);
   }
   .ticket-logo-svg {
     position: absolute;
@@ -215,19 +278,17 @@
     font-weight: 700;
     font-size: 11px;
     letter-spacing: 0.6px;
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    transition: all 0.22s ease;
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
     white-space: nowrap;
   }
   .nav-btn.active, .nav-btn:hover {
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #1A0F05;
     border-color: #FDFBF4;
-    box-shadow: 0 4px 15px rgba(212, 155, 42, 0.4);
+    box-shadow: 0 4px 14px rgba(212, 155, 42, 0.38);
   }
 
-  /* Botón de Carrito en la barra superior (al lado de 2. VISTA 360°) */
+  /* Botón de Carrito en la barra superior (al lado de 2. INFORMACIÓN) */
   .cart-header-btn {
     position: relative;
     display: inline-flex;
@@ -243,17 +304,16 @@
     font-weight: 800;
     font-size: 11px;
     letter-spacing: 0.5px;
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    transition: all 0.22s ease;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
     white-space: nowrap;
+    will-change: transform;
   }
   .cart-header-btn:hover, .cart-header-btn.active {
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #1A0F05;
     border-color: #FDFBF4;
-    box-shadow: 0 4px 18px rgba(243, 201, 105, 0.55);
+    box-shadow: 0 4px 16px rgba(243, 201, 105, 0.52);
   }
   .cart-header-btn svg {
     width: 15px;
@@ -300,7 +360,7 @@
     font-size: 11px;
     letter-spacing: 0.6px;
     box-shadow: 0 4px 14px rgba(140, 94, 20, 0.5);
-    transition: all 0.2s ease;
+    transition: filter 0.18s ease;
     white-space: nowrap;
   }
   .format-btn:hover {
@@ -357,24 +417,25 @@
     font-size: 8.6px;
   }
 
-  /* Controles inferiores del carrusel (Vidrio Esmerilado) */
+  /* Controles inferiores del carrusel (Solo visibles en modo 1. CARRUSEL) */
   #carousel-ui {
     position: absolute;
     bottom: 18px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateZ(0);
     z-index: 55;
     text-align: center;
-    transition: opacity 0.35s ease, transform 0.35s ease;
+    transition: opacity 0.25s ease, transform 0.25s ease;
     width: max-content;
     max-width: 95%;
     background: var(--vt-glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
     padding: 12px 20px;
     border-radius: 24px;
     border: 1px solid var(--vt-glass-border);
     box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65), inset 0 1px 1px var(--vt-glass-highlight);
+    will-change: opacity, transform;
   }
   .banner-row {
     display: flex;
@@ -384,14 +445,14 @@
     margin-bottom: 6px;
   }
   .flavor-banner {
-    background: linear-gradient(135deg, rgba(74, 44, 17, 0.85), rgba(34, 19, 7, 0.92));
+    background: linear-gradient(135deg, rgba(74, 44, 17, 0.88), rgba(34, 19, 7, 0.94));
     padding: 9px 24px;
     transform: skewX(-8deg);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
     cursor: pointer;
     border: 1px solid rgba(243, 201, 105, 0.45);
     border-radius: 8px;
-    transition: transform 0.2s ease, background 0.4s ease;
+    transition: transform 0.18s ease;
     min-width: 240px;
   }
   .flavor-banner:hover {
@@ -415,12 +476,11 @@
     font-size: 17px;
     font-weight: 900;
     cursor: pointer;
-    transition: 0.2s;
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    backdrop-filter: blur(10px);
   }
   .arrow-btn:hover, .arrow-btn:active {
     background: var(--vt-cream);
@@ -471,14 +531,16 @@
     z-index: 50;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.35s ease, transform 0.35s ease;
+    transform: translateZ(0);
+    transition: opacity 0.25s ease;
     background: var(--vt-glass-bg);
-    backdrop-filter: blur(22px) saturate(190%);
-    -webkit-backdrop-filter: blur(22px) saturate(190%);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
     padding: 18px 20px;
     border-radius: 22px;
     border: 1px solid var(--vt-glass-border);
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.65), inset 0 1px 2px var(--vt-glass-highlight);
+    will-change: opacity, transform;
   }
   #detail-panel.visible {
     opacity: 1;
@@ -517,7 +579,7 @@
     box-shadow: 0 0 10px var(--vt-gold-light);
   }
 
-  /* Lista de puntos (INFO y PRECIO) con acabado translúcido */
+  /* Lista de puntos (INFO y PRECIO) */
   .feature-list {
     list-style: none;
     display: flex;
@@ -539,9 +601,7 @@
     font-weight: 700;
     color: var(--vt-cream);
     letter-spacing: 0.3px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: all 0.25s ease;
+    transition: background 0.18s ease, border-color 0.18s ease;
   }
   .menu-info-left {
     display: flex;
@@ -572,7 +632,7 @@
     flex-shrink: 0;
   }
 
-  /* Botón interactivo exclusivo para "1 boleto por $65" (se hace más grande al presionarse) */
+  /* Botón interactivo exclusivo para "1 boleto por $65" */
   .single-ticket-btn-item {
     list-style: none;
     margin-top: 2px;
@@ -593,24 +653,22 @@
     letter-spacing: 0.4px;
     cursor: pointer;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(253, 251, 244, 0.35);
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), padding 0.2s ease, background 0.2s ease;
     text-align: left;
   }
   .single-ticket-cta-btn:hover {
     transform: translateY(-1px);
     border-color: #FDFBF4;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55), 0 0 16px rgba(243, 201, 105, 0.35);
   }
-  /* Cuando el usuario presiona "1 boleto por $65", el botón se hace más grande y destacado */
   .single-ticket-cta-btn.active {
     padding: 14px 16px;
     font-size: 14.5px;
     border-radius: 15px;
-    transform: scale(1.03);
+    transform: scale(1.025);
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 55%, #D49B2A 100%);
     color: #1A0E04;
     border: 2px solid #FDFBF4;
-    box-shadow: 0 10px 28px rgba(243, 201, 105, 0.55), inset 0 1px 2px #FFFFFF;
+    box-shadow: 0 10px 26px rgba(243, 201, 105, 0.5), inset 0 1px 2px #FFFFFF;
     margin: 4px 0 2px;
   }
   .single-btn-left {
@@ -629,7 +687,6 @@
     justify-content: center;
     font-size: 11px;
     flex-shrink: 0;
-    transition: all 0.25s ease;
   }
   .single-ticket-cta-btn.active .single-btn-icon {
     width: 25px;
@@ -650,7 +707,6 @@
     border: 1px solid rgba(243, 201, 105, 0.45);
     text-transform: uppercase;
     white-space: nowrap;
-    transition: all 0.25s ease;
   }
   .single-ticket-cta-btn.active .single-btn-badge {
     background: #1A0E04;
@@ -682,13 +738,12 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 8px 22px rgba(212, 155, 42, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.65);
-    transition: all 0.22s ease;
+    box-shadow: 0 8px 20px rgba(212, 155, 42, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.65);
+    transition: transform 0.16s ease, filter 0.16s ease;
   }
   .add-to-cart-main-btn:hover {
     transform: translateY(-1.5px);
     filter: brightness(1.08);
-    box-shadow: 0 10px 26px rgba(243, 201, 105, 0.55);
   }
   .add-to-cart-main-btn:active {
     transform: translateY(0) scale(0.98);
@@ -700,13 +755,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(22, 12, 4, 0.72);
+    background: rgba(22, 12, 4, 0.78);
     border: 1.5px solid #F3C969;
     border-radius: 13px;
     padding: 4px 6px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(243, 201, 105, 0.3);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(243, 201, 105, 0.3);
   }
   .stepper-side-btn {
     width: 34px;
@@ -721,13 +774,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.18s ease;
+    transition: transform 0.14s ease;
     line-height: 1;
   }
   .stepper-side-btn:hover {
     transform: scale(1.06);
-    filter: brightness(1.08);
-    box-shadow: 0 0 12px rgba(243, 201, 105, 0.6);
   }
   .stepper-side-btn:active {
     transform: scale(0.94);
@@ -768,7 +819,6 @@
     width: 94%;
     top: auto;
     bottom: 10px;
-    transform: none;
     padding: 11px 13px;
     border-radius: 18px;
   }
@@ -801,7 +851,7 @@
     padding: 10px 13px;
     font-size: 12.2px;
     border-radius: 12px;
-    transform: scale(1.02);
+    transform: scale(1.015);
   }
   #app-viewport.compact-ui .single-btn-badge {
     font-size: 7.5px;
@@ -833,19 +883,19 @@
     font-size: 8.5px;
   }
 
-  /* Botones laterales derechos en Vista 360° (INFO y PRECIO en Vidrio Esmerilado) */
+  /* Botones laterales derechos en 2. INFORMACIÓN (INFO y PRECIO en Vidrio Esmerilado) */
   #side-controls {
     position: absolute;
     right: 20px;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-50%) translateZ(0);
     display: flex;
     flex-direction: column;
     gap: 14px;
     z-index: 52;
     opacity: 0;
     pointer-events: none;
-    transition: 0.35s;
+    transition: opacity 0.25s ease;
   }
   #side-controls.visible {
     opacity: 1;
@@ -862,17 +912,17 @@
     font-weight: 800;
     font-size: 10px;
     letter-spacing: 0.8px;
-    transition: all 0.25s ease;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55), inset 0 1px 1px var(--vt-glass-highlight);
   }
   .step-btn.active, .step-btn:hover {
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #1A0F05;
     border-color: #FDFBF4;
-    transform: scale(1.12);
-    box-shadow: 0 0 20px rgba(243, 201, 105, 0.65);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(243, 201, 105, 0.6);
   }
 
   #app-viewport.compact-ui #side-controls {
@@ -887,20 +937,22 @@
   }
 
   /* ============================================================================
-     APARTADO DE CARRITO (RECTÁNGULO VERTICAL TRANSLÚCIDO + FONDO DESENFOCADO)
+     APARTADO DE CARRITO (OPTIMIZADO A 120 FPS CON COMPOSICIÓN GPU)
      ============================================================================ */
   #cart-backdrop {
     position: absolute;
     inset: 0;
     z-index: 80;
-    background: rgba(10, 5, 2, 0.55);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: rgba(10, 5, 2, 0.58);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     opacity: 0;
     pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    will-change: opacity;
+    transform: translateZ(0);
   }
   #cart-backdrop.open {
     pointer-events: auto;
@@ -913,18 +965,18 @@
     height: 530px;
     max-height: 85%;
     border-radius: 26px;
-    background: rgba(36, 22, 10, 0.48);
-    backdrop-filter: blur(26px) saturate(190%);
-    -webkit-backdrop-filter: blur(26px) saturate(190%);
+    background: rgba(36, 22, 10, 0.56);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1.5px solid rgba(253, 251, 244, 0.3);
     box-shadow: 0 25px 65px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(243, 201, 105, 0.35);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transform-origin: center center;
+    will-change: transform, opacity;
   }
 
-  /* Encabezado del Carrito con botón "<- Atrás" */
   .cart-modal-header {
     display: flex;
     align-items: center;
@@ -946,7 +998,7 @@
     font-weight: 800;
     letter-spacing: 0.4px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
   }
   .cart-back-btn:hover {
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
@@ -962,9 +1014,8 @@
     text-transform: uppercase;
   }
 
-  /* Cuerpo central del carrito */
   .cart-modal-body {
-     position: relative;
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -972,7 +1023,6 @@
     overflow: hidden;
   }
 
-  /* Estado vacío ("No hay artículos agregados" + botón "Agregar") */
   #cart-empty-state {
     flex: 1;
     display: flex;
@@ -1008,14 +1058,13 @@
     text-transform: uppercase;
     cursor: pointer;
     box-shadow: 0 8px 22px rgba(212, 155, 42, 0.45);
-    transition: all 0.22s ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
   }
   .cart-empty-add-btn:hover {
     transform: translateY(-2px) scale(1.04);
     box-shadow: 0 10px 26px rgba(243, 201, 105, 0.65);
   }
 
-  /* Lista de artículos en el carrito (scroll dinámico solo si supera el límite visible) */
   #cart-items-list {
     flex: 1;
     display: none;
@@ -1041,7 +1090,6 @@
     border-radius: 10px;
   }
 
-  /* Tarjeta individual de artículo dentro del carrito */
   .cart-item-card {
     display: flex;
     align-items: center;
@@ -1055,6 +1103,7 @@
     flex-shrink: 0;
     transform-origin: center center;
     overflow: hidden;
+    will-change: transform, opacity;
   }
   .cart-item-thumb {
     width: 54px;
@@ -1063,7 +1112,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
   }
   .cart-item-info {
     flex: 1;
@@ -1104,7 +1152,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.18s ease;
+    transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
   }
   .cart-ctrl-btn:hover {
     background: var(--vt-cream);
@@ -1130,7 +1178,6 @@
     fill: none;
   }
 
-  /* Pie del Carrito: Botón "Enviar carrito" a la izquierda + Contador de dinero a la derecha */
   .cart-modal-footer {
     display: flex;
     align-items: center;
@@ -1158,12 +1205,11 @@
     text-transform: uppercase;
     cursor: pointer;
     box-shadow: 0 8px 22px rgba(212, 155, 42, 0.42);
-    transition: all 0.22s ease;
+    transition: transform 0.18s ease, filter 0.18s ease;
     white-space: nowrap;
   }
   .send-whatsapp-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 10px 26px rgba(243, 201, 105, 0.65);
     filter: brightness(1.06);
   }
   .send-whatsapp-btn:disabled {
@@ -1206,7 +1252,7 @@
     line-height: 1.1;
   }
 
-  /* Ajustes del Carrito para Modo Celular 9:16 / Compact UI */
+  /* Ajustes del Carrito para Modo Celular 9:16 */
   #app-viewport.compact-ui #cart-modal {
     width: 90%;
     max-width: 332px;
@@ -1266,7 +1312,7 @@
     font-size: 14.5px;
   }
 
-  /* Boleto 2D volador para la animación de "Agregar al carrito" */
+  /* Boleto 2D volador acelerado por GPU */
   .flying-ticket-token {
     position: absolute;
     left: 0;
@@ -1275,12 +1321,14 @@
     height: 34px;
     z-index: 95;
     pointer-events: none;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px rgba(243, 201, 105, 0.7));
+    will-change: transform;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55));
   }
 </style>
 </head>
 <body>
   <div id="app-viewport">
+    <div id="bg-radial-glow"></div>
     <div id="loader-badge">BOLETOS 3D VANTICK LISTOS</div>
 
     <header>
@@ -1322,8 +1370,7 @@
 
       <div class="header-controls">
         <button class="nav-btn active" data-mode="carousel" onclick="setMode('carousel')">1. CARRUSEL</button>
-        <button class="nav-btn" data-mode="detail" onclick="setMode('detail')">2. VISTA 360°</button>
-        <!-- Nuevo botón de carrito ubicado exactamente al lado de 2. VISTA 360° -->
+        <button class="nav-btn" data-mode="detail" onclick="setMode('detail')">2. INFORMACIÓN</button>
         <button class="cart-header-btn" id="header-cart-btn" title="Ver Carrito de Compras" onclick="toggleCartModal()">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="9" cy="21" r="1.6"></circle>
@@ -1340,7 +1387,10 @@
     <div id="bg-giant-text">VANTICK</div>
     <div id="canvas-container"></div>
 
-    <!-- Barra inferior integrada con flechas + nombre del boleto -->
+    <!-- Nombres de cada artículo en la parte inferior de cada modelo (Exclusivo de 3. COLECCIÓN) -->
+    <div id="lineup-labels-container"></div>
+
+    <!-- Barra inferior del carrusel (Oculta automáticamente en Información y en Colección) -->
     <div id="carousel-ui">
       <div class="banner-row">
         <button class="arrow-btn" title="Boleto Anterior" onclick="changeTicket(-1)">&#8592;</button>
@@ -1367,7 +1417,7 @@
       </div>
     </div>
 
-    <!-- Botones laterales de Vista 360° (Únicamente INFO y PRECIO) -->
+    <!-- Botones laterales de Información (INFO y PRECIO) -->
     <div id="side-controls">
       <button class="step-btn active" title="Información del Boleto" onclick="inspectStep(0)">INFO</button>
       <button class="step-btn" title="Precios Oficiales" onclick="inspectStep(1)">PRECIO</button>
@@ -1382,7 +1432,7 @@
         </div>
 
         <div class="cart-modal-body">
-          <!-- Estado cuando no hay artículos agregados -->
+          <!-- Estado cuando no hay artículos agregados (Botón Agregar vinculado a 3. COLECCIÓN) -->
           <div id="cart-empty-state">
             <svg class="empty-ticket-illust" viewBox="0 0 120 72">
               <path d="M 10,6 H 34 A 6,6 0 0 0 46,6 H 110 A 6,6 0 0 1 116,12 V 24 A 10,10 0 0 0 116,48 V 60 A 6,6 0 0 1 110,66 H 46 A 6,6 0 0 0 34,66 H 10 A 6,6 0 0 1 4,60 V 48 A 10,10 0 0 0 4,24 V 12 A 6,6 0 0 1 10,6 Z"
@@ -1391,7 +1441,7 @@
               <text x="78" y="41" fill="#FDFBF4" font-size="14" font-weight="900" text-anchor="middle" letter-spacing="1.5">VANTICK</text>
             </svg>
             <div class="cart-empty-text">No hay artículos agregados</div>
-            <button type="button" class="cart-empty-add-btn" onclick="goToCarouselFromEmptyCart()">Agregar</button>
+            <button type="button" class="cart-empty-add-btn" onclick="goToCollectionFromEmptyCart()">Agregar</button>
           </div>
 
           <!-- Lista de productos agregados -->
@@ -1416,6 +1466,10 @@
   </div>
 
 <script>
+// Desbloqueo de límite de cuadros en GSAP para pantallas de 120Hz / 144Hz
+gsap.ticker.fps(-1);
+gsap.ticker.lagSmoothing(0);
+
 const INFO_BULLETS = [
   "Disponibles para todo México",
   "Entrega rápida",
@@ -1504,7 +1558,6 @@ const TICKETS = [
   }
 ];
 
-// Mapa rápido de todos los artículos por ID para gestión del carrito
 const SKU_CATALOG = {};
 TICKETS.forEach((t, tIdx) => {
   t.skus.forEach(s => {
@@ -1520,17 +1573,20 @@ TICKETS.forEach((t, tIdx) => {
 
 let currentIndex = 0;
 let currentMode = 'carousel';
-let previousModeBeforeCart = 'carousel';
 let currentStep = 0;
 let isSingleTicket2D = false;
 let isCartOpen = false;
 
-// Estado del carrito: { [skuId]: quantity }
 const cartState = {};
 const moneyCounterAnim = { val: 0 };
 
 const viewport = document.getElementById('app-viewport');
 const container = document.getElementById('canvas-container');
+const bgRadialGlow = document.getElementById('bg-radial-glow');
+const lineupLabelsContainer = document.getElementById('lineup-labels-container');
+
+let cachedVpWidth = window.innerWidth || 360;
+let cachedVpHeight = window.innerHeight || 640;
 
 function getSafeWindowSize() {
   const vw = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 360);
@@ -1553,11 +1609,15 @@ function applyViewportDimensions() {
     viewport.style.width = vw + 'px';
     viewport.style.height = vh + 'px';
     viewport.classList.remove('mobile-frame');
+    cachedVpWidth = vw;
+    cachedVpHeight = vh;
   } else {
     if (nativePortrait) {
       viewport.style.width = vw + 'px';
       viewport.style.height = vh + 'px';
       viewport.classList.remove('mobile-frame');
+      cachedVpWidth = vw;
+      cachedVpHeight = vh;
     } else {
       const availH = Math.max(vh - 12, 320);
       const availW = Math.max(vw - 12, 240);
@@ -1567,8 +1627,10 @@ function applyViewportDimensions() {
         targetW = availW;
         targetH = Math.min(availH, targetW * (16 / 9));
       }
-      viewport.style.width = Math.floor(targetW) + 'px';
-      viewport.style.height = Math.floor(targetH) + 'px';
+      cachedVpWidth = Math.floor(targetW);
+      cachedVpHeight = Math.floor(targetH);
+      viewport.style.width = cachedVpWidth + 'px';
+      viewport.style.height = cachedVpHeight + 'px';
       viewport.classList.add('mobile-frame');
     }
   }
@@ -1588,17 +1650,23 @@ function applyViewportDimensions() {
 
 applyViewportDimensions();
 
-const initW = Math.max(container.clientWidth || getSafeWindowSize().vw, 320);
-const initH = Math.max(container.clientHeight || getSafeWindowSize().vh, 480);
+const initW = Math.max(cachedVpWidth, 320);
+const initH = Math.max(cachedVpHeight, 480);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(36, initW / initH, 0.1, 100);
 camera.position.set(0, 0.15, 11.2);
 const cameraTarget = new THREE.Vector3(0, 0.05, 1.5);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+// WebGLRenderer configurado en modo alto rendimiento para 120 FPS fluidos
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  alpha: true,
+  powerPreference: "high-performance",
+  stencil: false
+});
 renderer.setSize(initW, initH);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -1620,11 +1688,11 @@ scene.add(rimLight);
 
 const pedestalGroup = new THREE.Group();
 const baseMesh = new THREE.Mesh(
-  new THREE.CylinderGeometry(1.18, 1.34, 0.09, 48),
+  new THREE.CylinderGeometry(1.18, 1.34, 0.09, 36),
   new THREE.MeshStandardMaterial({ color: 0x1A0F06, metalness: 0.55, roughness: 0.45 })
 );
 const ringMat = new THREE.MeshBasicMaterial({ color: 0xE5B24C, transparent: true, opacity: 0.65 });
-const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.016, 16, 64), ringMat);
+const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.016, 12, 48), ringMat);
 ringMesh.rotation.x = Math.PI / 2;
 ringMesh.position.y = 0.046;
 pedestalGroup.add(baseMesh, ringMesh);
@@ -1665,14 +1733,16 @@ function drawFilmStripBand(ctx, x, y, width, height, color) {
   ctx.restore();
 }
 
+// Texturas optimizadas con mipmapping para máxima fluidez en GPU móvil/tablet
 function createTicketFrontTexture(ticketData, variantIdx) {
   const c = document.createElement('canvas');
-  c.width = 2048;
-  c.height = 1024;
+  c.width = 1024;
+  c.height = 512;
   const ctx = c.getContext('2d');
+  ctx.scale(0.5, 0.5);
 
-  const W = c.width;
-  const H = c.height;
+  const W = 2048;
+  const H = 1024;
   const stubX = Math.floor(W * 0.28);
 
   const stubGrad = ctx.createLinearGradient(0, 0, stubX, H);
@@ -1771,8 +1841,8 @@ function createTicketFrontTexture(ticketData, variantIdx) {
   titleGrad.addColorStop(1, "#C88A1E");
   ctx.fillStyle = titleGrad;
   ctx.shadowColor = "rgba(0, 0, 0, 0.65)";
-  ctx.shadowBlur = 18;
-  ctx.shadowOffsetY = 6;
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 5;
   ctx.font = '900 185px "Segoe UI", Impact, sans-serif';
   ctx.fillText("VANTICK", centerX, 385);
   ctx.restore();
@@ -1818,11 +1888,13 @@ function createTicketFrontTexture(ticketData, variantIdx) {
 
 function createTicketBackTexture(ticketData) {
   const c = document.createElement('canvas');
-  c.width = 2048;
-  c.height = 1024;
+  c.width = 1024;
+  c.height = 512;
   const ctx = c.getContext('2d');
-  const W = c.width;
-  const H = c.height;
+  ctx.scale(0.5, 0.5);
+
+  const W = 2048;
+  const H = 1024;
 
   const bgGrad = ctx.createLinearGradient(0, 0, W, H);
   bgGrad.addColorStop(0, ticketData.secondaryBrown);
@@ -1909,16 +1981,17 @@ const sharedTicketShape = createCinemaTicketShape(TICKET_W, TICKET_H);
 const sharedExtrudeGeo = new THREE.ExtrudeGeometry(sharedTicketShape, {
   depth: TICKET_DEPTH,
   bevelEnabled: true,
-  bevelSegments: 4,
+  bevelSegments: 2,
   steps: 1,
   bevelSize: 0.008,
-  bevelThickness: BEVEL_THICK
+  bevelThickness: BEVEL_THICK,
+  curveSegments: 14
 });
 sharedExtrudeGeo.translate(0, 0, -TICKET_DEPTH / 2);
 sharedExtrudeGeo.computeVertexNormals();
 
 function createNormalizedFaceGeometry(shape, w, h) {
-  const geo = new THREE.ShapeGeometry(shape, 24);
+  const geo = new THREE.ShapeGeometry(shape, 14);
   const pos = geo.attributes.position;
   const uvs = new Float32Array(pos.count * 2);
   for (let i = 0; i < pos.count; i++) {
@@ -1933,15 +2006,10 @@ function createNormalizedFaceGeometry(shape, w, h) {
 
 const sharedFaceGeo = createNormalizedFaceGeometry(sharedTicketShape, TICKET_W, TICKET_H);
 
-function createSingle3DTicket(ticketData, variantIdx) {
+function createSingle3DTicket(ticketData, variantIdx, sharedBackMat, sharedRimMat) {
   const singleGroup = new THREE.Group();
 
-  const rimMat = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(ticketData.foilGold),
-    roughness: 0.30,
-    metalness: 0.68
-  });
-  const bodyMesh = new THREE.Mesh(sharedExtrudeGeo, rimMat);
+  const bodyMesh = new THREE.Mesh(sharedExtrudeGeo, sharedRimMat);
   singleGroup.add(bodyMesh);
 
   const zOffset = TICKET_DEPTH / 2 + BEVEL_THICK + 0.0015;
@@ -1955,12 +2023,7 @@ function createSingle3DTicket(ticketData, variantIdx) {
   frontMesh.position.z = zOffset;
   singleGroup.add(frontMesh);
 
-  const backMat = new THREE.MeshStandardMaterial({
-    map: createTicketBackTexture(ticketData),
-    roughness: 0.42,
-    metalness: 0.18
-  });
-  const backMesh = new THREE.Mesh(sharedFaceGeo, backMat);
+  const backMesh = new THREE.Mesh(sharedFaceGeo, sharedBackMat);
   backMesh.rotation.y = Math.PI;
   backMesh.position.z = -zOffset;
   singleGroup.add(backMesh);
@@ -1972,8 +2035,24 @@ function createTicketPairGroup(ticketData, idx) {
   const rootGroup = new THREE.Group();
   rootGroup.userData = { ticketIndex: idx };
 
-  const ticketA = createSingle3DTicket(ticketData, 1);
-  const ticketB = createSingle3DTicket(ticketData, 2);
+  // Contenedor hijo dedicado exclusivamente a la levitación suave para no chocar con GSAP
+  const floatWrapper = new THREE.Group();
+  rootGroup.add(floatWrapper);
+
+  // Materiales compartidos entre el par de boletos para reducir llamadas de estado en GPU
+  const sharedRimMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(ticketData.foilGold),
+    roughness: 0.30,
+    metalness: 0.68
+  });
+  const sharedBackMat = new THREE.MeshStandardMaterial({
+    map: createTicketBackTexture(ticketData),
+    roughness: 0.42,
+    metalness: 0.18
+  });
+
+  const ticketA = createSingle3DTicket(ticketData, 1, sharedBackMat, sharedRimMat);
+  const ticketB = createSingle3DTicket(ticketData, 2, sharedBackMat, sharedRimMat);
 
   ticketA.position.set(0.10, -0.14, 0.065);
   ticketA.rotation.set(0.02, 0.04, -0.09);
@@ -1981,9 +2060,10 @@ function createTicketPairGroup(ticketData, idx) {
   ticketB.position.set(-0.14, 0.18, -0.065);
   ticketB.rotation.set(-0.02, -0.05, 0.12);
 
-  rootGroup.add(ticketB);
-  rootGroup.add(ticketA);
+  floatWrapper.add(ticketB);
+  floatWrapper.add(ticketA);
 
+  rootGroup.userData.floatWrapper = floatWrapper;
   rootGroup.userData.ticketA = ticketA;
   rootGroup.userData.ticketB = ticketB;
 
@@ -1993,7 +2073,46 @@ function createTicketPairGroup(ticketData, idx) {
 
 const ticketModels = TICKETS.map((data, idx) => createTicketPairGroup(data, idx));
 
-function animateTicketPairPose(group, modePose, dur = 0.75) {
+// Creación de las 4 etiquetas inferiores para el modo 3. COLECCIÓN
+const lineupLabelElements = TICKETS.map((data, idx) => {
+  const lbl = document.createElement('div');
+  lbl.className = 'lineup-item-label';
+  lbl.textContent = data.name;
+  lbl.onclick = (e) => {
+    e.stopPropagation();
+    selectTicketFromLineup(idx);
+  };
+  lineupLabelsContainer.appendChild(lbl);
+  return lbl;
+});
+
+function selectTicketFromLineup(idx) {
+  if (currentMode !== 'lineup') return;
+  currentIndex = idx;
+  currentStep = 0;
+  setMode('detail');
+}
+
+const projVec = new THREE.Vector3();
+function updateLineupLabelsScreenPositions() {
+  if (currentMode !== 'lineup') return;
+  const useCompact = isCompactView();
+  const yOffset = useCompact ? -0.46 : -0.66;
+
+  for (let i = 0; i < ticketModels.length; i++) {
+    const item = ticketModels[i];
+    const lbl = lineupLabelElements[i];
+    projVec.set(item.position.x, item.position.y + yOffset, item.position.z);
+    projVec.project(camera);
+
+    const sx = (projVec.x * 0.5 + 0.5) * cachedVpWidth;
+    const sy = (-(projVec.y * 0.5) + 0.5) * cachedVpHeight;
+
+    lbl.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, -50%)`;
+  }
+}
+
+function animateTicketPairPose(group, modePose, dur = 0.52) {
   const { ticketA, ticketB } = group.userData;
   if (!ticketA || !ticketB) return;
 
@@ -2002,15 +2121,15 @@ function animateTicketPairPose(group, modePose, dur = 0.75) {
   if (modePose === 'single') {
     gsap.to(ticketA.position, { x: 0.0, y: 0.02, z: 0.12, duration: dur, ease: "expo.out", overwrite: "auto" });
     gsap.to(ticketA.rotation, { x: 0.02, y: -0.08, z: -0.02, duration: dur, ease: "expo.out", overwrite: "auto" });
-    gsap.to(ticketA.scale, { x: 1.07, y: 1.07, z: 1.07, duration: dur, ease: "back.out(1.4)", overwrite: "auto" });
+    gsap.to(ticketA.scale, { x: 1.07, y: 1.07, z: 1.07, duration: dur, ease: "back.out(1.35)", overwrite: "auto" });
 
-    gsap.to(ticketB.position, { x: 0.0, y: 0.02, z: 0.04, duration: dur * 0.72, ease: "expo.inOut", overwrite: "auto" });
-    gsap.to(ticketB.rotation, { x: 0.02, y: -0.08, z: -0.02, duration: dur * 0.72, ease: "expo.inOut", overwrite: "auto" });
+    gsap.to(ticketB.position, { x: 0.0, y: 0.02, z: 0.04, duration: dur * 0.68, ease: "expo.inOut", overwrite: "auto" });
+    gsap.to(ticketB.rotation, { x: 0.02, y: -0.08, z: -0.02, duration: dur * 0.68, ease: "expo.inOut", overwrite: "auto" });
     gsap.to(ticketB.scale, {
       x: 0.001,
       y: 0.001,
       z: 0.001,
-      duration: dur * 0.75,
+      duration: dur * 0.7,
       ease: "power3.inOut",
       overwrite: "auto",
       onComplete: () => {
@@ -2021,13 +2140,13 @@ function animateTicketPairPose(group, modePose, dur = 0.75) {
     });
   } else if (modePose === 'price') {
     ticketB.visible = true;
-    gsap.to(ticketA.position, { x: 0.28, y: -0.32, z: 0.22, duration: dur, ease: "back.out(1.4)", overwrite: "auto" });
+    gsap.to(ticketA.position, { x: 0.28, y: -0.32, z: 0.22, duration: dur, ease: "back.out(1.35)", overwrite: "auto" });
     gsap.to(ticketA.rotation, { x: 0.10, y: -0.22, z: -0.20, duration: dur, ease: "expo.out", overwrite: "auto" });
     gsap.to(ticketA.scale, { x: 1.0, y: 1.0, z: 1.0, duration: dur, ease: "power3.out", overwrite: "auto" });
 
-    gsap.to(ticketB.position, { x: -0.28, y: 0.34, z: -0.14, duration: dur, ease: "back.out(1.4)", overwrite: "auto" });
+    gsap.to(ticketB.position, { x: -0.28, y: 0.34, z: -0.14, duration: dur, ease: "back.out(1.35)", overwrite: "auto" });
     gsap.to(ticketB.rotation, { x: -0.08, y: 0.20, z: 0.22, duration: dur, ease: "expo.out", overwrite: "auto" });
-    gsap.to(ticketB.scale, { x: 1.0, y: 1.0, z: 1.0, duration: dur, ease: "back.out(1.3)", overwrite: "auto" });
+    gsap.to(ticketB.scale, { x: 1.0, y: 1.0, z: 1.0, duration: dur, ease: "back.out(1.25)", overwrite: "auto" });
   } else {
     ticketB.visible = true;
     gsap.to(ticketA.position, { x: 0.10, y: -0.14, z: 0.065, duration: dur, ease: "power3.out", overwrite: "auto" });
@@ -2040,7 +2159,6 @@ function animateTicketPairPose(group, modePose, dur = 0.75) {
   }
 }
 
-// Alterna entre 1 solo boleto ($65) y 2 boletos ($125) en Sala 2D
 function toggleSingleTicket2D(forceState) {
   if (currentIndex !== 0 || currentMode !== 'detail' || currentStep !== 1) return;
 
@@ -2052,24 +2170,24 @@ function toggleSingleTicket2D(forceState) {
   const baseY = useCompact ? 0.78 : 0.14;
 
   if (isSingleTicket2D) {
-    animateTicketPairPose(item, 'single', 0.8);
+    animateTicketPairPose(item, 'single', 0.55);
     const targetCamZ = useCompact ? 11.2 : 9.15;
-    gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.85, ease: "expo.out", overwrite: "auto" });
-    gsap.to(item.position, { y: baseY + 0.05, duration: 0.8, ease: "expo.out", overwrite: "auto" });
-    gsap.to(camera.position, { z: targetCamZ, duration: 0.8, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY + 0.05, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
   } else {
-    animateTicketPairPose(item, 'price', 0.8);
+    animateTicketPairPose(item, 'price', 0.55);
     const targetCamZ = useCompact ? 11.8 : 9.6;
-    gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.85, ease: "back.out(1.35)", overwrite: "auto" });
-    gsap.to(item.position, { y: baseY + 0.08, duration: 0.8, ease: "expo.out", overwrite: "auto" });
-    gsap.to(camera.position, { z: targetCamZ, duration: 0.8, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.58, ease: "back.out(1.3)", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY + 0.08, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
   }
 }
 
 setTimeout(() => {
   const badge = document.getElementById('loader-badge');
   if (badge) badge.style.opacity = '0';
-}, 1400);
+}, 1100);
 
 function toggleScreenFormat() {
   isMobileFormat = !isMobileFormat;
@@ -2078,10 +2196,10 @@ function toggleScreenFormat() {
   const start = performance.now();
   function syncCanvas(now) {
     handleResize();
-    if (now - start < 520) requestAnimationFrame(syncCanvas);
+    if (now - start < 400) requestAnimationFrame(syncCanvas);
   }
   requestAnimationFrame(syncCanvas);
-  updatePositions(0.6);
+  updatePositions(0.45);
 }
 
 function getBaseScale(isFront) {
@@ -2090,17 +2208,18 @@ function getBaseScale(isFront) {
   if (currentMode === 'detail') {
     return useCompact ? 0.64 : 0.90;
   } else if (currentMode === 'lineup') {
-    return useCompact ? 0.48 : 0.68;
+    return useCompact ? 0.46 : 0.66;
   } else {
     return isFront ? (useCompact ? 0.66 : 0.88) : (useCompact ? 0.40 : 0.58);
   }
 }
 
-function updatePositions(dur = 0.8) {
+function updatePositions(dur = 0.52) {
   const tData = TICKETS[currentIndex];
   document.getElementById('flavor-name').textContent = tData.name;
   document.getElementById('flavor-banner').style.background = tData.bannerBg;
   document.getElementById('brand-sub').style.color = tData.accent;
+  if (bgRadialGlow) bgRadialGlow.style.color = tData.bgRadial;
   ringMat.color.set(tData.accent);
   rimLight.color.set(tData.accent);
 
@@ -2108,23 +2227,15 @@ function updatePositions(dur = 0.8) {
   camera.fov = useCompact ? 45 : 36;
   camera.updateProjectionMatrix();
 
-  const hintEl = document.getElementById('inspect-hint');
-  if (hintEl) {
-    hintEl.textContent = currentMode === 'lineup'
-      ? "TOCA CUALQUIER BOLETO DE LA COLECCIÓN PARA ABRIR SU INFO EN 360°"
-      : "TOCA LAS FLECHAS PARA CAMBIAR O LOS BOLETOS PARA INSPECCIONAR";
-  }
-
   if (currentMode === 'carousel') {
     isSingleTicket2D = false;
-    container.style.background = `radial-gradient(circle at 50% 42%, ${tData.bgRadial} 0%, #0B0603 78%)`;
     const pedScale = useCompact ? 0.62 : 0.88;
-    gsap.to(pedestalGroup.scale, { x: pedScale, y: pedScale, z: pedScale, duration: 0.5, overwrite: "auto" });
+    gsap.to(pedestalGroup.scale, { x: pedScale, y: pedScale, z: pedScale, duration: 0.4, overwrite: "auto" });
     gsap.to(pedestalGroup.position, {
       x: 0,
       y: useCompact ? -0.95 : -1.22,
       z: useCompact ? 2.0 : 2.6,
-      duration: 0.5,
+      duration: 0.4,
       overwrite: "auto"
     });
     gsap.to(camera.position, {
@@ -2132,7 +2243,7 @@ function updatePositions(dur = 0.8) {
       y: 0.15,
       z: useCompact ? 13.5 : 11.2,
       duration: dur,
-      ease: "power3.out",
+      ease: "expo.out",
       overwrite: "auto"
     });
 
@@ -2151,7 +2262,7 @@ function updatePositions(dur = 0.8) {
         y: front ? (useCompact ? 0.16 : 0.10) : (useCompact ? 0.30 : 0.25),
         z: Math.cos(ang) * radiusZ,
         duration: dur,
-        ease: "power3.out",
+        ease: "expo.out",
         overwrite: "auto"
       });
       gsap.to(item.rotation, {
@@ -2159,7 +2270,7 @@ function updatePositions(dur = 0.8) {
         y: -ang * 0.65,
         z: 0,
         duration: dur,
-        ease: "power3.out",
+        ease: "expo.out",
         overwrite: "auto"
       });
       gsap.to(item.scale, {
@@ -2167,13 +2278,12 @@ function updatePositions(dur = 0.8) {
         y: sc,
         z: sc,
         duration: dur,
-        ease: "power3.out",
+        ease: "expo.out",
         overwrite: "auto"
       });
     });
   } else if (currentMode === 'detail') {
-    container.style.background = `radial-gradient(circle at 50% 40%, ${tData.bgRadial} 0%, #090502 88%)`;
-    gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, overwrite: "auto" });
+    gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.3, overwrite: "auto" });
 
     ticketModels.forEach((item, i) => {
       if (i === currentIndex) {
@@ -2181,42 +2291,41 @@ function updatePositions(dur = 0.8) {
         const targetY = useCompact ? 0.78 : 0.14;
         const targetZ = useCompact ? 3.8 : 4.35;
         const sc = getBaseScale(true);
-        gsap.to(item.position, { x: targetX, y: targetY, z: targetZ, duration: dur, ease: "power3.out", overwrite: "auto" });
-        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "power3.out", overwrite: "auto" });
+        gsap.to(item.position, { x: targetX, y: targetY, z: targetZ, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "expo.out", overwrite: "auto" });
       } else {
-        animateTicketPairPose(item, 'default', 0.4);
-        gsap.to(item.position, { x: (i - currentIndex) * 6.5, y: -8.0, z: -4, duration: 0.5, overwrite: "auto" });
+        animateTicketPairPose(item, 'default', 0.35);
+        gsap.to(item.position, { x: (i - currentIndex) * 6.5, y: -8.0, z: -4, duration: 0.4, overwrite: "auto" });
       }
     });
     inspectStep(currentStep);
   } else if (currentMode === 'lineup') {
     isSingleTicket2D = false;
-    container.style.background = `radial-gradient(circle at 50% 48%, ${tData.bgRadial} 0%, #090502 85%)`;
-    gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, overwrite: "auto" });
-    gsap.to(camera.position, { x: 0, y: 0.15, z: useCompact ? 13.4 : 11.4, duration: dur, ease: "power3.out", overwrite: "auto" });
+    gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.3, overwrite: "auto" });
+    gsap.to(camera.position, { x: 0, y: 0.15, z: useCompact ? 13.4 : 11.4, duration: dur, ease: "expo.out", overwrite: "auto" });
 
     const sc = getBaseScale(false);
     if (useCompact) {
       const coords = [
-        { x: -0.82, y: 0.75, z: 1.8 },
-        { x: 0.82, y: 0.75, z: 1.8 },
-        { x: -0.82, y: -0.68, z: 1.8 },
-        { x: 0.82, y: -0.68, z: 1.8 }
+        { x: -0.82, y: 0.84, z: 1.8 },
+        { x: 0.82, y: 0.84, z: 1.8 },
+        { x: -0.82, y: -0.58, z: 1.8 },
+        { x: 0.82, y: -0.58, z: 1.8 }
       ];
       ticketModels.forEach((item, i) => {
         animateTicketPairPose(item, 'default', dur);
-        gsap.to(item.position, { x: coords[i].x, y: coords[i].y, z: coords[i].z, duration: dur, ease: "back.out(1.15)", overwrite: "auto" });
-        gsap.to(item.rotation, { x: 0.04, y: -0.14, z: 0, duration: dur, ease: "power3.out", overwrite: "auto" });
-        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, overwrite: "auto" });
+        gsap.to(item.position, { x: coords[i].x, y: coords[i].y, z: coords[i].z, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.rotation, { x: 0.04, y: -0.14, z: 0, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "expo.out", overwrite: "auto" });
       });
     } else {
-      const spacing = 2.15;
+      const spacing = 2.18;
       const startX = -((ticketModels.length - 1) * spacing) / 2;
       ticketModels.forEach((item, i) => {
         animateTicketPairPose(item, 'default', dur);
-        gsap.to(item.position, { x: startX + i * spacing, y: 0.12, z: 2.0, duration: dur, ease: "back.out(1.15)", overwrite: "auto" });
-        gsap.to(item.rotation, { x: 0.04, y: -0.15, z: 0, duration: dur, ease: "power3.out", overwrite: "auto" });
-        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, overwrite: "auto" });
+        gsap.to(item.position, { x: startX + i * spacing, y: 0.22, z: 2.0, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.rotation, { x: 0.04, y: -0.15, z: 0, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "expo.out", overwrite: "auto" });
       });
     }
   }
@@ -2225,7 +2334,7 @@ function updatePositions(dur = 0.8) {
 function changeTicket(dir) {
   isSingleTicket2D = false;
   currentIndex = (currentIndex + dir + ticketModels.length) % ticketModels.length;
-  updatePositions(0.75);
+  updatePositions(0.48);
 }
 
 function setMode(m) {
@@ -2240,17 +2349,22 @@ function setMode(m) {
     b.classList.toggle('active', b.getAttribute('data-mode') === m);
   });
 
-  document.getElementById('carousel-ui').style.opacity = m === 'detail' ? '0' : '1';
-  document.getElementById('carousel-ui').style.pointerEvents = m === 'detail' ? 'none' : 'auto';
+  // El menú inferior (#carousel-ui) solo se muestra en 1. CARRUSEL y se oculta en Información y Colección
+  const showCarouselUI = (m === 'carousel');
+  document.getElementById('carousel-ui').style.opacity = showCarouselUI ? '1' : '0';
+  document.getElementById('carousel-ui').style.pointerEvents = showCarouselUI ? 'auto' : 'none';
+
+  // Las etiquetas debajo de cada boleto solo se muestran en 3. COLECCIÓN
+  lineupLabelsContainer.classList.toggle('visible', m === 'lineup');
+
   document.getElementById('detail-panel').classList.toggle('visible', m === 'detail');
   document.getElementById('side-controls').classList.toggle('visible', m === 'detail');
   document.getElementById('bg-giant-text').style.opacity = m === 'lineup' ? '1' : '0';
-  document.getElementById('bg-giant-text').style.transform = m === 'lineup' ? 'scale(1)' : 'scale(0.9)';
+  document.getElementById('bg-giant-text').style.transform = m === 'lineup' ? 'scale(1) translateZ(0)' : 'scale(0.92) translateZ(0)';
 
-  updatePositions(0.8);
+  updatePositions(0.52);
 }
 
-// Genera el HTML del botón "Agregar al carrito" o el selector [- cantidad +] según el estado del SKU
 function createAddOrStepperHTML(skuId) {
   const qty = cartState[skuId] || 0;
   if (qty <= 0) {
@@ -2272,7 +2386,6 @@ function createAddOrStepperHTML(skuId) {
   }
 }
 
-// Renderiza el contenido de la tarjeta izquierda (INFO o PRECIO)
 function renderDetailPanelContent(animateTransition = true) {
   const ticketData = TICKETS[currentIndex];
   const tagEl = document.getElementById('detail-tag');
@@ -2297,8 +2410,6 @@ function renderDetailPanelContent(animateTransition = true) {
     });
   } else {
     if (currentIndex === 0) {
-      // Estructura especial para Boletos a sala 2D:
-      // 1. Precio de 2 boletos por $125
       const liPairPrice = document.createElement('li');
       liPairPrice.className = 'menu-info-item clickable-pair';
       liPairPrice.title = "Seleccionar paquete de 2 boletos";
@@ -2314,7 +2425,6 @@ function renderDetailPanelContent(animateTransition = true) {
       `;
       listEl.appendChild(liPairPrice);
 
-      // 2. Si NO está presionado el botón de 1 solo boleto, aparece aquí "Agregar al carrito" para los 2 boletos
       if (!isSingleTicket2D) {
         const liPairAdd = document.createElement('li');
         liPairAdd.className = 'add-to-cart-row';
@@ -2322,7 +2432,6 @@ function renderDetailPanelContent(animateTransition = true) {
         listEl.appendChild(liPairAdd);
       }
 
-      // 3. Botón de "1 boleto por $65" (se hace más grande cuando isSingleTicket2D es true)
       const liSingleBtn = document.createElement('li');
       liSingleBtn.className = 'single-ticket-btn-item';
       liSingleBtn.innerHTML = `
@@ -2336,7 +2445,6 @@ function renderDetailPanelContent(animateTransition = true) {
       `;
       listEl.appendChild(liSingleBtn);
 
-      // 4. Si el usuario presionó "1 boleto por $65", aparece debajo la opción "Agregar al carrito" para este único boleto
       if (isSingleTicket2D) {
         const liSingleAdd = document.createElement('li');
         liSingleAdd.className = 'add-to-cart-row';
@@ -2344,7 +2452,6 @@ function renderDetailPanelContent(animateTransition = true) {
         listEl.appendChild(liSingleAdd);
       }
     } else {
-      // Resto de boletos (VIP 2D, 3D/PLUUS, 4DX/Macro XE/IMAX)
       const skuObj = ticketData.skus[0];
       const liPrice = document.createElement('li');
       liPrice.className = 'menu-info-item';
@@ -2365,11 +2472,10 @@ function renderDetailPanelContent(animateTransition = true) {
 
   if (animateTransition) {
     const panelElements = [tagEl, titleEl, listEl];
-    gsap.fromTo(panelElements, { opacity: 0.25, x: -8 }, { opacity: 1, x: 0, duration: 0.32, stagger: 0.04, overwrite: "auto" });
+    gsap.fromTo(panelElements, { opacity: 0.3, x: -6 }, { opacity: 1, x: 0, duration: 0.24, stagger: 0.03, overwrite: "auto" });
   }
 }
 
-// Inspección de los 2 submenús en Vista 360°: 0 = INFO, 1 = PRECIO
 function inspectStep(s) {
   if (s === 0) isSingleTicket2D = false;
   currentStep = s;
@@ -2384,24 +2490,24 @@ function inspectStep(s) {
   const baseY = useCompact ? 0.78 : 0.14;
 
   if (s === 0) {
-    animateTicketPairPose(item, 'default', 0.75);
+    animateTicketPairPose(item, 'default', 0.52);
     const targetCamZ = useCompact ? 12.6 : 10.4;
-    gsap.to(item.rotation, { x: 0.04, y: -0.16, z: 0.0, duration: 0.85, ease: "expo.out", overwrite: "auto" });
-    gsap.to(item.position, { y: baseY, duration: 0.85, ease: "expo.out", overwrite: "auto" });
-    gsap.to(camera.position, { z: targetCamZ, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.rotation, { x: 0.04, y: -0.16, z: 0.0, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
   } else {
     if (currentIndex === 0 && isSingleTicket2D) {
-      animateTicketPairPose(item, 'single', 0.8);
+      animateTicketPairPose(item, 'single', 0.52);
       const targetCamZ = useCompact ? 11.2 : 9.15;
-      gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.85, ease: "expo.out", overwrite: "auto" });
-      gsap.to(item.position, { y: baseY + 0.05, duration: 0.85, ease: "expo.out", overwrite: "auto" });
-      gsap.to(camera.position, { z: targetCamZ, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+      gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+      gsap.to(item.position, { y: baseY + 0.05, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+      gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     } else {
-      animateTicketPairPose(item, 'price', 0.85);
+      animateTicketPairPose(item, 'price', 0.55);
       const targetCamZ = useCompact ? 11.8 : 9.6;
-      gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.9, ease: "back.out(1.35)", overwrite: "auto" });
-      gsap.to(item.position, { y: baseY + 0.08, duration: 0.85, ease: "expo.out", overwrite: "auto" });
-      gsap.to(camera.position, { z: targetCamZ, duration: 0.85, ease: "expo.out", overwrite: "auto" });
+      gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.58, ease: "back.out(1.3)", overwrite: "auto" });
+      gsap.to(item.position, { y: baseY + 0.08, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+      gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     }
   }
 }
@@ -2433,8 +2539,8 @@ function updateCartHeaderBadge(pulse = false) {
   if (pulse) {
     gsap.fromTo(
       cartBtn,
-      { scale: 1.22 },
-      { scale: 1.0, duration: 0.42, ease: "elastic.out(1.2, 0.4)", overwrite: "auto" }
+      { scale: 1.2 },
+      { scale: 1.0, duration: 0.34, ease: "back.out(2)", overwrite: "auto" }
     );
   }
 }
@@ -2450,7 +2556,7 @@ function animateCartTotalMoney() {
 
   gsap.to(moneyCounterAnim, {
     val: targetTotal,
-    duration: 0.45,
+    duration: 0.32,
     ease: "power2.out",
     overwrite: "auto",
     onUpdate: () => {
@@ -2461,7 +2567,6 @@ function animateCartTotalMoney() {
   });
 }
 
-// Genera el SVG 2D de la silueta del boleto para el carrito y la animación de vuelo
 function build2DTicketThumbSVG(sku, isFlying = false) {
   const gradId = `thumbGrad_${sku.id}_${isFlying ? 'fly' : 'list'}`;
   const secondTicketLayer = !sku.isSingle
@@ -2490,7 +2595,6 @@ function build2DTicketThumbSVG(sku, isFlying = false) {
   `;
 }
 
-// Animación fluida del pequeño boleto de cine viajando rápido hacia el botón de carrito superior
 function spawnFlyingTicketToCart(skuId, sourceElement) {
   const sku = SKU_CATALOG[skuId];
   const cartBtn = document.getElementById('header-cart-btn');
@@ -2514,21 +2618,21 @@ function spawnFlyingTicketToCart(skuId, sourceElement) {
   viewport.appendChild(flyer);
 
   const motion = { t: 0 };
-  const ctrlX = (startX + endX) * 0.5 - 60;
-  const ctrlY = Math.min(startY, endY) - 90;
+  const ctrlX = (startX + endX) * 0.5 - 50;
+  const ctrlY = Math.min(startY, endY) - 75;
 
   gsap.set(flyer, { x: startX, y: startY, scale: 0.85, rotation: -12, opacity: 1 });
 
   gsap.to(motion, {
     t: 1,
-    duration: 0.56,
+    duration: 0.44,
     ease: "power2.inOut",
     onUpdate: () => {
       const p = motion.t;
       const inv = 1 - p;
       const curX = inv * inv * startX + 2 * inv * p * ctrlX + p * p * endX;
       const curY = inv * inv * startY + 2 * inv * p * ctrlY + p * p * endY;
-      const sc = p < 0.4 ? 0.85 + p * 0.8 : 1.17 - (p - 0.4) * 1.35;
+      const sc = p < 0.4 ? 0.85 + p * 0.75 : 1.15 - (p - 0.4) * 1.35;
       const rot = -12 + p * 372;
       gsap.set(flyer, { x: curX, y: curY, scale: Math.max(0.25, sc), rotation: rot });
     },
@@ -2568,7 +2672,6 @@ function changeSkuQtyFromDetail(skuId, delta, btnEl) {
   if (isCartOpen) renderCartItemsList();
 }
 
-// Verifica si los items superan el límite visible del menú del carrito para activar o bloquear el scroll vertical
 function updateCartScrollLock() {
   const listEl = document.getElementById('cart-items-list');
   if (!listEl || listEl.style.display === 'none') return;
@@ -2656,7 +2759,6 @@ function changeSkuQtyFromCart(skuId, delta) {
   }
 }
 
-// Animación especial cuando se decide eliminar un artículo del carrito
 function removeSkuFromCartAnimated(skuId) {
   const cardEl = document.getElementById(`cart-card-${skuId}`);
   if (!cardEl) {
@@ -2686,15 +2788,15 @@ function removeSkuFromCartAnimated(skuId) {
     borderColor: '#F87171',
     backgroundColor: 'rgba(220, 38, 38, 0.24)',
     scale: 0.96,
-    x: -7,
-    duration: 0.12,
+    x: -6,
+    duration: 0.1,
     ease: "power2.out"
   })
   .to(cardEl, {
-    x: 110,
-    rotationZ: 4,
+    x: 95,
+    rotationZ: 3,
     opacity: 0,
-    duration: 0.25,
+    duration: 0.2,
     ease: "power3.in"
   })
   .to(cardEl, {
@@ -2704,12 +2806,11 @@ function removeSkuFromCartAnimated(skuId) {
     marginTop: 0,
     marginBottom: -10,
     borderWidth: 0,
-    duration: 0.2,
+    duration: 0.16,
     ease: "power2.inOut"
   });
 }
 
-// Calcula el desplazamiento entre el botón de carrito superior y el centro del viewport para la animación expansiva
 function getCartButtonOffsetFromCenter() {
   const cartBtn = document.getElementById('header-cart-btn');
   const vpRect = viewport.getBoundingClientRect();
@@ -2719,19 +2820,15 @@ function getCartButtonOffsetFromCenter() {
   const btnCenterX = btnRect.left - vpRect.left + btnRect.width / 2;
   const btnCenterY = btnRect.top - vpRect.top + btnRect.height / 2;
 
-  const vpCenterX = vpRect.width / 2;
-  const vpCenterY = vpRect.height / 2;
-
   return {
-    dx: btnCenterX - vpCenterX,
-    dy: btnCenterY - vpCenterY
+    dx: btnCenterX - vpRect.width / 2,
+    dy: btnCenterY - vpRect.height / 2
   };
 }
 
 function openCartModal() {
   if (isCartOpen) return;
   isCartOpen = true;
-  previousModeBeforeCart = currentMode;
 
   const backdrop = document.getElementById('cart-backdrop');
   const modal = document.getElementById('cart-modal');
@@ -2744,18 +2841,17 @@ function openCartModal() {
   const { dx, dy } = getCartButtonOffsetFromCenter();
 
   gsap.killTweensOf([backdrop, modal]);
-  gsap.to(backdrop, { opacity: 1, duration: 0.32, ease: "power2.out" });
+  gsap.to(backdrop, { opacity: 1, duration: 0.22, ease: "power2.out" });
 
-  // Animación donde el menú se expande desde el botón de carrito hasta el rectángulo vertical central
+  // Expansión acelerada por GPU (únicamente transform y opacity para mantener 120 FPS)
   gsap.fromTo(
     modal,
     {
       x: dx,
       y: dy,
-      scaleX: 0.12,
-      scaleY: 0.08,
-      opacity: 0.15,
-      borderRadius: "48px"
+      scaleX: 0.14,
+      scaleY: 0.09,
+      opacity: 0.15
     },
     {
       x: 0,
@@ -2763,8 +2859,7 @@ function openCartModal() {
       scaleX: 1,
       scaleY: 1,
       opacity: 1,
-      borderRadius: isCompactView() ? "22px" : "26px",
-      duration: 0.5,
+      duration: 0.38,
       ease: "expo.out",
       onComplete: updateCartScrollLock
     }
@@ -2791,14 +2886,14 @@ function closeCartModal(instant = false) {
 
   const { dx, dy } = getCartButtonOffsetFromCenter();
 
-  gsap.to(backdrop, { opacity: 0, duration: 0.3, ease: "power2.inOut" });
+  gsap.to(backdrop, { opacity: 0, duration: 0.22, ease: "power2.inOut" });
   gsap.to(modal, {
     x: dx,
     y: dy,
-    scaleX: 0.12,
-    scaleY: 0.08,
+    scaleX: 0.14,
+    scaleY: 0.09,
     opacity: 0,
-    duration: 0.34,
+    duration: 0.26,
     ease: "power3.inOut"
   });
 }
@@ -2817,15 +2912,14 @@ function handleBackdropClick(e) {
   }
 }
 
-// Redirecciona al carrusel cuando el usuario presiona "Agregar" desde el carrito vacío
-function goToCarouselFromEmptyCart() {
+// El botón "Agregar" del carrito vacío ahora redirige directamente a 3. COLECCIÓN
+function goToCollectionFromEmptyCart() {
   closeCartModal(false);
-  if (currentMode !== 'carousel') {
-    setMode('carousel');
+  if (currentMode !== 'lineup') {
+    setMode('lineup');
   }
 }
 
-// Envía el carrito completo a la cuenta oficial de WhatsApp Business de VANTICK
 function sendCartToWhatsApp() {
   const entries = Object.entries(cartState).filter(([, q]) => q > 0);
   if (entries.length === 0) return;
@@ -2849,7 +2943,6 @@ function sendCartToWhatsApp() {
   window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 }
 
-// Interacción táctil y clic con Raycaster (funciona en CARRUSEL y en COLECCIÓN)
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let touchStartX = 0;
@@ -2858,7 +2951,7 @@ let touchStartY = 0;
 container.addEventListener('pointerdown', (e) => {
   touchStartX = e.clientX;
   touchStartY = e.clientY;
-});
+}, { passive: true });
 
 container.addEventListener('pointerup', (e) => {
   if (isCartOpen) return;
@@ -2866,7 +2959,7 @@ container.addEventListener('pointerup', (e) => {
   const deltaX = e.clientX - touchStartX;
   const deltaY = e.clientY - touchStartY;
 
-  if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) && currentMode === 'carousel') {
+  if (Math.abs(deltaX) > 42 && Math.abs(deltaX) > Math.abs(deltaY) && currentMode === 'carousel') {
     changeTicket(deltaX < 0 ? 1 : -1);
     return;
   }
@@ -2889,51 +2982,58 @@ container.addEventListener('pointerup', (e) => {
       const clickedIndex = obj.userData.ticketIndex;
 
       if (currentMode === 'lineup') {
-        currentIndex = clickedIndex;
-        currentStep = 0;
-        setMode('detail');
+        selectTicketFromLineup(clickedIndex);
       } else if (currentMode === 'carousel') {
         if (clickedIndex === currentIndex) {
           currentStep = 0;
           setMode('detail');
         } else {
           currentIndex = clickedIndex;
-          updatePositions(0.75);
+          updatePositions(0.48);
         }
       }
     }
   }
-});
+}, { passive: true });
 
+// Bucle único sincronizado de alta frecuencia (120 FPS+)
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
   const t = clock.getElapsedTime();
 
-  ticketModels.forEach((item, i) => {
-    item.position.y += Math.sin(t * 2.1 + i) * 0.00065;
-    if (currentMode === 'detail' && i === currentIndex && currentStep === 1) {
-      const baseZ = (currentIndex === 0 && isSingleTicket2D) ? 0.02 : 0.08;
-      item.rotation.z = baseZ + Math.sin(t * 2.4) * 0.022;
+  for (let i = 0; i < ticketModels.length; i++) {
+    const item = ticketModels[i];
+    const fw = item.userData.floatWrapper;
+    if (fw) {
+      fw.position.y = Math.sin(t * 2.2 + i) * 0.032;
+      if (currentMode === 'detail' && i === currentIndex && currentStep === 1) {
+        fw.rotation.z = Math.sin(t * 2.4) * 0.022;
+      } else {
+        fw.rotation.z = 0;
+      }
     }
-  });
+  }
 
   camera.lookAt(cameraTarget);
+  if (currentMode === 'lineup') {
+    updateLineupLabelsScreenPositions();
+  }
   renderer.render(scene, camera);
 }
 
 function handleResize() {
   applyViewportDimensions();
-  const w = Math.max(container.clientWidth || getSafeWindowSize().vw, 1);
-  const h = Math.max(container.clientHeight || getSafeWindowSize().vh, 1);
+  const w = Math.max(cachedVpWidth, 1);
+  const h = Math.max(cachedVpHeight, 1);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
-  updatePositions(0.3);
+  updatePositions(0.25);
 }
 
-window.addEventListener('resize', handleResize);
-window.addEventListener('load', handleResize);
+window.addEventListener('resize', handleResize, { passive: true });
+window.addEventListener('load', handleResize, { passive: true });
 if (typeof ResizeObserver !== 'undefined') {
   new ResizeObserver(() => handleResize()).observe(container);
 }
