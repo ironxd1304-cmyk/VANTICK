@@ -13,9 +13,9 @@
     --vt-gold: #D49B2A;
     --vt-gold-dark: #8C5E14;
     --vt-espresso: #140C05;
-    --vt-glass-bg: rgba(32, 20, 10, 0.46);
-    --vt-glass-border: rgba(253, 251, 244, 0.24);
-    --vt-glass-highlight: rgba(243, 201, 105, 0.22);
+    --vt-glass-bg: rgba(28, 17, 8, 0.62);
+    --vt-glass-border: rgba(243, 201, 105, 0.36);
+    --vt-glass-highlight: rgba(253, 251, 244, 0.26);
   }
 
   * {
@@ -25,6 +25,14 @@
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: geometricPrecision;
+  }
+
+  svg {
+    shape-rendering: geometricPrecision;
+    text-rendering: geometricPrecision;
   }
 
   html, body {
@@ -53,11 +61,11 @@
 
   #app-viewport.mobile-frame {
     border-radius: 28px;
-    border: 2px solid rgba(243, 201, 105, 0.35);
-    box-shadow: 0 0 0 9999px rgba(5, 3, 1, 0.88), 0 20px 60px rgba(0, 0, 0, 0.95);
+    border: 2px solid rgba(243, 201, 105, 0.45);
+    box-shadow: 0 0 0 9999px rgba(5, 3, 1, 0.90), 0 20px 60px rgba(0, 0, 0, 0.95);
   }
 
-  /* Iluminación de fondo acelerada por GPU */
+  /* Iluminación de fondo */
   #bg-radial-glow {
     position: absolute;
     inset: -15%;
@@ -66,8 +74,6 @@
     color: #472A12;
     background: radial-gradient(circle at 50% 42%, currentColor 0%, transparent 68%);
     transition: color 0.45s ease;
-    will-change: color;
-    transform: translateZ(0);
   }
 
   #canvas-container {
@@ -77,7 +83,6 @@
     height: 100%;
     z-index: 1;
     cursor: grab;
-    transform: translateZ(0);
     touch-action: none;
   }
   #canvas-container:active {
@@ -100,12 +105,11 @@
     color: rgba(243, 201, 105, 0.055);
     pointer-events: none;
     opacity: 0;
-    transform: scale(0.92) translateZ(0);
+    transform: scale(0.92);
     transition: opacity 0.4s ease, transform 0.4s ease;
-    will-change: opacity, transform;
   }
   #app-viewport.compact-ui #bg-giant-text {
-    font-size: 52px;
+    font-size: 54px;
   }
 
   /* Contenedor de nombres y cápsula divisoria "Combos" en 3. COLECCIÓN */
@@ -116,7 +120,6 @@
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.25s ease;
-    will-change: opacity;
     overflow: hidden;
   }
   #lineup-labels-container.visible {
@@ -128,20 +131,20 @@
     top: 0;
     pointer-events: auto;
     cursor: pointer;
-    padding: 6.5px 13px;
+    padding: 7px 14px;
     border-radius: 14px;
-    background: rgba(28, 16, 7, 0.74);
+    background: rgba(26, 15, 6, 0.84);
     backdrop-filter: blur(12px) saturate(160%);
     -webkit-backdrop-filter: blur(12px) saturate(160%);
-    border: 1px solid rgba(243, 201, 105, 0.45);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(253, 251, 244, 0.25);
+    border: 1.5px solid rgba(243, 201, 105, 0.52);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(253, 251, 244, 0.28);
     color: var(--vt-cream);
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.4px;
     text-align: center;
     white-space: nowrap;
-    will-change: transform, opacity;
+    transform: translate(-50%, -50%);
     transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   }
   .lineup-item-label:hover {
@@ -158,32 +161,32 @@
     pointer-events: none;
     padding: 9px 38px;
     border-radius: 999px;
-    background: rgba(34, 20, 9, 0.48);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border: 1.5px solid rgba(243, 201, 105, 0.58);
+    background: rgba(32, 18, 8, 0.68);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1.5px solid rgba(243, 201, 105, 0.65);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(253, 251, 244, 0.35);
     color: var(--vt-cream);
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 900;
     letter-spacing: 3px;
     text-transform: uppercase;
     white-space: nowrap;
-    will-change: transform, opacity;
+    transform: translate(-50%, -50%);
   }
 
   #app-viewport.compact-ui .lineup-item-label {
-    padding: 4.5px 8.5px;
-    font-size: 8.8px;
-    border-radius: 10px;
-    max-width: 142px;
+    padding: 6px 11px;
+    font-size: 11px;
+    border-radius: 12px;
+    max-width: 164px;
     white-space: normal;
-    line-height: 1.15;
+    line-height: 1.2;
   }
   #app-viewport.compact-ui .lineup-section-capsule {
-    padding: 6.5px 26px;
-    font-size: 11px;
-    letter-spacing: 2.2px;
+    padding: 8px 32px;
+    font-size: 12px;
+    letter-spacing: 2.5px;
   }
 
   /* Indicador lateral de desplazamiento vertical en 3. COLECCIÓN */
@@ -191,7 +194,7 @@
     position: absolute;
     right: 16px;
     top: 52%;
-    transform: translateY(-50%) translateZ(0);
+    transform: translateY(-50%);
     z-index: 52;
     display: flex;
     flex-direction: column;
@@ -209,8 +212,8 @@
     width: 6px;
     height: 130px;
     border-radius: 999px;
-    background: rgba(253, 251, 244, 0.12);
-    border: 1px solid rgba(243, 201, 105, 0.3);
+    background: rgba(253, 251, 244, 0.14);
+    border: 1px solid rgba(243, 201, 105, 0.38);
     position: relative;
     overflow: hidden;
   }
@@ -220,13 +223,12 @@
     border-radius: 999px;
     background: linear-gradient(180deg, #FDFBF4 0%, #F3C969 100%);
     box-shadow: 0 0 10px rgba(243, 201, 105, 0.6);
-    will-change: transform;
   }
   .scroll-step-btn {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    border: 1px solid rgba(243, 201, 105, 0.45);
+    border: 1.5px solid rgba(243, 201, 105, 0.5);
     background: var(--vt-glass-bg);
     color: var(--vt-cream);
     font-size: 13px;
@@ -246,20 +248,20 @@
     transform: scale(1.08);
   }
   #app-viewport.compact-ui #lineup-scroll-ui {
-    right: 7px;
+    right: 9px;
     top: 54%;
   }
   #app-viewport.compact-ui .scroll-track {
-    height: 95px;
-    width: 5px;
+    height: 110px;
+    width: 6px;
   }
   #app-viewport.compact-ui .scroll-thumb {
-    height: 28px;
+    height: 32px;
   }
   #app-viewport.compact-ui .scroll-step-btn {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
   }
 
   /* Botón lateral en forma de cápsula "Combos" en 1. CARRUSEL */
@@ -267,7 +269,7 @@
     position: absolute;
     right: 20px;
     top: 50%;
-    transform: translateY(-50%) translateZ(0);
+    transform: translateY(-50%);
     z-index: 54;
     display: flex;
     flex-direction: column;
@@ -288,12 +290,12 @@
     color: var(--vt-cream);
     cursor: pointer;
     font-weight: 900;
-    font-size: 11.5px;
+    font-size: 12px;
     letter-spacing: 1.4px;
     text-transform: uppercase;
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.58), inset 0 1px 2px var(--vt-glass-highlight);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), inset 0 1px 2px var(--vt-glass-highlight);
     transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     display: flex;
     align-items: center;
@@ -305,17 +307,17 @@
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #1A0F05;
     border-color: #FDFBF4;
-    transform: scale(1.06);
+    transform: scale(1.05);
     box-shadow: 0 0 22px rgba(243, 201, 105, 0.65);
   }
   #app-viewport.compact-ui #carousel-side-switch {
-    right: 10px;
-    top: 46%;
+    right: 11px;
+    top: 47%;
   }
   #app-viewport.compact-ui .capsule-switch-btn {
-    padding: 9px 14px;
-    font-size: 9.5px;
-    letter-spacing: 1px;
+    padding: 11px 18px;
+    font-size: 11px;
+    letter-spacing: 1.2px;
   }
 
   /* Indicador superior */
@@ -323,30 +325,30 @@
     position: absolute;
     top: 88px;
     left: 50%;
-    transform: translateX(-50%) translateZ(0);
+    transform: translateX(-50%);
     background: var(--vt-glass-bg);
-    border: 1px solid var(--vt-glass-border);
+    border: 1.5px solid var(--vt-glass-border);
     color: var(--vt-cream);
     padding: 6px 16px;
     border-radius: 20px;
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: 1.4px;
     z-index: 60;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     transition: opacity 0.35s ease;
     white-space: nowrap;
     pointer-events: none;
   }
   #app-viewport.compact-ui #loader-badge {
-    top: 102px;
-    font-size: 8.5px;
-    padding: 4px 10px;
+    top: 108px;
+    font-size: 10px;
+    padding: 6px 14px;
   }
 
-  /* Barra superior con efecto vidrio esmerilado */
+  /* Barra superior de alta definición (sin translateZ que degrada nitidez) */
   header {
     position: absolute;
     top: 12px;
@@ -359,14 +361,13 @@
     align-items: center;
     z-index: 55;
     background: var(--vt-glass-bg);
-    backdrop-filter: blur(16px) saturate(170%);
-    -webkit-backdrop-filter: blur(16px) saturate(170%);
-    border: 1px solid var(--vt-glass-border);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px var(--vt-glass-highlight);
-    transform: translateZ(0);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1.5px solid var(--vt-glass-border);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 1px var(--vt-glass-highlight);
   }
 
-  /* Logo VANTICK dentro de la silueta del boleto */
+  /* Logo VANTICK 100% vectorial nítido (sin filter:drop-shadow que rasteriza a baja resolución) */
   .ticket-logo-badge {
     position: relative;
     display: inline-flex;
@@ -375,7 +376,6 @@
     min-width: 236px;
     height: 54px;
     padding: 8px 24px 8px 66px;
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
     transition: transform 0.2s ease;
     flex-shrink: 0;
   }
@@ -400,18 +400,18 @@
     text-align: center;
   }
   .ticket-logo-title {
-    font-size: 18.5px;
+    font-size: 19px;
     font-weight: 900;
     letter-spacing: 3.2px;
     line-height: 1.05;
-    background: linear-gradient(90deg, #FDFBF4 0%, #F3C969 48%, #D49B2A 100%);
+    color: var(--vt-cream);
+    background: linear-gradient(90deg, #FFFFFF 0%, #F3C969 52%, #D49B2A 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 10px rgba(212, 155, 42, 0.22);
     white-space: nowrap;
   }
   .ticket-logo-sub {
-    font-size: 7px;
+    font-size: 7.5px;
     font-weight: 800;
     letter-spacing: 1.9px;
     color: var(--vt-gold-light);
@@ -419,7 +419,6 @@
     line-height: 1;
     text-transform: uppercase;
     white-space: nowrap;
-    opacity: 0.95;
   }
 
   .header-controls {
@@ -431,13 +430,13 @@
   }
 
   .nav-btn {
-    background: rgba(253, 251, 244, 0.08);
-    border: 1px solid rgba(253, 251, 244, 0.24);
+    background: rgba(253, 251, 244, 0.10);
+    border: 1.5px solid rgba(253, 251, 244, 0.28);
     color: var(--vt-cream);
     padding: 8px 14px;
     border-radius: 22px;
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 11px;
     letter-spacing: 0.6px;
     transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
@@ -447,7 +446,7 @@
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #1A0F05;
     border-color: #FDFBF4;
-    box-shadow: 0 4px 14px rgba(212, 155, 42, 0.38);
+    box-shadow: 0 4px 14px rgba(212, 155, 42, 0.42);
   }
 
   .cart-header-btn {
@@ -456,8 +455,8 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: rgba(243, 201, 105, 0.14);
-    border: 1.5px solid rgba(243, 201, 105, 0.45);
+    background: rgba(243, 201, 105, 0.16);
+    border: 1.5px solid rgba(243, 201, 105, 0.5);
     color: var(--vt-cream);
     padding: 7px 14px;
     border-radius: 22px;
@@ -466,9 +465,8 @@
     font-size: 11px;
     letter-spacing: 0.5px;
     transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
     white-space: nowrap;
-    will-change: transform;
   }
   .cart-header-btn:hover, .cart-header-btn.active {
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
@@ -494,7 +492,7 @@
     border-radius: 999px;
     background: linear-gradient(135deg, #F3C969 0%, #D49B2A 100%);
     color: #1A0E04;
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 900;
     border: 1.5px solid #FDFBF4;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -512,7 +510,7 @@
 
   .format-btn {
     background: linear-gradient(135deg, #8C5E14, #D49B2A);
-    border: 1px solid rgba(253, 251, 244, 0.45);
+    border: 1.5px solid rgba(253, 251, 244, 0.55);
     color: var(--vt-cream);
     padding: 8px 14px;
     border-radius: 22px;
@@ -528,75 +526,74 @@
     filter: brightness(1.12);
   }
 
-  /* Cabecera compacta en Modo Celular / Vertical */
+  /* Cabecera de alta definición en Modo Celular / Vertical */
   #app-viewport.compact-ui header {
     flex-direction: column;
-    gap: 6px;
-    padding: 8px 10px;
+    gap: 7px;
+    padding: 9px 12px;
     top: 8px;
   }
   #app-viewport.compact-ui .ticket-logo-badge {
-    min-width: 198px;
-    height: 44px;
-    padding: 6px 18px 6px 54px;
+    min-width: 220px;
+    height: 48px;
+    padding: 6px 20px 6px 58px;
   }
   #app-viewport.compact-ui .ticket-logo-title {
-    font-size: 15px;
-    letter-spacing: 2.5px;
+    font-size: 17px;
+    letter-spacing: 2.8px;
   }
   #app-viewport.compact-ui .ticket-logo-sub {
-    font-size: 6px;
-    letter-spacing: 1.5px;
+    font-size: 7px;
+    letter-spacing: 1.6px;
     margin-top: 2px;
   }
   #app-viewport.compact-ui .header-controls {
-    gap: 4px;
+    gap: 5px;
     width: 100%;
   }
   #app-viewport.compact-ui .nav-btn {
-    padding: 5px 8px;
-    font-size: 8.6px;
-    letter-spacing: 0.2px;
+    padding: 6px 10px;
+    font-size: 10px;
+    letter-spacing: 0.3px;
   }
   #app-viewport.compact-ui .cart-header-btn {
-    padding: 4.5px 9px;
-    font-size: 8.6px;
+    padding: 6px 11px;
+    font-size: 10px;
     gap: 4px;
   }
   #app-viewport.compact-ui .cart-header-btn svg {
-    width: 12.5px;
-    height: 12.5px;
+    width: 14px;
+    height: 14px;
   }
   #app-viewport.compact-ui .cart-badge-count {
-    min-width: 15px;
-    height: 15px;
-    font-size: 8.5px;
-    padding: 0 3.5px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 10px;
+    padding: 0 4px;
   }
   #app-viewport.compact-ui .format-btn {
-    padding: 5px 8px;
-    font-size: 8.6px;
+    padding: 6px 11px;
+    font-size: 10px;
   }
 
-  /* Controles inferiores del carrusel */
+  /* Controles inferiores del carrusel con texto 100% libre de distorsión skewX */
   #carousel-ui {
     position: absolute;
     bottom: 18px;
     left: 50%;
-    transform: translateX(-50%) translateZ(0);
+    transform: translateX(-50%);
     z-index: 55;
     text-align: center;
     transition: opacity 0.25s ease, transform 0.25s ease;
     width: max-content;
     max-width: 95%;
     background: var(--vt-glass-bg);
-    backdrop-filter: blur(16px) saturate(170%);
-    -webkit-backdrop-filter: blur(16px) saturate(170%);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
     padding: 12px 20px;
     border-radius: 24px;
-    border: 1px solid var(--vt-glass-border);
+    border: 1.5px solid var(--vt-glass-border);
     box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65), inset 0 1px 1px var(--vt-glass-highlight);
-    will-change: opacity, transform;
   }
   .banner-row {
     display: flex;
@@ -606,33 +603,44 @@
     margin-bottom: 6px;
   }
   .flavor-banner {
-    background: linear-gradient(135deg, rgba(74, 44, 17, 0.88), rgba(34, 19, 7, 0.94));
+    position: relative;
     padding: 9px 24px;
-    transform: skewX(-8deg);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
     cursor: pointer;
-    border: 1px solid rgba(243, 201, 105, 0.45);
-    border-radius: 8px;
     transition: transform 0.18s ease;
     min-width: 240px;
+    z-index: 1;
+     --banner-bg: linear-gradient(135deg, rgba(74, 44, 17, 0.92), rgba(34, 19, 7, 0.96));
+  }
+  .flavor-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--banner-bg);
+    transform: skewX(-8deg);
+    border-radius: 8px;
+    border: 1.5px solid rgba(243, 201, 105, 0.55);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+    z-index: -1;
+    transition: background 0.3s ease;
   }
   .flavor-banner:hover {
-    transform: skewX(-8deg) scale(1.03);
+    transform: scale(1.03);
   }
   .flavor-banner h2 {
-    transform: skewX(8deg);
+    position: relative;
+    z-index: 2;
     font-size: 15px;
     font-weight: 800;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     color: var(--vt-cream);
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
   }
   .arrow-btn {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    border: 1.5px solid rgba(253, 251, 244, 0.4);
-    background: rgba(253, 251, 244, 0.1);
+    border: 1.5px solid rgba(253, 251, 244, 0.45);
+    background: rgba(253, 251, 244, 0.12);
     color: var(--vt-cream);
     font-size: 17px;
     font-weight: 900;
@@ -649,41 +657,44 @@
     transform: scale(1.08);
   }
   .inspect-hint {
-    font-size: 9.5px;
-    color: rgba(253, 251, 244, 0.85);
+    font-size: 10px;
+    color: rgba(253, 251, 244, 0.9);
     letter-spacing: 0.8px;
     display: block;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   #app-viewport.compact-ui #carousel-ui {
-    bottom: 10px;
-    padding: 8px 12px;
-    border-radius: 18px;
+    bottom: 12px;
+    padding: 11px 15px;
+    border-radius: 20px;
+    width: 92%;
+    max-width: 390px;
   }
   #app-viewport.compact-ui .banner-row {
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 10px;
+    margin-bottom: 5px;
   }
   #app-viewport.compact-ui .flavor-banner {
-    padding: 6px 12px;
-    min-width: 175px;
+    padding: 8px 14px;
+    min-width: 195px;
+    flex: 1;
   }
   #app-viewport.compact-ui .flavor-banner h2 {
-    font-size: 11.5px;
-    letter-spacing: 0.6px;
+    font-size: 13.5px;
+    letter-spacing: 0.7px;
   }
   #app-viewport.compact-ui .arrow-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
   }
   #app-viewport.compact-ui .inspect-hint {
-    font-size: 7.8px;
+    font-size: 9px;
     letter-spacing: 0.4px;
   }
 
-  /* Panel izquierdo de información y precios (Vidrio Esmerilado Translúcido) */
+  /* Panel izquierdo de información y precios (Nítido en HD sin capas borrosas) */
   #detail-panel {
     position: absolute;
     left: 2.5%;
@@ -692,30 +703,28 @@
     z-index: 50;
     opacity: 0;
     pointer-events: none;
-    transform: translateZ(0);
     transition: opacity 0.25s ease;
     background: var(--vt-glass-bg);
     backdrop-filter: blur(18px) saturate(180%);
     -webkit-backdrop-filter: blur(18px) saturate(180%);
     padding: 18px 20px;
     border-radius: 22px;
-    border: 1px solid var(--vt-glass-border);
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.65), inset 0 1px 2px var(--vt-glass-highlight);
-    will-change: opacity, transform;
+    border: 1.5px solid var(--vt-glass-border);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.7), inset 0 1px 2px var(--vt-glass-highlight);
   }
   #detail-panel.visible {
     opacity: 1;
     pointer-events: auto;
   }
   #detail-tag {
-    font-size: 9.5px;
+    font-size: 10px;
     letter-spacing: 2px;
     color: var(--vt-gold-light);
     font-weight: 800;
     text-transform: uppercase;
   }
   #detail-title {
-    font-size: 19.5px;
+    font-size: 20px;
     font-weight: 900;
     margin: 4px 0 8px;
     line-height: 1.15;
@@ -724,7 +733,7 @@
   .callout-line {
     height: 2px;
     width: 100%;
-    background: linear-gradient(90deg, var(--vt-gold-light), rgba(253, 251, 244, 0.08));
+    background: linear-gradient(90deg, var(--vt-gold-light), rgba(253, 251, 244, 0.1));
     margin: 6px 0 12px;
     position: relative;
   }
@@ -754,15 +763,15 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    background: rgba(253, 251, 244, 0.07);
-    border: 1px solid rgba(253, 251, 244, 0.18);
-    padding: 8.5px 12px;
+    background: rgba(253, 251, 244, 0.09);
+    border: 1px solid rgba(253, 251, 244, 0.24);
+    padding: 9px 12px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: 700;
     color: var(--vt-cream);
     letter-spacing: 0.25px;
-    line-height: 1.28;
+    line-height: 1.3;
     transition: background 0.18s ease, border-color 0.18s ease;
   }
   .menu-info-left {
@@ -774,8 +783,8 @@
     cursor: pointer;
   }
   .feature-list li.menu-info-item.clickable-pair:hover {
-    border-color: rgba(243, 201, 105, 0.5);
-    background: rgba(253, 251, 244, 0.12);
+    border-color: rgba(243, 201, 105, 0.55);
+    background: rgba(253, 251, 244, 0.14);
   }
   .pair-return-hint {
     font-size: 9px;
@@ -783,7 +792,7 @@
     color: var(--vt-gold-light);
     letter-spacing: 0.6px;
     text-transform: uppercase;
-    opacity: 0.85;
+    opacity: 0.9;
   }
   .feature-dot {
     width: 8px;
@@ -808,7 +817,7 @@
     padding: 10px 14px;
     border-radius: 13px;
     border: 1.5px solid #F3C969;
-    background: linear-gradient(135deg, rgba(212, 155, 42, 0.28) 0%, rgba(110, 68, 14, 0.68) 100%);
+    background: linear-gradient(135deg, rgba(212, 155, 42, 0.32) 0%, rgba(110, 68, 14, 0.74) 100%);
     color: var(--vt-cream);
     font-size: 12.5px;
     font-weight: 800;
@@ -824,9 +833,8 @@
   }
   .single-ticket-cta-btn.active {
     padding: 14px 16px;
-    font-size: 14.5px;
+    font-size: 14px;
     border-radius: 15px;
-    transform: scale(1.025);
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 55%, #D49B2A 100%);
     color: #1A0E04;
     border: 2px solid #FDFBF4;
@@ -853,18 +861,18 @@
   .single-ticket-cta-btn.active .single-btn-icon {
     width: 25px;
     height: 25px;
-    font-size: 12.5px;
+    font-size: 12px;
     background: #1A0E04;
     color: #F3C969;
     border-color: #1A0E04;
   }
   .single-btn-badge {
-    font-size: 8.8px;
+    font-size: 9px;
     font-weight: 900;
     letter-spacing: 0.8px;
     padding: 4px 8px;
     border-radius: 20px;
-    background: rgba(20, 12, 5, 0.65);
+    background: rgba(20, 12, 5, 0.7);
     color: #F3C969;
     border: 1px solid rgba(243, 201, 105, 0.45);
     text-transform: uppercase;
@@ -874,8 +882,8 @@
     background: #1A0E04;
     color: #FDFBF4;
     border-color: #1A0E04;
-    font-size: 9.2px;
-    padding: 4.5px 9px;
+    font-size: 9px;
+    padding: 5px 9px;
   }
 
   /* Contenedor del botón "Agregar al carrito" y su versión con [- cantidad +] */
@@ -888,7 +896,7 @@
     width: 100%;
     padding: 11px 16px;
     border-radius: 13px;
-    border: 1.5px solid rgba(253, 251, 244, 0.65);
+    border: 1.5px solid rgba(253, 251, 244, 0.7);
     background: linear-gradient(135deg, #F3C969 0%, #D49B2A 55%, #9B6714 100%);
     color: #160B03;
     font-size: 12.5px;
@@ -916,7 +924,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(22, 12, 4, 0.78);
+    background: rgba(22, 12, 4, 0.82);
     border: 1.5px solid #F3C969;
     border-radius: 13px;
     padding: 4px 6px;
@@ -926,7 +934,7 @@
     width: 34px;
     height: 32px;
     border-radius: 9px;
-    border: 1px solid rgba(253, 251, 244, 0.35);
+    border: 1px solid rgba(253, 251, 244, 0.4);
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #180C03;
     font-size: 17px;
@@ -949,7 +957,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 900;
     color: var(--vt-cream);
     letter-spacing: 0.5px;
@@ -969,80 +977,79 @@
   .detail-nav-row .nav-btn {
     flex: 1;
     padding: 7px 6px;
-    font-size: 9.5px;
+    font-size: 10px;
     text-align: center;
   }
 
-  /* Compact UI para panel de detalles en modo móvil */
+  /* Compact UI de alta resolución para panel de detalles en modo móvil */
   #app-viewport.compact-ui #detail-panel {
     left: 3%;
     right: 3%;
     width: 94%;
     top: auto;
     bottom: 10px;
-    padding: 10px 12px;
-    border-radius: 18px;
+    padding: 13px 15px;
+    border-radius: 20px;
   }
   #app-viewport.compact-ui #detail-tag {
-    font-size: 7.8px;
-    letter-spacing: 1.4px;
+    font-size: 9px;
+    letter-spacing: 1.6px;
   }
   #app-viewport.compact-ui #detail-title {
-    font-size: 14px;
-    margin: 2px 0 3px;
+    font-size: 17px;
+    margin: 2px 0 5px;
   }
   #app-viewport.compact-ui .callout-line {
-    margin: 3px 0 6px;
+    margin: 4px 0 8px;
   }
   #app-viewport.compact-ui .feature-list {
-    gap: 4px;
-    margin-bottom: 7px;
+    gap: 5px;
+    margin-bottom: 9px;
   }
   #app-viewport.compact-ui .feature-list li.menu-info-item {
-    padding: 5px 9px;
-    font-size: 9.8px;
-    border-radius: 8px;
-    line-height: 1.2;
+    padding: 7px 11px;
+    font-size: 11px;
+    border-radius: 10px;
+    line-height: 1.25;
   }
   #app-viewport.compact-ui .single-ticket-cta-btn {
-    padding: 7px 11px;
-    font-size: 10.5px;
-    border-radius: 10px;
+    padding: 9px 12px;
+    font-size: 11.5px;
+    border-radius: 11px;
   }
   #app-viewport.compact-ui .single-ticket-cta-btn.active {
-    padding: 9.5px 12px;
-    font-size: 11.8px;
-    border-radius: 11px;
-    transform: scale(1.015);
+    padding: 11px 14px;
+    font-size: 13px;
+    border-radius: 13px;
   }
   #app-viewport.compact-ui .single-btn-badge {
-    font-size: 7.5px;
-    padding: 3px 6px;
+    font-size: 8.5px;
+    padding: 4px 7px;
   }
   #app-viewport.compact-ui .add-to-cart-main-btn {
-    padding: 8px 12px;
-    font-size: 10.5px;
-    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 11.5px;
+    border-radius: 11px;
   }
   #app-viewport.compact-ui .inline-cart-stepper {
-    padding: 3px 5px;
-    border-radius: 10px;
+    padding: 4px 6px;
+    border-radius: 11px;
   }
   #app-viewport.compact-ui .stepper-side-btn {
-    width: 28px;
-    height: 25px;
-    font-size: 15px;
-    border-radius: 7px;
+    width: 32px;
+    height: 28px;
+    font-size: 16px;
+    border-radius: 8px;
   }
   #app-viewport.compact-ui .stepper-center-qty {
-    font-size: 11.5px;
-  }
-  #app-viewport.compact-ui .stepper-center-qty span.qty-num {
     font-size: 13px;
   }
+  #app-viewport.compact-ui .stepper-center-qty span.qty-num {
+    font-size: 14px;
+  }
   #app-viewport.compact-ui .detail-nav-row .nav-btn {
-    padding: 5px 5px;
-    font-size: 8.4px;
+    padding: 6.5px 6px;
+    font-size: 9.5px;
   }
 
   /* Botones laterales derechos en 2. INFORMACIÓN (INFO y PRECIO) */
@@ -1050,7 +1057,7 @@
     position: absolute;
     right: 20px;
     top: 50%;
-    transform: translateY(-50%) translateZ(0);
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -1083,29 +1090,29 @@
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #1A0F05;
     border-color: #FDFBF4;
-    transform: scale(1.1);
+    transform: scale(1.08);
     box-shadow: 0 0 20px rgba(243, 201, 105, 0.6);
   }
 
   #app-viewport.compact-ui #side-controls {
     right: 10px;
-    top: 34%;
+    top: 41%;
     gap: 10px;
   }
   #app-viewport.compact-ui .step-btn {
-    width: 44px;
-    height: 44px;
-    font-size: 8.5px;
+    width: 48px;
+    height: 48px;
+    font-size: 9.5px;
   }
 
   /* ============================================================================
-     APARTADO DE CARRITO (OPTIMIZADO A 120 FPS CON COMPOSICIÓN GPU)
+     APARTADO DE CARRITO (ALTA DEFINICIÓN EN TEXTO Y BORDES)
      ============================================================================ */
   #cart-backdrop {
     position: absolute;
     inset: 0;
     z-index: 80;
-    background: rgba(10, 5, 2, 0.58);
+    background: rgba(10, 5, 2, 0.60);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     opacity: 0;
@@ -1113,8 +1120,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    will-change: opacity;
-    transform: translateZ(0);
   }
   #cart-backdrop.open {
     pointer-events: auto;
@@ -1127,16 +1132,15 @@
     height: 530px;
     max-height: 85%;
     border-radius: 26px;
-    background: rgba(36, 22, 10, 0.56);
+    background: rgba(34, 20, 9, 0.72);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1.5px solid rgba(253, 251, 244, 0.3);
-    box-shadow: 0 25px 65px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(243, 201, 105, 0.35);
+    border: 1.5px solid rgba(243, 201, 105, 0.45);
+    box-shadow: 0 25px 65px rgba(0, 0, 0, 0.82), inset 0 1px 2px rgba(253, 251, 244, 0.35);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transform-origin: center center;
-    will-change: transform, opacity;
   }
 
   .cart-modal-header {
@@ -1144,15 +1148,15 @@
     align-items: center;
     justify-content: space-between;
     padding: 15px 18px 13px;
-    border-bottom: 1px solid rgba(253, 251, 244, 0.16);
+    border-bottom: 1px solid rgba(253, 251, 244, 0.18);
     flex-shrink: 0;
   }
   .cart-back-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(253, 251, 244, 0.1);
-    border: 1px solid rgba(253, 251, 244, 0.28);
+    background: rgba(253, 251, 244, 0.12);
+    border: 1.5px solid rgba(253, 251, 244, 0.32);
     color: var(--vt-cream);
     padding: 7px 13px;
     border-radius: 18px;
@@ -1198,15 +1202,14 @@
   .empty-ticket-illust {
     width: 74px;
     height: 46px;
-    opacity: 0.78;
-    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+    opacity: 0.85;
   }
   .cart-empty-text {
     font-size: 15px;
     font-weight: 800;
     color: var(--vt-cream);
     letter-spacing: 0.5px;
-    opacity: 0.92;
+    opacity: 0.95;
   }
   .cart-empty-add-btn {
     padding: 10px 26px;
@@ -1259,13 +1262,12 @@
     gap: 10px;
     padding: 10px 11px;
     border-radius: 15px;
-    background: rgba(253, 251, 244, 0.08);
-    border: 1px solid rgba(253, 251, 244, 0.2);
+    background: rgba(253, 251, 244, 0.09);
+    border: 1px solid rgba(253, 251, 244, 0.24);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
     flex-shrink: 0;
     transform-origin: center center;
     overflow: hidden;
-    will-change: transform, opacity;
   }
   .cart-item-thumb {
     width: 54px;
@@ -1305,8 +1307,8 @@
     width: 27px;
     height: 27px;
     border-radius: 8px;
-    border: 1px solid rgba(253, 251, 244, 0.3);
-    background: rgba(253, 251, 244, 0.12);
+    border: 1px solid rgba(253, 251, 244, 0.34);
+    background: rgba(253, 251, 244, 0.14);
     color: var(--vt-cream);
     font-size: 14px;
     font-weight: 900;
@@ -1323,8 +1325,8 @@
     transform: scale(1.07);
   }
   .cart-ctrl-btn.delete-btn {
-    background: rgba(185, 28, 28, 0.25);
-    border-color: rgba(248, 113, 113, 0.45);
+    background: rgba(185, 28, 28, 0.28);
+    border-color: rgba(248, 113, 113, 0.5);
     color: #FCA5A5;
   }
   .cart-ctrl-btn.delete-btn:hover {
@@ -1347,7 +1349,7 @@
     gap: 12px;
     padding: 13px 16px 15px;
     border-top: 1px solid rgba(253, 251, 244, 0.18);
-    background: rgba(18, 10, 4, 0.45);
+    background: rgba(18, 10, 4, 0.52);
     flex-shrink: 0;
   }
   .send-whatsapp-btn {
@@ -1394,16 +1396,16 @@
     justify-content: center;
     padding: 6px 12px;
     border-radius: 13px;
-    background: rgba(253, 251, 244, 0.08);
-    border: 1px solid rgba(243, 201, 105, 0.4);
+    background: rgba(253, 251, 244, 0.1);
+    border: 1.5px solid rgba(243, 201, 105, 0.45);
     min-width: 102px;
     flex-shrink: 0;
   }
   .cart-total-label {
-    font-size: 8.5px;
+    font-size: 9px;
     font-weight: 800;
     letter-spacing: 1.4px;
-    color: rgba(253, 251, 244, 0.72);
+    color: rgba(253, 251, 244, 0.78);
     text-transform: uppercase;
   }
   .cart-total-amount {
@@ -1416,65 +1418,65 @@
 
   /* Ajustes del Carrito para Modo Celular 9:16 */
   #app-viewport.compact-ui #cart-modal {
-    width: 90%;
-    max-width: 332px;
-    height: 465px;
-    max-height: 82%;
-    border-radius: 22px;
+    width: 92%;
+    max-width: 370px;
+    height: 505px;
+    max-height: 84%;
+    border-radius: 24px;
   }
   #app-viewport.compact-ui .cart-modal-header {
-    padding: 12px 14px 10px;
+    padding: 13px 15px 11px;
   }
   #app-viewport.compact-ui .cart-back-btn {
-    padding: 5.5px 10px;
-    font-size: 10.5px;
+    padding: 7px 12px;
+    font-size: 11px;
   }
   #app-viewport.compact-ui .cart-header-title {
-    font-size: 11.5px;
-    letter-spacing: 1.5px;
+    font-size: 12.5px;
+    letter-spacing: 1.6px;
   }
   #app-viewport.compact-ui .cart-modal-body {
-    padding: 10px 12px;
+    padding: 11px 13px;
   }
   #app-viewport.compact-ui .cart-item-card {
-    padding: 8px 9px;
-    gap: 8px;
-    border-radius: 12px;
+    padding: 9px 10px;
+    gap: 9px;
+    border-radius: 13px;
   }
   #app-viewport.compact-ui .cart-item-thumb {
-    width: 44px;
-    height: 30px;
+    width: 48px;
+    height: 33px;
   }
   #app-viewport.compact-ui .cart-item-name {
-    font-size: 10.8px;
+    font-size: 11.5px;
   }
   #app-viewport.compact-ui .cart-item-meta {
-    font-size: 9.5px;
+    font-size: 10px;
   }
   #app-viewport.compact-ui .cart-ctrl-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 13px;
-    border-radius: 7px;
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+    border-radius: 8px;
   }
   #app-viewport.compact-ui .cart-modal-footer {
-    padding: 10px 12px 12px;
-    gap: 8px;
+    padding: 11px 13px 13px;
+    gap: 9px;
   }
   #app-viewport.compact-ui .send-whatsapp-btn {
-    padding: 10px 12px;
-    font-size: 11px;
-    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 11.5px;
+    border-radius: 13px;
   }
   #app-viewport.compact-ui .cart-total-box {
-    min-width: 88px;
-    padding: 5px 10px;
+    min-width: 94px;
+    padding: 6px 11px;
   }
   #app-viewport.compact-ui .cart-total-amount {
-    font-size: 14.5px;
+    font-size: 16px;
   }
 
-  /* Miniatura 2D voladora acelerada por GPU */
+  /* Miniatura 2D voladora */
   .flying-ticket-token {
     position: absolute;
     left: 0;
@@ -1484,7 +1486,6 @@
     z-index: 95;
     pointer-events: none;
     will-change: transform;
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55));
   }
 </style>
 </head>
@@ -1494,14 +1495,14 @@
     <div id="loader-badge">CATÁLOGO 3D VANTICK LISTO</div>
 
     <header>
-      <!-- Logotipo VANTICK alineado dentro del cuerpo principal de la silueta del boleto -->
+      <!-- Logotipo VANTICK vectorial de alta resolución -->
       <div class="ticket-logo-badge" title="VANTICK - Tu dinero vale más">
         <svg class="ticket-logo-svg" viewBox="0 0 268 76" preserveAspectRatio="none">
           <defs>
             <linearGradient id="vtTicketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#2A180A" stop-opacity="0.95"/>
-              <stop offset="55%" stop-color="#4A2C12" stop-opacity="0.90"/>
-              <stop offset="100%" stop-color="#1A0E05" stop-opacity="0.96"/>
+              <stop offset="0%" stop-color="#2A180A" stop-opacity="0.96"/>
+              <stop offset="55%" stop-color="#4A2C12" stop-opacity="0.92"/>
+              <stop offset="100%" stop-color="#1A0E05" stop-opacity="0.98"/>
             </linearGradient>
             <linearGradient id="vtGoldStroke" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#FDFBF4"/>
@@ -1510,9 +1511,9 @@
             </linearGradient>
           </defs>
           <path d="M 14,4 H 49 A 7,7 0 0 0 63,4 H 254 A 10,10 0 0 1 264,14 V 25 A 13,13 0 0 0 264,51 V 62 A 10,10 0 0 1 254,72 H 63 A 7,7 0 0 0 49,72 H 14 A 10,10 0 0 1 4,62 V 51 A 13,13 0 0 0 4,25 V 14 A 10,10 0 0 1 14,4 Z"
-                fill="url(#vtTicketGrad)" stroke="url(#vtGoldStroke)" stroke-width="2.2"/>
-          <line x1="56" y1="13" x2="56" y2="63" stroke="#F3C969" stroke-width="1.6" stroke-dasharray="4 4" opacity="0.72"/>
-          <g fill="#FDFBF4" opacity="0.62">
+                fill="url(#vtTicketGrad)" stroke="url(#vtGoldStroke)" stroke-width="2.4"/>
+          <line x1="56" y1="13" x2="56" y2="63" stroke="#F3C969" stroke-width="1.8" stroke-dasharray="4 4" opacity="0.78"/>
+          <g fill="#FDFBF4" opacity="0.72">
             <rect x="21" y="16" width="23" height="2.8" rx="0.5"/>
             <rect x="21" y="21.5" width="23" height="1.6" rx="0.5"/>
             <rect x="21" y="25.5" width="23" height="3.8" rx="0.5"/>
@@ -1669,7 +1670,7 @@ const TICKETS = [
     stubColor: "#FDFBF4",
     stubText: "#261507",
     foilGold: "#E5B24C",
-    bannerBg: "linear-gradient(135deg, rgba(62, 36, 14, 0.88), rgba(28, 15, 5, 0.94))",
+    bannerBg: "linear-gradient(135deg, rgba(62, 36, 14, 0.92), rgba(28, 15, 5, 0.96))",
     bgRadial: "#472A12",
     accent: "#E5B24C",
     prices: [
@@ -1690,7 +1691,7 @@ const TICKETS = [
     stubColor: "#FDFBF4",
     stubText: "#36200A",
     foilGold: "#F7CF75",
-    bannerBg: "linear-gradient(135deg, rgba(96, 60, 22, 0.88), rgba(45, 26, 8, 0.94))",
+    bannerBg: "linear-gradient(135deg, rgba(96, 60, 22, 0.92), rgba(45, 26, 8, 0.96))",
     bgRadial: "#694218",
     accent: "#F7CF75",
     prices: [
@@ -1709,7 +1710,7 @@ const TICKETS = [
     stubColor: "#FDFBF4",
     stubText: "#42270E",
     foilGold: "#F0C15A",
-    bannerBg: "linear-gradient(135deg, rgba(118, 74, 31, 0.88), rgba(62, 37, 13, 0.94))",
+    bannerBg: "linear-gradient(135deg, rgba(118, 74, 31, 0.92), rgba(62, 37, 13, 0.96))",
     bgRadial: "#7D4F22",
     accent: "#F0C15A",
     prices: [
@@ -1728,7 +1729,7 @@ const TICKETS = [
     stubColor: "#FDFBF4",
     stubText: "#2E1508",
     foilGold: "#E8A838",
-    bannerBg: "linear-gradient(135deg, rgba(82, 39, 17, 0.88), rgba(38, 16, 6, 0.94))",
+    bannerBg: "linear-gradient(135deg, rgba(82, 39, 17, 0.92), rgba(38, 16, 6, 0.96))",
     bgRadial: "#5E2E14",
     accent: "#E8A838",
     prices: [
@@ -1749,7 +1750,7 @@ const COMBOS = [
     primaryBrown: "#4E2C11",
     secondaryBrown: "#241205",
     foilGold: "#F3C969",
-    bannerBg: "linear-gradient(135deg, rgba(84, 48, 18, 0.9), rgba(36, 18, 6, 0.95))",
+    bannerBg: "linear-gradient(135deg, rgba(84, 48, 18, 0.94), rgba(36, 18, 6, 0.98))",
     bgRadial: "#5C3414",
     accent: "#F3C969",
     prices: ["Combo por $195"],
@@ -1765,7 +1766,7 @@ const COMBOS = [
     primaryBrown: "#633212",
     secondaryBrown: "#2B1406",
     foilGold: "#F59E0B",
-    bannerBg: "linear-gradient(135deg, rgba(102, 52, 18, 0.9), rgba(43, 20, 6, 0.95))",
+    bannerBg: "linear-gradient(135deg, rgba(102, 52, 18, 0.94), rgba(43, 20, 6, 0.98))",
     bgRadial: "#6E3814",
     accent: "#FBBF24",
     prices: ["Combo por $215"],
@@ -1781,7 +1782,7 @@ const COMBOS = [
     primaryBrown: "#703B10",
     secondaryBrown: "#331905",
     foilGold: "#FBBF24",
-    bannerBg: "linear-gradient(135deg, rgba(115, 62, 18, 0.9), rgba(48, 24, 6, 0.95))",
+    bannerBg: "linear-gradient(135deg, rgba(115, 62, 18, 0.94), rgba(48, 24, 6, 0.98))",
     bgRadial: "#7A4212",
     accent: "#FCD34D",
     prices: ["Combo por $230"],
@@ -1797,7 +1798,7 @@ const COMBOS = [
     primaryBrown: "#3D291A",
     secondaryBrown: "#1B110A",
     foilGold: "#60A5FA",
-    bannerBg: "linear-gradient(135deg, rgba(58, 42, 30, 0.9), rgba(24, 16, 12, 0.95))",
+    bannerBg: "linear-gradient(135deg, rgba(58, 42, 30, 0.94), rgba(24, 16, 12, 0.98))",
     bgRadial: "#4A3322",
     accent: "#93C5FD",
     prices: ["Combo por $170"],
@@ -1813,7 +1814,7 @@ const COMBOS = [
     primaryBrown: "#261B10",
     secondaryBrown: "#100B06",
     foilGold: "#F7CF75",
-    bannerBg: "linear-gradient(135deg, rgba(48, 34, 18, 0.92), rgba(18, 12, 6, 0.96))",
+    bannerBg: "linear-gradient(135deg, rgba(48, 34, 18, 0.94), rgba(18, 12, 6, 0.98))",
     bgRadial: "#4F3818",
     accent: "#F7CF75",
     prices: ["Combo por $185"],
@@ -1829,7 +1830,7 @@ const COMBOS = [
     primaryBrown: "#332211",
     secondaryBrown: "#140C05",
     foilGold: "#F5C451",
-    bannerBg: "linear-gradient(135deg, rgba(64, 42, 18, 0.92), rgba(22, 13, 5, 0.96))",
+    bannerBg: "linear-gradient(135deg, rgba(64, 42, 18, 0.94), rgba(22, 13, 5, 0.98))",
     bgRadial: "#5E3E16",
     accent: "#F5C451",
     prices: ["Combo por $325"],
@@ -1873,7 +1874,6 @@ let currentStep = 0; // 0 = INFO, 1 = PRECIO
 let isSingleTicket2D = false;
 let isCartOpen = false;
 
-// Variables de desplazamiento vertical suave para 3. COLECCIÓN
 let collectionScrollY = 0;
 let collectionTargetScrollY = 0;
 let maxCollectionScrollY = 3.6;
@@ -1907,29 +1907,29 @@ function applyViewportDimensions() {
   const nativePortrait = vw < vh;
 
   if (!isMobileFormat) {
-    viewport.style.width = vw + 'px';
-    viewport.style.height = vh + 'px';
+    cachedVpWidth = Math.round(vw);
+    cachedVpHeight = Math.round(vh);
+    viewport.style.width = cachedVpWidth + 'px';
+    viewport.style.height = cachedVpHeight + 'px';
     viewport.classList.remove('mobile-frame');
-    cachedVpWidth = vw;
-    cachedVpHeight = vh;
   } else {
     if (nativePortrait) {
-      viewport.style.width = vw + 'px';
-      viewport.style.height = vh + 'px';
+      cachedVpWidth = Math.round(vw);
+      cachedVpHeight = Math.round(vh);
+      viewport.style.width = cachedVpWidth + 'px';
+      viewport.style.height = cachedVpHeight + 'px';
       viewport.classList.remove('mobile-frame');
-      cachedVpWidth = vw;
-      cachedVpHeight = vh;
     } else {
-      const availH = Math.max(vh - 12, 320);
-      const availW = Math.max(vw - 12, 240);
-      let targetW = availH * (9 / 16);
+      const availH = Math.max(vh - 10, 320);
+      const availW = Math.max(vw - 12, 260);
+      let targetW = Math.max(availH * (9.6 / 16), Math.min(440, availW));
       let targetH = availH;
       if (targetW > availW) {
         targetW = availW;
-        targetH = Math.min(availH, targetW * (16 / 9));
+        targetH = Math.min(availH, targetW * (16 / 9.6));
       }
-      cachedVpWidth = Math.floor(targetW);
-      cachedVpHeight = Math.floor(targetH);
+      cachedVpWidth = Math.round(targetW);
+      cachedVpHeight = Math.round(targetH);
       viewport.style.width = cachedVpWidth + 'px';
       viewport.style.height = cachedVpHeight + 'px';
       viewport.classList.add('mobile-frame');
@@ -1938,7 +1938,7 @@ function applyViewportDimensions() {
 
   const compact = isCompactView();
   viewport.classList.toggle('compact-ui', compact);
-  maxCollectionScrollY = compact ? 5.25 : 3.55;
+  maxCollectionScrollY = compact ? 5.45 : 3.55;
   collectionTargetScrollY = Math.min(collectionTargetScrollY, maxCollectionScrollY);
 
   const btn = document.getElementById('format-toggle-btn');
@@ -1969,7 +1969,10 @@ const renderer = new THREE.WebGLRenderer({
   stencil: false
 });
 renderer.setSize(initW, initH);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+renderer.setPixelRatio(Math.min((window.devicePixelRatio || 1) * (isCompactView() ? 1.5 : 1.15), 3.0));
+const MAX_TICKET_ANISOTROPY = (renderer.capabilities && renderer.capabilities.getMaxAnisotropy)
+  ? renderer.capabilities.getMaxAnisotropy()
+  : 16;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.06;
@@ -1991,11 +1994,11 @@ scene.add(rimLight);
 
 const pedestalGroup = new THREE.Group();
 const baseMesh = new THREE.Mesh(
-  new THREE.CylinderGeometry(1.18, 1.34, 0.09, 36),
+  new THREE.CylinderGeometry(1.18, 1.34, 0.09, 48),
   new THREE.MeshStandardMaterial({ color: 0x1A0F06, metalness: 0.55, roughness: 0.45 })
 );
 const ringMat = new THREE.MeshBasicMaterial({ color: 0xE5B24C, transparent: true, opacity: 0.65 });
-const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.016, 12, 48), ringMat);
+const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.016, 16, 64), ringMat);
 ringMesh.rotation.x = Math.PI / 2;
 ringMesh.position.y = 0.046;
 pedestalGroup.add(baseMesh, ringMesh);
@@ -2037,14 +2040,16 @@ function drawFilmStripBand(ctx, x, y, width, height, color) {
 }
 
 /* ============================================================================
-   MODELADO 3D DE LOS 4 BOLETOS DE CINE VANTICK
+   MODELADO 3D DE LOS 4 BOLETOS DE CINE VANTICK (TEXTURAS ULTRA-HD 3072x1536)
    ============================================================================ */
 function createTicketFrontTexture(ticketData, variantIdx) {
   const c = document.createElement('canvas');
-  c.width = 1024;
-  c.height = 512;
+  c.width = 3072;
+  c.height = 1536;
   const ctx = c.getContext('2d');
-  ctx.scale(0.5, 0.5);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.scale(1.5, 1.5);
 
   const W = 2048;
   const H = 1024;
@@ -2187,16 +2192,21 @@ function createTicketFrontTexture(ticketData, variantIdx) {
 
   const tex = new THREE.CanvasTexture(c);
   tex.encoding = THREE.sRGBEncoding;
-  tex.anisotropy = 4;
+  tex.anisotropy = MAX_TICKET_ANISOTROPY;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
   return tex;
 }
 
 function createTicketBackTexture(ticketData) {
   const c = document.createElement('canvas');
-  c.width = 1024;
-  c.height = 512;
+  c.width = 3072;
+  c.height = 1536;
   const ctx = c.getContext('2d');
-  ctx.scale(0.5, 0.5);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.scale(1.5, 1.5);
 
   const W = 2048;
   const H = 1024;
@@ -2237,7 +2247,10 @@ function createTicketBackTexture(ticketData) {
 
   const tex = new THREE.CanvasTexture(c);
   tex.encoding = THREE.sRGBEncoding;
-  tex.anisotropy = 4;
+  tex.anisotropy = MAX_TICKET_ANISOTROPY;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
   return tex;
 }
 
@@ -2286,17 +2299,17 @@ const sharedTicketShape = createCinemaTicketShape(TICKET_W, TICKET_H);
 const sharedExtrudeGeo = new THREE.ExtrudeGeometry(sharedTicketShape, {
   depth: TICKET_DEPTH,
   bevelEnabled: true,
-  bevelSegments: 2,
+  bevelSegments: 4,
   steps: 1,
   bevelSize: 0.008,
   bevelThickness: BEVEL_THICK,
-  curveSegments: 14
+  curveSegments: 32
 });
 sharedExtrudeGeo.translate(0, 0, -TICKET_DEPTH / 2);
 sharedExtrudeGeo.computeVertexNormals();
 
 function createNormalizedFaceGeometry(shape, w, h) {
-  const geo = new THREE.ShapeGeometry(shape, 14);
+  const geo = new THREE.ShapeGeometry(shape, 32);
   const pos = geo.attributes.position;
   const uvs = new Float32Array(pos.count * 2);
   for (let i = 0; i < pos.count; i++) {
@@ -2378,7 +2391,6 @@ const ticketModels = TICKETS.map((data, idx) => createTicketPairGroup(data, idx)
 
 /* ============================================================================
    MODELADO 3D PROFESIONAL DE LOS 6 COMBOS DE COMIDA (SIN TEXTO NI MARCA)
-   Texturas procedurales con manchas, grano y desgaste; materiales físicos.
    ============================================================================ */
 
 function makeSeededRandom(seed) {
@@ -2404,13 +2416,12 @@ function paintCanvas(w, h, paint) {
   return c;
 }
 
-// Textura envolvente para cuerpos de revolución: el centro queda de frente
 function wrapTexture(canvas) {
   const tex = new THREE.CanvasTexture(canvas);
   tex.wrapS = THREE.RepeatWrapping;
   tex.offset.x = 0.5;
   tex.encoding = THREE.sRGBEncoding;
-  tex.anisotropy = 8;
+  tex.anisotropy = MAX_TICKET_ANISOTROPY;
   return tex;
 }
 
@@ -2418,11 +2429,10 @@ function plainTexture(canvas) {
   const tex = new THREE.CanvasTexture(canvas);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.encoding = THREE.sRGBEncoding;
-  tex.anisotropy = 8;
+  tex.anisotropy = MAX_TICKET_ANISOTROPY;
   return tex;
 }
 
-// Manchas orgánicas: ruido de pocas celdas, estirado con suavizado y en overlay
 function mottle(ctx, w, h, cells, alpha, seed) {
   const s = paintCanvas(cells, cells, sc => {
     const img = sc.createImageData(cells, cells);
@@ -2443,14 +2453,12 @@ function mottle(ctx, w, h, cells, alpha, seed) {
   ctx.restore();
 }
 
-// Grano fino de fibra, polvo o sal
 function speckle(ctx, w, h, count, seed, color) {
   const rnd = makeSeededRandom(seed);
   ctx.fillStyle = color;
   for (let i = 0; i < count; i++) ctx.fillRect(rnd() * w, rnd() * h, 1.5, 1.5);
 }
 
-// Mapa de relieve compartido: grano de papel, pan y cartón
 const grainTex = (() => {
   const tex = new THREE.CanvasTexture(paintCanvas(256, 256, (ctx, w, h) => {
     const img = ctx.createImageData(w, h);
@@ -2495,8 +2503,6 @@ const strawCurve = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0.28, 0.90, 0)
 ]);
 
-/* ---------- Texturas (sin texto ni marca) ---------- */
-
 function drawGoldBands(ctx, W, H, bandH) {
   const g = ctx.createLinearGradient(0, 0, W, 0);
   g.addColorStop(0, '#A36E1C');
@@ -2523,7 +2529,6 @@ function popcornBucketCanvas(style) {
       ctx.fillStyle = style === 'mix' ? '#6B3813' : '#4A2A0E';
       for (let x = 0; x < W; x += 64) ctx.fillRect(x, 0, 30, H);
     }
-    // Manchas de grasa translúcida, como en un vaso usado
     const rnd = makeSeededRandom(9);
     for (let i = 0; i < 6; i++) {
       const x = rnd() * W;
@@ -2552,7 +2557,6 @@ function cupCanvas(style) {
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
       mottle(ctx, W, H, 40, 0.5, 7);
-      // Cristales de hielo
       const rnd = makeSeededRandom(19);
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       for (let i = 0; i < 90; i++) {
@@ -2578,7 +2582,6 @@ function cupCanvas(style) {
       mottle(ctx, W, H, 16, 0.3, 5);
       drawGoldBands(ctx, W, H, 28);
     }
-    // Reflejo de plástico
     const sh = ctx.createLinearGradient(W * 0.14, 0, W * 0.3, 0);
     sh.addColorStop(0, 'rgba(255,255,255,0)');
     sh.addColorStop(0.5, 'rgba(255,255,255,0.12)');
@@ -2611,7 +2614,6 @@ function sausageCanvas() {
     ctx.fillStyle = '#7F1D1D';
     ctx.fillRect(0, 0, W, H);
     mottle(ctx, W, H, 10, 0.4, 17);
-    // Marcas de parrilla
     ctx.strokeStyle = 'rgba(30,8,8,0.55)';
     ctx.lineWidth = 6;
     for (let x = -H; x < W; x += 56) {
@@ -2628,7 +2630,6 @@ function lettuceCanvas() {
     ctx.fillStyle = '#22C55E';
     ctx.fillRect(0, 0, W, H);
     mottle(ctx, W, H, 14, 0.5, 23);
-    // Nervaduras de la hoja
     ctx.strokeStyle = 'rgba(190,255,190,0.35)';
     ctx.lineWidth = 2;
     for (let i = 0; i < 14; i++) {
@@ -2645,7 +2646,6 @@ function cardboardCanvas(base) {
     ctx.fillStyle = base;
     ctx.fillRect(0, 0, W, H);
     mottle(ctx, W, H, 20, 0.5, 29);
-    // Fibras del cartón
     const rnd = makeSeededRandom(31);
     ctx.strokeStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 300; i++) {
@@ -2660,9 +2660,6 @@ function cardboardCanvas(base) {
   });
 }
 
-/* ---------- Geometrías ---------- */
-
-// Cúpula: mitad superior de una esfera escalada a la forma deseada
 function domeGeo(rx, ry, rz) {
   const g = new THREE.SphereGeometry(1, 36, 18, 0, Math.PI * 2, 0, Math.PI / 2);
   g.scale(rx, ry, rz);
@@ -2698,7 +2695,6 @@ function lidGeometry() {
   return new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), 48);
 }
 
-// Grano de palomita: esfera con lóbulos y arrugas (la costura se deforma igual)
 function kernelGeometry(variant) {
   const geo = new THREE.SphereGeometry(1, 18, 12);
   const pos = geo.attributes.position;
@@ -2717,7 +2713,6 @@ function kernelGeometry(variant) {
   return geo;
 }
 
-// Granizado: cúpula con vetas rojo y azul
 function slushGeometry() {
   const g = domeGeo(0.31, 0.2, 0.31);
   const pos = g.attributes.position;
@@ -2738,7 +2733,6 @@ function slushGeometry() {
   return g;
 }
 
-// Charola con esquinas redondeadas; su cara superior queda en y = 0.06
 function trayGeometry() {
   const w = 0.95, h = 0.56, r = 0.05;
   const s = new THREE.Shape();
@@ -2867,8 +2861,6 @@ const cachedComboMaterials = {
   flour: new THREE.MeshStandardMaterial({ color: 0xFDFBF4, roughness: 0.9 })
 };
 
-/* ---------- Constructores de cada combo ---------- */
-
 function build3DPopcornBucket(isVIP = false, isMix = false) {
   const g = new THREE.Group();
   const body = isVIP
@@ -2967,7 +2959,6 @@ function build3DBaguiWithFriesVIP() {
   const tray = comboAdd(g, comboSharedGeos.tray, cachedComboMaterials.trayVIP);
   tray.scale.set(1.12, 1, 1.08);
 
-  // Bagui por capas: pan, jamón, queso, lechuga y pan superior
   const bagui = new THREE.Group();
   bagui.position.set(-0.14, 0.06, 0.02);
   comboAdd(bagui, comboSharedGeos.baguiBread, cachedComboMaterials.baguiCrust, 0, 0, 0);
@@ -2988,7 +2979,6 @@ function build3DBaguiWithFriesVIP() {
   });
   g.add(bagui);
 
-  // Cajita de papas con borde dorado
   const fries = new THREE.Group();
   fries.position.set(0.34, 0.23, -0.02);
   comboAdd(fries, comboSharedGeos.friesHolder, cachedComboMaterials.friesHolder);
@@ -3028,7 +3018,6 @@ function createCombo3DGroup(comboData, idx) {
   const type = comboData.comboType;
 
   if (type === 'jumbo_trad') {
-    // Palomitas mix (2 sabores) + Refresco jumbo
     const popMix = registerComboPart(
       build3DPopcornBucket(false, true),
       [-0.42, -0.08, 0.06], [0.06, 0.22, 0.04],
@@ -3041,7 +3030,6 @@ function createCombo3DGroup(comboData, idx) {
     );
     parts.push(popMix, sodaJumbo);
   } else if (type === 'hotdog_trad') {
-    // Palomitas grandes + Refresco grande + Hotdog grande
     const pop = registerComboPart(
       build3DPopcornBucket(false, false),
       [-0.48, 0.04, -0.14], [0.04, 0.20, 0.03],
@@ -3059,7 +3047,6 @@ function createCombo3DGroup(comboData, idx) {
     );
     parts.push(pop, soda, hotdog);
   } else if (type === 'nachos_gde') {
-    // Palomitas grandes + Refresco grande + Nachos grandes
     const pop = registerComboPart(
       build3DPopcornBucket(false, false),
       [-0.48, 0.04, -0.14], [0.04, 0.20, 0.03],
@@ -3077,7 +3064,6 @@ function createCombo3DGroup(comboData, idx) {
     );
     parts.push(pop, soda, nachos);
   } else if (type === 'ice_gde') {
-    // Palomitas grandes + ICE grande
     const pop = registerComboPart(
       build3DPopcornBucket(false, false),
       [-0.42, -0.08, 0.06], [0.06, 0.22, 0.04],
@@ -3090,7 +3076,6 @@ function createCombo3DGroup(comboData, idx) {
     );
     parts.push(pop, icee);
   } else if (type === 'jumbo_vip') {
-    // Palomitas grandes VIP + Refresco grande VIP
     const popVIP = registerComboPart(
       build3DPopcornBucket(true, false),
       [-0.42, -0.08, 0.06], [0.06, 0.22, 0.04],
@@ -3103,7 +3088,6 @@ function createCombo3DGroup(comboData, idx) {
     );
     parts.push(popVIP, sodaVIP);
   } else if (type === 'bagui_vip') {
-    // Palomitas grandes VIP + Refresco grande VIP + Bagui clásico con papas
     const popVIP = registerComboPart(
       build3DPopcornBucket(true, false),
       [-0.50, 0.04, -0.16], [0.04, 0.20, 0.03],
@@ -3126,7 +3110,6 @@ function createCombo3DGroup(comboData, idx) {
   rootGroup.userData.floatWrapper = floatWrapper;
   rootGroup.userData.parts = parts;
 
-  // Posición inicial oculta debajo del escenario mientras arranca en Boletos
   rootGroup.position.set(0, -10, -4);
   rootGroup.scale.set(0.001, 0.001, 0.001);
 
@@ -3178,7 +3161,6 @@ const ticketLineupLabels = TICKETS.map((data, idx) => {
   return lbl;
 });
 
-// Cápsula divisoria translúcida "Combos" en el centro debajo de los boletos
 const combosDividerEl = document.createElement('div');
 combosDividerEl.className = 'lineup-section-capsule';
 combosDividerEl.textContent = 'Combos';
@@ -3209,50 +3191,52 @@ function selectItemFromLineup(category, idx) {
 
 const projVec = new THREE.Vector3();
 
+// Posicionamiento con coordenadas enteras (left/top) para máxima nitidez tipográfica
 function projectElementToScreen(el, wx, wy, wz) {
   projVec.set(wx, wy, wz);
   projVec.project(camera);
-  const sx = (projVec.x * 0.5 + 0.5) * cachedVpWidth;
-  const sy = (-(projVec.y * 0.5) + 0.5) * cachedVpHeight;
+  const sx = Math.round((projVec.x * 0.5 + 0.5) * cachedVpWidth);
+  const sy = Math.round((-(projVec.y * 0.5) + 0.5) * cachedVpHeight);
 
-  // Atenúa suavemente si se acerca al borde superior de la barra de navegación
-  const topFade = sy < 86 ? Math.max(0, (sy - 52) / 34) : (sy > cachedVpHeight - 16 ? 0 : 1);
+  const topLimit = isCompactView() ? 112 : 86;
+  const topFade = sy < topLimit ? Math.max(0, (sy - (topLimit - 34)) / 34) : (sy > cachedVpHeight - 16 ? 0 : 1);
   el.style.opacity = topFade.toFixed(2);
   el.style.pointerEvents = topFade > 0.35 ? 'auto' : 'none';
-  el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, -50%)`;
+  el.style.left = sx + 'px';
+  el.style.top = sy + 'px';
 }
 
 function updateLineupLabelsScreenPositions() {
   if (currentMode !== 'lineup') return;
   const useCompact = isCompactView();
-  const ticketYOffset = useCompact ? -0.45 : -0.62;
-  const comboYOffset = useCompact ? -0.50 : -0.68;
+  const ticketYOffset = useCompact ? -0.49 : -0.62;
+  const comboYOffset = useCompact ? -0.55 : -0.68;
 
   for (let i = 0; i < ticketModels.length; i++) {
     const item = ticketModels[i];
     projectElementToScreen(ticketLineupLabels[i], item.position.x, item.position.y + ticketYOffset, item.position.z);
   }
 
-  // Proyección de la cápsula divisoria "Combos"
   projVec.copy(dividerWorldPos);
   projVec.project(camera);
-  const divX = (projVec.x * 0.5 + 0.5) * cachedVpWidth;
-  const divY = (-(projVec.y * 0.5) + 0.5) * cachedVpHeight;
-  const divFade = divY < 86 ? Math.max(0, (divY - 52) / 34) : 1;
+  const divX = Math.round((projVec.x * 0.5 + 0.5) * cachedVpWidth);
+  const divY = Math.round((-(projVec.y * 0.5) + 0.5) * cachedVpHeight);
+  const topLimit = useCompact ? 112 : 86;
+  const divFade = divY < topLimit ? Math.max(0, (divY - (topLimit - 34)) / 34) : 1;
   combosDividerEl.style.opacity = divFade.toFixed(2);
-  combosDividerEl.style.transform = `translate3d(${divX.toFixed(1)}px, ${divY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+  combosDividerEl.style.left = divX + 'px';
+  combosDividerEl.style.top = divY + 'px';
 
   for (let j = 0; j < comboModels.length; j++) {
     const item = comboModels[j];
     projectElementToScreen(comboLineupLabels[j], item.position.x, item.position.y + comboYOffset, item.position.z);
   }
 
-  // Actualizar posición del indicador de la barra de scroll lateral
   const thumbEl = document.getElementById('lineup-scroll-thumb');
   if (thumbEl && maxCollectionScrollY > 0) {
     const ratio = Math.max(0, Math.min(1, collectionScrollY / maxCollectionScrollY));
-    const maxTrackMove = useCompact ? (95 - 28) : (130 - 38);
-    thumbEl.style.transform = `translate3d(0, ${(ratio * maxTrackMove).toFixed(1)}px, 0)`;
+    const maxTrackMove = useCompact ? (110 - 32) : (130 - 38);
+    thumbEl.style.transform = `translateY(${Math.round(ratio * maxTrackMove)}px)`;
   }
 }
 
@@ -3316,19 +3300,19 @@ function toggleSingleTicket2D(forceState) {
 
   const item = ticketModels[0];
   const useCompact = isCompactView();
-  const baseY = useCompact ? 0.78 : 0.14;
+  const baseY = useCompact ? 0.36 : 0.14;
 
   if (isSingleTicket2D) {
     animateTicketPairPose(item, 'single', 0.55);
-    const targetCamZ = useCompact ? 11.2 : 9.15;
+    const targetCamZ = useCompact ? 10.6 : 9.15;
     gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.55, ease: "expo.out", overwrite: "auto" });
-    gsap.to(item.position, { y: baseY + 0.05, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
   } else {
     animateTicketPairPose(item, 'price', 0.55);
-    const targetCamZ = useCompact ? 11.8 : 9.6;
+    const targetCamZ = useCompact ? 11.25 : 9.6;
     gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.58, ease: "back.out(1.3)", overwrite: "auto" });
-    gsap.to(item.position, { y: baseY + 0.08, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.position, { y: baseY, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
   }
 }
@@ -3364,12 +3348,10 @@ function syncCarouselCategoryButtonUI() {
   const lbl = document.getElementById('carousel-combos-label');
   if (!btn || !lbl) return;
 
-  // El botón en forma de cápsula dice "Combos" y se ilumina cuando el carrusel de Combos está activo
   lbl.textContent = "Combos";
   btn.classList.toggle('active-cat', activeCategory === 'combos');
 }
 
-// Cambia mediante animación fluida entre los 4 Boletos y los 6 Combos en el Carrusel
 function toggleCarouselCategory() {
   activeCategory = activeCategory === 'tickets' ? 'combos' : 'tickets';
   currentIndex = 0;
@@ -3383,14 +3365,14 @@ function getBaseScale(isFront, cat = activeCategory) {
   const isCombo = cat === 'combos';
 
   if (currentMode === 'detail') {
-    return isCombo ? (useCompact ? 0.72 : 0.98) : (useCompact ? 0.64 : 0.90);
+    return isCombo ? (useCompact ? 0.78 : 0.98) : (useCompact ? 0.70 : 0.90);
   } else if (currentMode === 'lineup') {
-    return isCombo ? (useCompact ? 0.50 : 0.68) : (useCompact ? 0.45 : 0.64);
+    return isCombo ? (useCompact ? 0.56 : 0.68) : (useCompact ? 0.50 : 0.64);
   } else {
     if (isCombo) {
-      return isFront ? (useCompact ? 0.72 : 0.94) : (useCompact ? 0.38 : 0.54);
+      return isFront ? (useCompact ? 0.80 : 0.94) : (useCompact ? 0.42 : 0.54);
     } else {
-      return isFront ? (useCompact ? 0.66 : 0.88) : (useCompact ? 0.40 : 0.58);
+      return isFront ? (useCompact ? 0.74 : 0.88) : (useCompact ? 0.44 : 0.58);
     }
   }
 }
@@ -3404,40 +3386,39 @@ function updatePositions(dur = 0.52) {
   const itemData = activeData[currentIndex];
 
   document.getElementById('flavor-name').textContent = itemData.name;
-  document.getElementById('flavor-banner').style.background = itemData.bannerBg;
+  document.getElementById('flavor-banner').style.setProperty('--banner-bg', itemData.bannerBg);
   document.getElementById('brand-sub').style.color = itemData.accent;
   if (bgRadialGlow) bgRadialGlow.style.color = itemData.bgRadial;
   ringMat.color.set(itemData.accent);
   rimLight.color.set(itemData.accent);
 
   const useCompact = isCompactView();
-  camera.fov = useCompact ? 45 : 36;
+  camera.fov = useCompact ? 40 : 36;
   camera.updateProjectionMatrix();
 
   if (currentMode === 'carousel') {
     isSingleTicket2D = false;
-    const pedScale = useCompact ? 0.62 : 0.88;
+    const pedScale = useCompact ? 0.72 : 0.88;
     gsap.to(pedestalGroup.scale, { x: pedScale, y: pedScale, z: pedScale, duration: 0.4, overwrite: "auto" });
     gsap.to(pedestalGroup.position, {
       x: 0,
-      y: useCompact ? -0.95 : -1.22,
-      z: useCompact ? 2.0 : 2.6,
+      y: useCompact ? -1.02 : -1.22,
+      z: useCompact ? 2.15 : 2.6,
       duration: 0.4,
       overwrite: "auto"
     });
     gsap.to(camera.position, {
       x: 0,
-      z: useCompact ? 13.5 : 11.2,
+      z: useCompact ? 12.6 : 11.2,
       duration: dur,
       ease: "expo.out",
       overwrite: "auto"
     });
 
     const isCombo = activeCategory === 'combos';
-    const radiusX = isCombo ? (useCompact ? 1.65 : 3.25) : (useCompact ? 1.45 : 2.85);
-    const radiusZ = isCombo ? (useCompact ? 2.15 : 2.75) : (useCompact ? 2.0 : 2.6);
+    const radiusX = isCombo ? (useCompact ? 1.55 : 3.25) : (useCompact ? 1.48 : 2.85);
+    const radiusZ = isCombo ? (useCompact ? 2.15 : 2.75) : (useCompact ? 2.10 : 2.6);
 
-    // Retirar suavemente los modelos de la categoría inactiva
     inactiveModels.forEach((item, i) => {
       if (item.userData.category === 'tickets') animateTicketPairPose(item, 'default', 0.35);
       else animateComboPose(item, 'default', 0.35);
@@ -3460,7 +3441,6 @@ function updatePositions(dur = 0.52) {
       });
     });
 
-    // Posicionar en carrusel los modelos de la categoría activa (4 Boletos o 6 Combos)
     activeModels.forEach((item, i) => {
       if (isCombo) animateComboPose(item, 'default', dur);
       else animateTicketPairPose(item, 'default', dur);
@@ -3472,7 +3452,7 @@ function updatePositions(dur = 0.52) {
 
       gsap.to(item.position, {
         x: Math.sin(ang) * radiusX,
-        y: front ? (useCompact ? 0.14 : 0.08) : (useCompact ? 0.30 : 0.25),
+        y: front ? (useCompact ? (isCombo ? 0.08 : 0.12) : 0.08) : (useCompact ? 0.26 : 0.25),
         z: Math.cos(ang) * radiusZ,
         duration: dur,
         ease: "expo.out",
@@ -3503,11 +3483,12 @@ function updatePositions(dur = 0.52) {
       gsap.to(item.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, overwrite: "auto" });
     });
 
+    const isCombo = activeCategory === 'combos';
     activeModels.forEach((item, i) => {
       if (i === currentIndex) {
-        const targetX = useCompact ? 0.0 : 0.34;
-        const targetY = useCompact ? 0.78 : 0.14;
-        const targetZ = useCompact ? 3.8 : 4.35;
+        const targetX = useCompact ? -0.15 : 0.34;
+        const targetY = useCompact ? (isCombo ? 0.28 : 0.36) : 0.14;
+        const targetZ = useCompact ? 3.80 : 4.35;
         const sc = getBaseScale(true, activeCategory);
         gsap.to(item.position, { x: targetX, y: targetY, z: targetZ, duration: dur, ease: "expo.out", overwrite: "auto" });
         gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "expo.out", overwrite: "auto" });
@@ -3522,18 +3503,17 @@ function updatePositions(dur = 0.52) {
   } else if (currentMode === 'lineup') {
     isSingleTicket2D = false;
     gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.3, overwrite: "auto" });
-    gsap.to(camera.position, { x: 0, z: useCompact ? 13.4 : 11.4, duration: dur, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { x: 0, z: useCompact ? 12.6 : 11.4, duration: dur, ease: "expo.out", overwrite: "auto" });
 
     const scTickets = getBaseScale(false, 'tickets');
     const scCombos = getBaseScale(false, 'combos');
 
     if (useCompact) {
-      // Modo Celular 9:16: 4 Boletos arriba (2x2), Cápsula "Combos" al centro, 6 Combos abajo (2x3)
       const tCoords = [
-        { x: -0.82, y: 0.96, z: 1.8 },
-        { x: 0.82, y: 0.96, z: 1.8 },
-        { x: -0.82, y: -0.38, z: 1.8 },
-        { x: 0.82, y: -0.38, z: 1.8 }
+        { x: -0.84, y: 0.82, z: 1.85 },
+        { x: 0.84, y: 0.82, z: 1.85 },
+        { x: -0.84, y: -0.55, z: 1.85 },
+        { x: 0.84, y: -0.55, z: 1.85 }
       ];
       ticketModels.forEach((item, i) => {
         animateTicketPairPose(item, 'default', dur);
@@ -3542,15 +3522,15 @@ function updatePositions(dur = 0.52) {
         gsap.to(item.scale, { x: scTickets, y: scTickets, z: scTickets, duration: dur, ease: "expo.out", overwrite: "auto" });
       });
 
-      dividerWorldPos.set(0, -1.28, 1.8);
+      dividerWorldPos.set(0, -1.48, 1.85);
 
       const cCoords = [
-        { x: -0.82, y: -2.18, z: 1.8 },
-        { x: 0.82, y: -2.18, z: 1.8 },
-        { x: -0.82, y: -3.65, z: 1.8 },
-        { x: 0.82, y: -3.65, z: 1.8 },
-        { x: -0.82, y: -5.12, z: 1.8 },
-        { x: 0.82, y: -5.12, z: 1.8 }
+        { x: -0.84, y: -2.35, z: 1.85 },
+        { x: 0.84, y: -2.35, z: 1.85 },
+        { x: -0.84, y: -3.88, z: 1.85 },
+        { x: 0.84, y: -3.88, z: 1.85 },
+        { x: -0.84, y: -5.41, z: 1.85 },
+        { x: 0.84, y: -5.41, z: 1.85 }
       ];
       comboModels.forEach((item, j) => {
         animateComboPose(item, 'default', dur);
@@ -3559,7 +3539,6 @@ function updatePositions(dur = 0.52) {
         gsap.to(item.scale, { x: scCombos, y: scCombos, z: scCombos, duration: dur, ease: "expo.out", overwrite: "auto" });
       });
     } else {
-      // Modo Horizontal: 4 Boletos arriba, Cápsula "Combos" al centro, 6 Combos abajo (2 filas de 3)
       const spacingT = 2.16;
       const startXT = -((ticketModels.length - 1) * spacingT) / 2;
       ticketModels.forEach((item, i) => {
@@ -3619,7 +3598,7 @@ function setMode(m) {
   document.getElementById('detail-panel').classList.toggle('visible', m === 'detail');
   document.getElementById('side-controls').classList.toggle('visible', m === 'detail');
   document.getElementById('bg-giant-text').style.opacity = m === 'lineup' ? '1' : '0';
-  document.getElementById('bg-giant-text').style.transform = m === 'lineup' ? 'scale(1) translateZ(0)' : 'scale(0.92) translateZ(0)';
+  document.getElementById('bg-giant-text').style.transform = m === 'lineup' ? 'scale(1)' : 'scale(0.92)';
 
   updatePositions(0.52);
 }
@@ -3663,7 +3642,7 @@ function renderDetailPanelContent(animateTransition = true) {
     const bullets = isCombo
       ? [
           itemData.contentDesc,
-          ...(itemData.isVIP ? ["Combo exclusivo VIP"] : []),
+          ...(itemData.isVIP ? ["Combo exclusivo para Cinépolis VIP"] : []),
           ...COMBO_COMMON_BULLETS
         ]
       : TICKET_INFO_BULLETS;
@@ -3681,7 +3660,6 @@ function renderDetailPanelContent(animateTransition = true) {
     });
   } else {
     if (!isCombo && currentIndex === 0) {
-      // Boletos a sala 2D (Opción de 2 boletos por $125 o botón de 1 boleto por $65)
       const liPairPrice = document.createElement('li');
       liPairPrice.className = 'menu-info-item clickable-pair';
       liPairPrice.title = "Seleccionar paquete de 2 boletos";
@@ -3724,7 +3702,6 @@ function renderDetailPanelContent(animateTransition = true) {
         listEl.appendChild(liSingleAdd);
       }
     } else {
-      // Resto de Boletos y todos los 6 Combos de comida
       const skuObj = itemData.skus[0];
       const liPrice = document.createElement('li');
       liPrice.className = 'menu-info-item';
@@ -3745,7 +3722,11 @@ function renderDetailPanelContent(animateTransition = true) {
 
   if (animateTransition) {
     const panelElements = [tagEl, titleEl, listEl];
-    gsap.fromTo(panelElements, { opacity: 0.3, x: -6 }, { opacity: 1, x: 0, duration: 0.24, stagger: 0.03, overwrite: "auto" });
+    gsap.fromTo(
+      panelElements,
+      { opacity: 0.3, x: -6 },
+      { opacity: 1, x: 0, duration: 0.24, stagger: 0.03, overwrite: "auto", clearProps: "transform" }
+    );
   }
 }
 
@@ -3762,34 +3743,34 @@ function inspectStep(s) {
 
   renderDetailPanelContent(true);
 
-  const baseY = useCompact ? 0.78 : 0.14;
+  const baseY = useCompact ? (isCombo ? 0.28 : 0.36) : 0.14;
 
   if (s === 0) {
     if (isCombo) animateComboPose(item, 'default', 0.52);
     else animateTicketPairPose(item, 'default', 0.52);
 
-    const targetCamZ = useCompact ? 12.6 : 10.4;
+    const targetCamZ = useCompact ? 11.45 : 10.4;
     gsap.to(item.rotation, { x: isCombo ? 0.08 : 0.04, y: -0.16, z: 0.0, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     gsap.to(item.position, { y: baseY, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
   } else {
     if (!isCombo && currentIndex === 0 && isSingleTicket2D) {
       animateTicketPairPose(item, 'single', 0.52);
-      const targetCamZ = useCompact ? 11.2 : 9.15;
+      const targetCamZ = useCompact ? 10.6 : 9.15;
       gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.55, ease: "expo.out", overwrite: "auto" });
-      gsap.to(item.position, { y: baseY + 0.05, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+      gsap.to(item.position, { y: baseY, duration: 0.55, ease: "expo.out", overwrite: "auto" });
       gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     } else if (isCombo) {
       animateComboPose(item, 'price', 0.55);
-      const targetCamZ = useCompact ? 11.7 : 9.6;
+      const targetCamZ = useCompact ? 11.15 : 9.6;
       gsap.to(item.rotation, { x: 0.12, y: 0.28, z: 0.04, duration: 0.58, ease: "back.out(1.3)", overwrite: "auto" });
-      gsap.to(item.position, { y: baseY + 0.06, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+      gsap.to(item.position, { y: useCompact ? baseY + 0.01 : baseY + 0.06, duration: 0.55, ease: "expo.out", overwrite: "auto" });
       gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     } else {
       animateTicketPairPose(item, 'price', 0.55);
-      const targetCamZ = useCompact ? 11.8 : 9.6;
+      const targetCamZ = useCompact ? 11.25 : 9.6;
       gsap.to(item.rotation, { x: -0.14, y: 0.38, z: 0.08, duration: 0.58, ease: "back.out(1.3)", overwrite: "auto" });
-      gsap.to(item.position, { y: baseY + 0.08, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+      gsap.to(item.position, { y: useCompact ? baseY : baseY + 0.08, duration: 0.55, ease: "expo.out", overwrite: "auto" });
       gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     }
   }
@@ -3823,7 +3804,7 @@ function updateCartHeaderBadge(pulse = false) {
     gsap.fromTo(
       cartBtn,
       { scale: 1.2 },
-      { scale: 1.0, duration: 0.34, ease: "back.out(2)", overwrite: "auto" }
+      { scale: 1.0, duration: 0.34, ease: "back.out(2)", overwrite: "auto", clearProps: "transform" }
     );
   }
 }
@@ -3850,7 +3831,6 @@ function animateCartTotalMoney() {
   });
 }
 
-// Genera miniatura 2D tanto para Boletos como para Combos de comida
 function build2DItemThumbSVG(sku, isFlying = false) {
   const gradId = `thumbGrad_${sku.id}_${isFlying ? 'fly' : 'list'}`;
 
@@ -3865,15 +3845,12 @@ function build2DItemThumbSVG(sku, isFlying = false) {
             <stop offset="100%" stop-color="${sku.secondaryBrown}"/>
           </linearGradient>
         </defs>
-        <!-- Palomitas en la cima -->
         <circle cx="34" cy="18" r="8" fill="#FDE047"/>
         <circle cx="45" cy="15" r="9" fill="#F59E0B"/>
         <circle cx="56" cy="18" r="8" fill="#FDE047"/>
-        <!-- Cubeta de palomitas -->
         <polygon points="22,22 68,22 61,66 29,66" fill="url(#${gradId})" stroke="${sku.foilGold}" stroke-width="2.2"/>
         <line x1="36" y1="23" x2="38" y2="65" stroke="#FDFBF4" stroke-width="2.5" opacity="0.65"/>
         <line x1="54" y1="23" x2="52" y2="65" stroke="#FDFBF4" stroke-width="2.5" opacity="0.65"/>
-        <!-- Popote y vaso de bebida -->
         <polyline points="88,24 93,8 103,6" fill="none" stroke="#DC2626" stroke-width="3.2" stroke-linecap="round"/>
         <polygon points="72,26 104,26 99,66 77,66" fill="${cupColor}" stroke="${sku.foilGold}" stroke-width="2"/>
         <rect x="70" y="22" width="36" height="5" rx="2.5" fill="#FDFBF4"/>
@@ -4133,8 +4110,8 @@ function getCartButtonOffsetFromCenter() {
   const btnCenterY = btnRect.top - vpRect.top + btnRect.height / 2;
 
   return {
-    dx: btnCenterX - vpRect.width / 2,
-    dy: btnCenterY - vpRect.height / 2
+    dx: Math.round(btnCenterX - vpRect.width / 2),
+    dy: Math.round(btnCenterY - vpRect.height / 2)
   };
 }
 
@@ -4172,6 +4149,7 @@ function openCartModal() {
       opacity: 1,
       duration: 0.38,
       ease: "expo.out",
+      clearProps: "transform",
       onComplete: updateCartScrollLock
     }
   );
@@ -4278,7 +4256,6 @@ container.addEventListener('pointermove', (e) => {
   lastTouchY = e.clientY;
   pointerMovedDistance = Math.hypot(e.clientX - touchStartX, e.clientY - touchStartY);
 
-  // Deslizamiento vertical fluido hacia abajo/arriba en 3. COLECCIÓN
   if (currentMode === 'lineup') {
     const scrollFactor = isCompactView() ? 0.011 : 0.0085;
     collectionTargetScrollY = Math.max(0, Math.min(maxCollectionScrollY, collectionTargetScrollY - dy * scrollFactor));
@@ -4289,7 +4266,6 @@ window.addEventListener('pointerup', () => {
   isPointerDown = false;
 }, { passive: true });
 
-// Soporte de rueda de ratón o trackpad en 3. COLECCIÓN
 container.addEventListener('wheel', (e) => {
   if (currentMode !== 'lineup' || isCartOpen) return;
   e.preventDefault();
@@ -4307,7 +4283,6 @@ container.addEventListener('pointerup', (e) => {
     return;
   }
 
-  // Si el usuario estaba deslizando verticalmente la colección, no disparar clic accidental
   if (currentMode === 'lineup' && pointerMovedDistance > 16) return;
 
   if (currentMode !== 'carousel' && currentMode !== 'lineup') return;
@@ -4344,13 +4319,11 @@ container.addEventListener('pointerup', (e) => {
   }
 }, { passive: true });
 
-// Bucle único sincronizado de alta frecuencia (120 FPS+)
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
   const t = clock.getElapsedTime();
 
-  // Animación de levitación en Boletos
   for (let i = 0; i < ticketModels.length; i++) {
     const item = ticketModels[i];
     const fw = item.userData.floatWrapper;
@@ -4364,7 +4337,6 @@ function animate() {
     }
   }
 
-  // Animación atractiva de levitación y giro suave en los 6 Combos 3D
   for (let j = 0; j < comboModels.length; j++) {
     const item = comboModels[j];
     const fw = item.userData.floatWrapper;
@@ -4380,7 +4352,6 @@ function animate() {
     }
   }
 
-  // Interpolación suave del scroll vertical en 3. COLECCIÓN
   if (currentMode === 'lineup') {
     collectionScrollY += (collectionTargetScrollY - collectionScrollY) * 0.16;
     camera.position.y = cameraBaseY - collectionScrollY;
@@ -4405,6 +4376,7 @@ function handleResize() {
   const h = Math.max(cachedVpHeight, 1);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min((window.devicePixelRatio || 1) * (isCompactView() ? 1.5 : 1.15), 3.0));
   renderer.setSize(w, h);
   updatePositions(0.25);
 }
