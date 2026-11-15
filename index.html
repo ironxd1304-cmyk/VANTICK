@@ -57,7 +57,7 @@
     box-shadow: 0 0 0 9999px rgba(5, 3, 1, 0.88), 0 20px 60px rgba(0, 0, 0, 0.95);
   }
 
-  /* Iluminación de fondo acelerada por GPU para evitar repintados lentos a 120 FPS */
+  /* Iluminación de fondo acelerada por GPU */
   #bg-radial-glow {
     position: absolute;
     inset: -15%;
@@ -78,6 +78,7 @@
     z-index: 1;
     cursor: grab;
     transform: translateZ(0);
+    touch-action: none;
   }
   #canvas-container:active {
     cursor: grabbing;
@@ -107,15 +108,16 @@
     font-size: 52px;
   }
 
-  /* Contenedor de nombres individuales debajo de cada boleto en 3. COLECCIÓN */
+  /* Contenedor de nombres y cápsula divisoria "Combos" en 3. COLECCIÓN */
   #lineup-labels-container {
     position: absolute;
     inset: 0;
     z-index: 45;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.28s ease;
+    transition: opacity 0.25s ease;
     will-change: opacity;
+    overflow: hidden;
   }
   #lineup-labels-container.visible {
     opacity: 1;
@@ -126,34 +128,194 @@
     top: 0;
     pointer-events: auto;
     cursor: pointer;
-    padding: 7px 14px;
+    padding: 6.5px 13px;
     border-radius: 14px;
-    background: rgba(28, 16, 7, 0.72);
+    background: rgba(28, 16, 7, 0.74);
     backdrop-filter: blur(12px) saturate(160%);
     -webkit-backdrop-filter: blur(12px) saturate(160%);
     border: 1px solid rgba(243, 201, 105, 0.45);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(253, 251, 244, 0.25);
     color: var(--vt-cream);
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.4px;
     text-align: center;
     white-space: nowrap;
-    will-change: transform;
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    will-change: transform, opacity;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   }
   .lineup-item-label:hover {
     background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
     color: #1A0E04;
     border-color: #FDFBF4;
   }
+
+  /* División transparente en forma de cápsula "Combos" en 3. COLECCIÓN */
+  .lineup-section-capsule {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    padding: 9px 38px;
+    border-radius: 999px;
+    background: rgba(34, 20, 9, 0.48);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border: 1.5px solid rgba(243, 201, 105, 0.58);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(253, 251, 244, 0.35);
+    color: var(--vt-cream);
+    font-size: 13.5px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    will-change: transform, opacity;
+  }
+
   #app-viewport.compact-ui .lineup-item-label {
-    padding: 5px 9px;
-    font-size: 9.2px;
+    padding: 4.5px 8.5px;
+    font-size: 8.8px;
     border-radius: 10px;
-    max-width: 148px;
+    max-width: 142px;
     white-space: normal;
     line-height: 1.15;
+  }
+  #app-viewport.compact-ui .lineup-section-capsule {
+    padding: 6.5px 26px;
+    font-size: 11px;
+    letter-spacing: 2.2px;
+  }
+
+  /* Indicador lateral de desplazamiento vertical en 3. COLECCIÓN */
+  #lineup-scroll-ui {
+    position: absolute;
+    right: 16px;
+    top: 52%;
+    transform: translateY(-50%) translateZ(0);
+    z-index: 52;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  #lineup-scroll-ui.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .scroll-track {
+    width: 6px;
+    height: 130px;
+    border-radius: 999px;
+    background: rgba(253, 251, 244, 0.12);
+    border: 1px solid rgba(243, 201, 105, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-thumb {
+    width: 100%;
+    height: 38px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #FDFBF4 0%, #F3C969 100%);
+    box-shadow: 0 0 10px rgba(243, 201, 105, 0.6);
+    will-change: transform;
+  }
+  .scroll-step-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(243, 201, 105, 0.45);
+    background: var(--vt-glass-bg);
+    color: var(--vt-cream);
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+    transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+  }
+  .scroll-step-btn:hover {
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #1A0E04;
+    transform: scale(1.08);
+  }
+  #app-viewport.compact-ui #lineup-scroll-ui {
+    right: 7px;
+    top: 54%;
+  }
+  #app-viewport.compact-ui .scroll-track {
+    height: 95px;
+    width: 5px;
+  }
+  #app-viewport.compact-ui .scroll-thumb {
+    height: 28px;
+  }
+  #app-viewport.compact-ui .scroll-step-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  /* Botón lateral en forma de cápsula "Combos" en 1. CARRUSEL */
+  #carousel-side-switch {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%) translateZ(0);
+    z-index: 54;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.25s ease;
+  }
+  #carousel-side-switch.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .capsule-switch-btn {
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: 1.5px solid var(--vt-glass-border);
+    background: var(--vt-glass-bg);
+    color: var(--vt-cream);
+    cursor: pointer;
+    font-weight: 900;
+    font-size: 11.5px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.58), inset 0 1px 2px var(--vt-glass-highlight);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  .capsule-switch-btn:hover, .capsule-switch-btn.active-cat {
+    background: linear-gradient(135deg, #FDFBF4 0%, #F3C969 100%);
+    color: #1A0F05;
+    border-color: #FDFBF4;
+    transform: scale(1.06);
+    box-shadow: 0 0 22px rgba(243, 201, 105, 0.65);
+  }
+  #app-viewport.compact-ui #carousel-side-switch {
+    right: 10px;
+    top: 46%;
+  }
+  #app-viewport.compact-ui .capsule-switch-btn {
+    padding: 9px 14px;
+    font-size: 9.5px;
+    letter-spacing: 1px;
   }
 
   /* Indicador superior */
@@ -204,7 +366,7 @@
     transform: translateZ(0);
   }
 
-  /* Logo VANTICK perfectamente encapsulado dentro de la silueta del boleto */
+  /* Logo VANTICK dentro de la silueta del boleto */
   .ticket-logo-badge {
     position: relative;
     display: inline-flex;
@@ -288,7 +450,6 @@
     box-shadow: 0 4px 14px rgba(212, 155, 42, 0.38);
   }
 
-  /* Botón de Carrito en la barra superior (al lado de 2. INFORMACIÓN) */
   .cart-header-btn {
     position: relative;
     display: inline-flex;
@@ -417,7 +578,7 @@
     font-size: 8.6px;
   }
 
-  /* Controles inferiores del carrusel (Solo visibles en modo 1. CARRUSEL) */
+  /* Controles inferiores del carrusel */
   #carousel-ui {
     position: absolute;
     bottom: 18px;
@@ -527,7 +688,7 @@
     position: absolute;
     left: 2.5%;
     bottom: 22px;
-    width: 345px;
+    width: 350px;
     z-index: 50;
     opacity: 0;
     pointer-events: none;
@@ -554,7 +715,7 @@
     text-transform: uppercase;
   }
   #detail-title {
-    font-size: 20px;
+    font-size: 19.5px;
     font-weight: 900;
     margin: 4px 0 8px;
     line-height: 1.15;
@@ -584,8 +745,8 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
+    gap: 7px;
+    margin-bottom: 13px;
     padding: 0;
   }
   .feature-list li.menu-info-item {
@@ -595,12 +756,13 @@
     gap: 10px;
     background: rgba(253, 251, 244, 0.07);
     border: 1px solid rgba(253, 251, 244, 0.18);
-    padding: 9px 12px;
+    padding: 8.5px 12px;
     border-radius: 12px;
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--vt-cream);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.25px;
+    line-height: 1.28;
     transition: background 0.18s ease, border-color 0.18s ease;
   }
   .menu-info-left {
@@ -749,7 +911,6 @@
     transform: translateY(0) scale(0.98);
   }
 
-  /* Selector integrado [-  cantidad  +] dentro del mismo botón */
   .inline-cart-stepper {
     width: 100%;
     display: flex;
@@ -819,38 +980,39 @@
     width: 94%;
     top: auto;
     bottom: 10px;
-    padding: 11px 13px;
+    padding: 10px 12px;
     border-radius: 18px;
   }
   #app-viewport.compact-ui #detail-tag {
-    font-size: 8px;
-    letter-spacing: 1.5px;
+    font-size: 7.8px;
+    letter-spacing: 1.4px;
   }
   #app-viewport.compact-ui #detail-title {
-    font-size: 14.5px;
-    margin: 2px 0 4px;
+    font-size: 14px;
+    margin: 2px 0 3px;
   }
   #app-viewport.compact-ui .callout-line {
-    margin: 3px 0 7px;
+    margin: 3px 0 6px;
   }
   #app-viewport.compact-ui .feature-list {
-    gap: 5px;
-    margin-bottom: 8px;
+    gap: 4px;
+    margin-bottom: 7px;
   }
   #app-viewport.compact-ui .feature-list li.menu-info-item {
-    padding: 6px 10px;
-    font-size: 10.5px;
-    border-radius: 9px;
+    padding: 5px 9px;
+    font-size: 9.8px;
+    border-radius: 8px;
+    line-height: 1.2;
   }
   #app-viewport.compact-ui .single-ticket-cta-btn {
-    padding: 7.5px 11px;
-    font-size: 10.8px;
+    padding: 7px 11px;
+    font-size: 10.5px;
     border-radius: 10px;
   }
   #app-viewport.compact-ui .single-ticket-cta-btn.active {
-    padding: 10px 13px;
-    font-size: 12.2px;
-    border-radius: 12px;
+    padding: 9.5px 12px;
+    font-size: 11.8px;
+    border-radius: 11px;
     transform: scale(1.015);
   }
   #app-viewport.compact-ui .single-btn-badge {
@@ -858,8 +1020,8 @@
     padding: 3px 6px;
   }
   #app-viewport.compact-ui .add-to-cart-main-btn {
-    padding: 8.5px 12px;
-    font-size: 10.8px;
+    padding: 8px 12px;
+    font-size: 10.5px;
     border-radius: 10px;
   }
   #app-viewport.compact-ui .inline-cart-stepper {
@@ -868,7 +1030,7 @@
   }
   #app-viewport.compact-ui .stepper-side-btn {
     width: 28px;
-    height: 26px;
+    height: 25px;
     font-size: 15px;
     border-radius: 7px;
   }
@@ -880,10 +1042,10 @@
   }
   #app-viewport.compact-ui .detail-nav-row .nav-btn {
     padding: 5px 5px;
-    font-size: 8.5px;
+    font-size: 8.4px;
   }
 
-  /* Botones laterales derechos en 2. INFORMACIÓN (INFO y PRECIO en Vidrio Esmerilado) */
+  /* Botones laterales derechos en 2. INFORMACIÓN (INFO y PRECIO) */
   #side-controls {
     position: absolute;
     right: 20px;
@@ -927,7 +1089,7 @@
 
   #app-viewport.compact-ui #side-controls {
     right: 10px;
-    top: 36%;
+    top: 34%;
     gap: 10px;
   }
   #app-viewport.compact-ui .step-btn {
@@ -1312,13 +1474,13 @@
     font-size: 14.5px;
   }
 
-  /* Boleto 2D volador acelerado por GPU */
+  /* Miniatura 2D voladora acelerada por GPU */
   .flying-ticket-token {
     position: absolute;
     left: 0;
     top: 0;
     width: 58px;
-    height: 34px;
+    height: 36px;
     z-index: 95;
     pointer-events: none;
     will-change: transform;
@@ -1329,7 +1491,7 @@
 <body>
   <div id="app-viewport">
     <div id="bg-radial-glow"></div>
-    <div id="loader-badge">BOLETOS 3D VANTICK LISTOS</div>
+    <div id="loader-badge">CATÁLOGO 3D VANTICK LISTO</div>
 
     <header>
       <!-- Logotipo VANTICK alineado dentro del cuerpo principal de la silueta del boleto -->
@@ -1387,19 +1549,35 @@
     <div id="bg-giant-text">VANTICK</div>
     <div id="canvas-container"></div>
 
-    <!-- Nombres de cada artículo en la parte inferior de cada modelo (Exclusivo de 3. COLECCIÓN) -->
+    <!-- Nombres de cada artículo y cápsula divisoria "Combos" (Exclusivo de 3. COLECCIÓN) -->
     <div id="lineup-labels-container"></div>
 
-    <!-- Barra inferior del carrusel (Oculta automáticamente en Información y en Colección) -->
+    <!-- Barra lateral de scroll vertical en 3. COLECCIÓN -->
+    <div id="lineup-scroll-ui">
+      <button type="button" class="scroll-step-btn" title="Subir a Boletos" onclick="scrollCollectionBy(-2.6)">&#8593;</button>
+      <div class="scroll-track">
+        <div class="scroll-thumb" id="lineup-scroll-thumb"></div>
+      </div>
+      <button type="button" class="scroll-step-btn" title="Bajar a Combos" onclick="scrollCollectionBy(2.6)">&#8595;</button>
+    </div>
+
+    <!-- Botón lateral en forma de cápsula "Combos" en el modo 1. CARRUSEL -->
+    <div id="carousel-side-switch">
+      <button type="button" class="capsule-switch-btn" id="carousel-combos-btn" title="Cambiar entre Boletos y Combos" onclick="toggleCarouselCategory()">
+        <span id="carousel-combos-label">Combos</span>
+      </button>
+    </div>
+
+    <!-- Barra inferior del carrusel (Visible en 1. CARRUSEL) -->
     <div id="carousel-ui">
       <div class="banner-row">
-        <button class="arrow-btn" title="Boleto Anterior" onclick="changeTicket(-1)">&#8592;</button>
+        <button class="arrow-btn" title="Anterior" onclick="changeItem(-1)">&#8592;</button>
         <div class="flavor-banner" id="flavor-banner" onclick="setMode('detail')">
           <h2 id="flavor-name">Boletos a sala 2D</h2>
         </div>
-        <button class="arrow-btn" title="Siguiente Boleto" onclick="changeTicket(1)">&#8594;</button>
+        <button class="arrow-btn" title="Siguiente" onclick="changeItem(1)">&#8594;</button>
       </div>
-      <span class="inspect-hint" id="inspect-hint">TOCA LAS FLECHAS PARA CAMBIAR O LOS BOLETOS PARA INSPECCIONAR</span>
+      <span class="inspect-hint" id="inspect-hint">TOCA LAS FLECHAS PARA CAMBIAR O EL MODELO 3D PARA VER SU INFORMACIÓN</span>
     </div>
 
     <!-- Panel izquierdo de detalles e interacción en vidrio esmerilado -->
@@ -1411,15 +1589,15 @@
       <ul class="feature-list" id="detail-list"></ul>
 
       <div class="detail-nav-row">
-        <button class="nav-btn" onclick="changeTicket(-1)">&#8592; ANTERIOR</button>
+        <button class="nav-btn" onclick="changeItem(-1)">&#8592; ANTERIOR</button>
         <button class="nav-btn" onclick="setMode('carousel')">CARRUSEL</button>
-        <button class="nav-btn" onclick="changeTicket(1)">SIGUIENTE &#8594;</button>
+        <button class="nav-btn" onclick="changeItem(1)">SIGUIENTE &#8594;</button>
       </div>
     </div>
 
-    <!-- Botones laterales de Información (INFO y PRECIO) -->
+    <!-- Botones laterales de 2. INFORMACIÓN (INFO y PRECIO) -->
     <div id="side-controls">
-      <button class="step-btn active" title="Información del Boleto" onclick="inspectStep(0)">INFO</button>
+      <button class="step-btn active" title="Información del Producto" onclick="inspectStep(0)">INFO</button>
       <button class="step-btn" title="Precios Oficiales" onclick="inspectStep(1)">PRECIO</button>
     </div>
 
@@ -1432,7 +1610,6 @@
         </div>
 
         <div class="cart-modal-body">
-          <!-- Estado cuando no hay artículos agregados (Botón Agregar vinculado a 3. COLECCIÓN) -->
           <div id="cart-empty-state">
             <svg class="empty-ticket-illust" viewBox="0 0 120 72">
               <path d="M 10,6 H 34 A 6,6 0 0 0 46,6 H 110 A 6,6 0 0 1 116,12 V 24 A 10,10 0 0 0 116,48 V 60 A 6,6 0 0 1 110,66 H 46 A 6,6 0 0 0 34,66 H 10 A 6,6 0 0 1 4,60 V 48 A 10,10 0 0 0 4,24 V 12 A 6,6 0 0 1 10,6 Z"
@@ -1444,7 +1621,6 @@
             <button type="button" class="cart-empty-add-btn" onclick="goToCollectionFromEmptyCart()">Agregar</button>
           </div>
 
-          <!-- Lista de productos agregados -->
           <div id="cart-items-list"></div>
         </div>
 
@@ -1470,11 +1646,17 @@
 gsap.ticker.fps(-1);
 gsap.ticker.lagSmoothing(0);
 
-const INFO_BULLETS = [
+const TICKET_INFO_BULLETS = [
   "Disponibles para todo México",
   "Entrega rápida",
   "Duración de 30 días desde que son entregados",
   "Disponibles para películas en preventa"
+];
+
+const COMBO_COMMON_BULLETS = [
+  "Canjeables únicamente de forma presencial",
+  "Se entrega un código QR",
+  "Se pueden realizar modificaciones al combo por un costo extra en taquilla"
 ];
 
 const TICKETS = [
@@ -1558,24 +1740,143 @@ const TICKETS = [
   }
 ];
 
+const COMBOS = [
+  {
+    name: "Combo jumbo tradicional",
+    comboType: "jumbo_trad",
+    isVIP: false,
+    contentDesc: "Contiene palomitas mix (2 sabores) y un refresco jumbo",
+    primaryBrown: "#4E2C11",
+    secondaryBrown: "#241205",
+    foilGold: "#F3C969",
+    bannerBg: "linear-gradient(135deg, rgba(84, 48, 18, 0.9), rgba(36, 18, 6, 0.95))",
+    bgRadial: "#5C3414",
+    accent: "#F3C969",
+    prices: ["Combo por $195"],
+    skus: [
+      { id: "vt_combo_jumbo_trad", name: "Combo jumbo tradicional", packDesc: "Palomitas mix + Refresco jumbo", unitPrice: 195, isSingle: true }
+    ]
+  },
+  {
+    name: "Combo hotdog tradicional",
+    comboType: "hotdog_trad",
+    isVIP: false,
+    contentDesc: "Contiene un hotdog grande, unas palomitas grandes y un refresco grande",
+    primaryBrown: "#633212",
+    secondaryBrown: "#2B1406",
+    foilGold: "#F59E0B",
+    bannerBg: "linear-gradient(135deg, rgba(102, 52, 18, 0.9), rgba(43, 20, 6, 0.95))",
+    bgRadial: "#6E3814",
+    accent: "#FBBF24",
+    prices: ["Combo por $215"],
+    skus: [
+      { id: "vt_combo_hotdog_trad", name: "Combo hotdog tradicional", packDesc: "Hotdog gde + Palomitas gdes + Refresco gde", unitPrice: 215, isSingle: true }
+    ]
+  },
+  {
+    name: "Combo nachos grande",
+    comboType: "nachos_gde",
+    isVIP: false,
+    contentDesc: "Contiene unos nachos grandes, palomitas grandes y un refresco grande",
+    primaryBrown: "#703B10",
+    secondaryBrown: "#331905",
+    foilGold: "#FBBF24",
+    bannerBg: "linear-gradient(135deg, rgba(115, 62, 18, 0.9), rgba(48, 24, 6, 0.95))",
+    bgRadial: "#7A4212",
+    accent: "#FCD34D",
+    prices: ["Combo por $230"],
+    skus: [
+      { id: "vt_combo_nachos_gde", name: "Combo nachos grande", packDesc: "Nachos gdes + Palomitas gdes + Refresco gde", unitPrice: 230, isSingle: true }
+    ]
+  },
+  {
+    name: "Combo ICE",
+    comboType: "ice_gde",
+    isVIP: false,
+    contentDesc: "Contiene un ICE grande y palomitas grandes",
+    primaryBrown: "#3D291A",
+    secondaryBrown: "#1B110A",
+    foilGold: "#60A5FA",
+    bannerBg: "linear-gradient(135deg, rgba(58, 42, 30, 0.9), rgba(24, 16, 12, 0.95))",
+    bgRadial: "#4A3322",
+    accent: "#93C5FD",
+    prices: ["Combo por $170"],
+    skus: [
+      { id: "vt_combo_ice", name: "Combo ICE", packDesc: "ICE grande + Palomitas grandes", unitPrice: 170, isSingle: true }
+    ]
+  },
+  {
+    name: "Combo jumbo VIP",
+    comboType: "jumbo_vip",
+    isVIP: true,
+    contentDesc: "Contiene palomitas grandes y refresco grande",
+    primaryBrown: "#261B10",
+    secondaryBrown: "#100B06",
+    foilGold: "#F7CF75",
+    bannerBg: "linear-gradient(135deg, rgba(48, 34, 18, 0.92), rgba(18, 12, 6, 0.96))",
+    bgRadial: "#4F3818",
+    accent: "#F7CF75",
+    prices: ["Combo por $185"],
+    skus: [
+      { id: "vt_combo_jumbo_vip", name: "Combo jumbo VIP", packDesc: "Palomitas gdes + Refresco gde (VIP)", unitPrice: 185, isSingle: true }
+    ]
+  },
+  {
+    name: "Combo bagui VIP",
+    comboType: "bagui_vip",
+    isVIP: true,
+    contentDesc: "Contiene un bagui clásico con papas, palomitas grandes y refresco grande",
+    primaryBrown: "#332211",
+    secondaryBrown: "#140C05",
+    foilGold: "#F5C451",
+    bannerBg: "linear-gradient(135deg, rgba(64, 42, 18, 0.92), rgba(22, 13, 5, 0.96))",
+    bgRadial: "#5E3E16",
+    accent: "#F5C451",
+    prices: ["Combo por $325"],
+    skus: [
+      { id: "vt_combo_bagui_vip", name: "Combo bagui VIP", packDesc: "Bagui con papas + Palomitas + Refresco (VIP)", unitPrice: 325, isSingle: true }
+    ]
+  }
+];
+
 const SKU_CATALOG = {};
 TICKETS.forEach((t, tIdx) => {
   t.skus.forEach(s => {
     SKU_CATALOG[s.id] = {
       ...s,
-      ticketIndex: tIdx,
+      category: 'tickets',
+      itemIndex: tIdx,
       primaryBrown: t.primaryBrown,
       secondaryBrown: t.secondaryBrown,
       foilGold: t.foilGold
     };
   });
 });
+COMBOS.forEach((c, cIdx) => {
+  c.skus.forEach(s => {
+    SKU_CATALOG[s.id] = {
+      ...s,
+      category: 'combos',
+      itemIndex: cIdx,
+      comboType: c.comboType,
+      primaryBrown: c.primaryBrown,
+      secondaryBrown: c.secondaryBrown,
+      foilGold: c.foilGold
+    };
+  });
+});
 
+let activeCategory = 'tickets'; // 'tickets' | 'combos'
 let currentIndex = 0;
-let currentMode = 'carousel';
-let currentStep = 0;
+let currentMode = 'carousel'; // 'carousel' | 'detail' | 'lineup'
+let currentStep = 0; // 0 = INFO, 1 = PRECIO
 let isSingleTicket2D = false;
 let isCartOpen = false;
+
+// Variables de desplazamiento vertical suave para 3. COLECCIÓN
+let collectionScrollY = 0;
+let collectionTargetScrollY = 0;
+let maxCollectionScrollY = 3.6;
 
 const cartState = {};
 const moneyCounterAnim = { val: 0 };
@@ -1637,6 +1938,8 @@ function applyViewportDimensions() {
 
   const compact = isCompactView();
   viewport.classList.toggle('compact-ui', compact);
+  maxCollectionScrollY = compact ? 5.25 : 3.55;
+  collectionTargetScrollY = Math.min(collectionTargetScrollY, maxCollectionScrollY);
 
   const btn = document.getElementById('format-toggle-btn');
   if (btn) {
@@ -1655,10 +1958,10 @@ const initH = Math.max(cachedVpHeight, 480);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(36, initW / initH, 0.1, 100);
-camera.position.set(0, 0.15, 11.2);
+const cameraBaseY = 0.15;
+camera.position.set(0, cameraBaseY, 11.2);
 const cameraTarget = new THREE.Vector3(0, 0.05, 1.5);
 
-// WebGLRenderer configurado en modo alto rendimiento para 120 FPS fluidos
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
@@ -1669,16 +1972,16 @@ renderer.setSize(initW, initH);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.06;
 container.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0xFFF6E5, 0.68));
+scene.add(new THREE.AmbientLight(0xFFF6E5, 0.72));
 
-const keyLight = new THREE.DirectionalLight(0xFFFDF8, 1.05);
-keyLight.position.set(4, 6, 6.5);
+const keyLight = new THREE.DirectionalLight(0xFFFDF8, 1.08);
+keyLight.position.set(4, 6.5, 6.5);
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xF3C969, 0.52);
+const fillLight = new THREE.DirectionalLight(0xF3C969, 0.54);
 fillLight.position.set(-4.5, 2.5, 4.5);
 scene.add(fillLight);
 
@@ -1733,7 +2036,9 @@ function drawFilmStripBand(ctx, x, y, width, height, color) {
   ctx.restore();
 }
 
-// Texturas optimizadas con mipmapping para máxima fluidez en GPU móvil/tablet
+/* ============================================================================
+   MODELADO 3D DE LOS 4 BOLETOS DE CINE VANTICK
+   ============================================================================ */
 function createTicketFrontTexture(ticketData, variantIdx) {
   const c = document.createElement('canvas');
   c.width = 1024;
@@ -2033,13 +2338,11 @@ function createSingle3DTicket(ticketData, variantIdx, sharedBackMat, sharedRimMa
 
 function createTicketPairGroup(ticketData, idx) {
   const rootGroup = new THREE.Group();
-  rootGroup.userData = { ticketIndex: idx };
+  rootGroup.userData = { category: 'tickets', itemIndex: idx };
 
-  // Contenedor hijo dedicado exclusivamente a la levitación suave para no chocar con GSAP
   const floatWrapper = new THREE.Group();
   rootGroup.add(floatWrapper);
 
-  // Materiales compartidos entre el par de boletos para reducir llamadas de estado en GPU
   const sharedRimMat = new THREE.MeshStandardMaterial({
     color: new THREE.Color(ticketData.foilGold),
     roughness: 0.30,
@@ -2073,43 +2376,889 @@ function createTicketPairGroup(ticketData, idx) {
 
 const ticketModels = TICKETS.map((data, idx) => createTicketPairGroup(data, idx));
 
-// Creación de las 4 etiquetas inferiores para el modo 3. COLECCIÓN
-const lineupLabelElements = TICKETS.map((data, idx) => {
+/* ============================================================================
+   MODELADO 3D PROFESIONAL DE LOS 6 COMBOS DE COMIDA (SIN TEXTO NI MARCA)
+   Texturas procedurales con manchas, grano y desgaste; materiales físicos.
+   ============================================================================ */
+
+function makeSeededRandom(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+function comboAdd(parent, geo, mat, x = 0, y = 0, z = 0) {
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  parent.add(m);
+  return m;
+}
+
+function paintCanvas(w, h, paint) {
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  paint(c.getContext('2d'), w, h);
+  return c;
+}
+
+// Textura envolvente para cuerpos de revolución: el centro queda de frente
+function wrapTexture(canvas) {
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.offset.x = 0.5;
+  tex.encoding = THREE.sRGBEncoding;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+function plainTexture(canvas) {
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.encoding = THREE.sRGBEncoding;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+// Manchas orgánicas: ruido de pocas celdas, estirado con suavizado y en overlay
+function mottle(ctx, w, h, cells, alpha, seed) {
+  const s = paintCanvas(cells, cells, sc => {
+    const img = sc.createImageData(cells, cells);
+    const rnd = makeSeededRandom(seed);
+    for (let i = 0; i < cells * cells; i++) {
+      const v = rnd() * 255;
+      img.data[i * 4] = v;
+      img.data[i * 4 + 1] = v;
+      img.data[i * 4 + 2] = v;
+      img.data[i * 4 + 3] = 255;
+    }
+    sc.putImageData(img, 0, 0);
+  });
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.drawImage(s, 0, 0, w, h);
+  ctx.restore();
+}
+
+// Grano fino de fibra, polvo o sal
+function speckle(ctx, w, h, count, seed, color) {
+  const rnd = makeSeededRandom(seed);
+  ctx.fillStyle = color;
+  for (let i = 0; i < count; i++) ctx.fillRect(rnd() * w, rnd() * h, 1.5, 1.5);
+}
+
+// Mapa de relieve compartido: grano de papel, pan y cartón
+const grainTex = (() => {
+  const tex = new THREE.CanvasTexture(paintCanvas(256, 256, (ctx, w, h) => {
+    const img = ctx.createImageData(w, h);
+    const rnd = makeSeededRandom(11);
+    for (let i = 0; i < w * h; i++) {
+      const v = 110 + rnd() * 120;
+      img.data[i * 4] = v;
+      img.data[i * 4 + 1] = v;
+      img.data[i * 4 + 2] = v;
+      img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }));
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+})();
+
+const POPCORN_LAYOUT = (() => {
+  const rnd = makeSeededRandom(42);
+  const out = [];
+  for (let i = 0; i < 22; i++) {
+    const a = rnd() * Math.PI * 2;
+    const rr = 0.40 * Math.sqrt(rnd());
+    out.push({
+      x: Math.cos(a) * rr,
+      y: 0.46 + 0.24 * Math.sqrt(Math.max(0, 1 - (rr / 0.44) ** 2)) + 0.02 + rnd() * 0.02,
+      z: Math.sin(a) * rr,
+      v: Math.floor(rnd() * 4),
+      c: Math.floor(rnd() * 3),
+      s: 0.11 * (0.85 + rnd() * 0.3),
+      rot: [rnd() * 3, rnd() * 3, rnd() * 3]
+    });
+  }
+  return out;
+})();
+
+const strawCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0.04, 0.10, 0),
+  new THREE.Vector3(0.05, 0.42, 0),
+  new THREE.Vector3(0.09, 0.62, 0),
+  new THREE.Vector3(0.16, 0.80, 0),
+  new THREE.Vector3(0.28, 0.90, 0)
+]);
+
+/* ---------- Texturas (sin texto ni marca) ---------- */
+
+function drawGoldBands(ctx, W, H, bandH) {
+  const g = ctx.createLinearGradient(0, 0, W, 0);
+  g.addColorStop(0, '#A36E1C');
+  g.addColorStop(0.5, '#F3C969');
+  g.addColorStop(1, '#A36E1C');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, bandH);
+  ctx.fillRect(0, H - bandH, W, bandH);
+}
+
+function popcornBucketCanvas(style) {
+  return paintCanvas(1024, 512, (ctx, W, H) => {
+    if (style === 'vip') {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#2B1D10');
+      g.addColorStop(1, '#0A0503');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(243,201,105,0.28)';
+      for (let x = 26; x < W; x += 64) ctx.fillRect(x, 0, 6, H);
+    } else {
+      ctx.fillStyle = '#FBF6E9';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = style === 'mix' ? '#6B3813' : '#4A2A0E';
+      for (let x = 0; x < W; x += 64) ctx.fillRect(x, 0, 30, H);
+    }
+    // Manchas de grasa translúcida, como en un vaso usado
+    const rnd = makeSeededRandom(9);
+    for (let i = 0; i < 6; i++) {
+      const x = rnd() * W;
+      const y = H * (0.2 + rnd() * 0.6);
+      const r = 30 + rnd() * 60;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, 'rgba(190,130,40,0.22)');
+      g.addColorStop(1, 'rgba(190,130,40,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    mottle(ctx, W, H, 18, 0.45, 3);
+    speckle(ctx, W, H, 5000, 21, 'rgba(90,60,30,0.12)');
+    drawGoldBands(ctx, W, H, 34);
+  });
+}
+
+function cupCanvas(style) {
+  return paintCanvas(1024, 512, (ctx, W, H) => {
+    if (style === 'icee') {
+      const g = ctx.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, '#B91C1C');
+      g.addColorStop(0.46, '#EF4444');
+      g.addColorStop(0.54, '#0284C7');
+      g.addColorStop(1, '#1D4ED8');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      mottle(ctx, W, H, 40, 0.5, 7);
+      // Cristales de hielo
+      const rnd = makeSeededRandom(19);
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      for (let i = 0; i < 90; i++) {
+        ctx.beginPath();
+        ctx.arc(rnd() * W, rnd() * H, 4 + rnd() * 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      const vip = style === 'vip';
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, vip ? '#1F160E' : '#4A2A12');
+      g.addColorStop(1, vip ? '#070402' : '#1C0E04');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = vip ? 'rgba(247,207,117,0.18)' : 'rgba(243,201,105,0.13)';
+      ctx.lineWidth = 10;
+      for (let x = -H; x < W; x += 72) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x + H, H);
+        ctx.stroke();
+      }
+      mottle(ctx, W, H, 16, 0.3, 5);
+      drawGoldBands(ctx, W, H, 28);
+    }
+    // Reflejo de plástico
+    const sh = ctx.createLinearGradient(W * 0.14, 0, W * 0.3, 0);
+    sh.addColorStop(0, 'rgba(255,255,255,0)');
+    sh.addColorStop(0.5, 'rgba(255,255,255,0.12)');
+    sh.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sh;
+    ctx.fillRect(W * 0.14, 0, W * 0.16, H);
+  });
+}
+
+function cheeseCanvas() {
+  return paintCanvas(256, 256, (ctx, W, H) => {
+    ctx.fillStyle = '#FBBF24';
+    ctx.fillRect(0, 0, W, H);
+    mottle(ctx, W, H, 12, 0.5, 13);
+    speckle(ctx, W, H, 600, 4, 'rgba(255,245,200,0.5)');
+  });
+}
+
+function breadCanvas(base, seed) {
+  return paintCanvas(512, 512, (ctx, W, H) => {
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, W, H);
+    mottle(ctx, W, H, 24, 0.6, seed);
+    speckle(ctx, W, H, 4000, seed + 1, 'rgba(60,25,5,0.35)');
+  });
+}
+
+function sausageCanvas() {
+  return paintCanvas(256, 256, (ctx, W, H) => {
+    ctx.fillStyle = '#7F1D1D';
+    ctx.fillRect(0, 0, W, H);
+    mottle(ctx, W, H, 10, 0.4, 17);
+    // Marcas de parrilla
+    ctx.strokeStyle = 'rgba(30,8,8,0.55)';
+    ctx.lineWidth = 6;
+    for (let x = -H; x < W; x += 56) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + H, H);
+      ctx.stroke();
+    }
+  });
+}
+
+function lettuceCanvas() {
+  return paintCanvas(256, 256, (ctx, W, H) => {
+    ctx.fillStyle = '#22C55E';
+    ctx.fillRect(0, 0, W, H);
+    mottle(ctx, W, H, 14, 0.5, 23);
+    // Nervaduras de la hoja
+    ctx.strokeStyle = 'rgba(190,255,190,0.35)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 14; i++) {
+      ctx.beginPath();
+      ctx.moveTo(128, 128);
+      ctx.lineTo(128 + Math.cos(i * 0.45) * 120, 128 + Math.sin(i * 0.45) * 120);
+      ctx.stroke();
+    }
+  });
+}
+
+function cardboardCanvas(base) {
+  return paintCanvas(512, 512, (ctx, W, H) => {
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, W, H);
+    mottle(ctx, W, H, 20, 0.5, 29);
+    // Fibras del cartón
+    const rnd = makeSeededRandom(31);
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+    for (let i = 0; i < 300; i++) {
+      const x = rnd() * W;
+      const y = rnd() * H;
+      ctx.lineWidth = 0.5 + rnd();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 20 + rnd() * 60, y + (rnd() - 0.5) * 2);
+      ctx.stroke();
+    }
+  });
+}
+
+/* ---------- Geometrías ---------- */
+
+// Cúpula: mitad superior de una esfera escalada a la forma deseada
+function domeGeo(rx, ry, rz) {
+  const g = new THREE.SphereGeometry(1, 36, 18, 0, Math.PI * 2, 0, Math.PI / 2);
+  g.scale(rx, ry, rz);
+  return g;
+}
+
+function ellipsoidGeo(rx, ry, rz) {
+  const g = new THREE.SphereGeometry(1, 28, 16);
+  g.scale(rx, ry, rz);
+  return g;
+}
+
+function cupGeometry(rBottom, rTop, h) {
+  const pts = [new THREE.Vector2(0, -h / 2), new THREE.Vector2(rBottom, -h / 2)];
+  for (let i = 0; i <= 12; i++) {
+    const t = i / 12;
+    pts.push(new THREE.Vector2(rBottom + (rTop - rBottom) * t, -h / 2 + h * t));
+  }
+  return new THREE.LatheGeometry(pts, 48);
+}
+
+function bucketGeometry() {
+  const pts = [new THREE.Vector2(0, -0.47), new THREE.Vector2(0.30, -0.47)];
+  for (let i = 0; i <= 12; i++) {
+    const t = i / 12;
+    pts.push(new THREE.Vector2(0.31 + 0.15 * t + 0.012 * Math.sin(t * Math.PI), -0.46 + 0.93 * t));
+  }
+  return new THREE.LatheGeometry(pts, 48);
+}
+
+function lidGeometry() {
+  const pts = [[0, 0.535], [0.12, 0.53], [0.23, 0.515], [0.30, 0.49], [0.335, 0.45], [0.335, 0.425], [0, 0.425]];
+  return new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), 48);
+}
+
+// Grano de palomita: esfera con lóbulos y arrugas (la costura se deforma igual)
+function kernelGeometry(variant) {
+  const geo = new THREE.SphereGeometry(1, 18, 12);
+  const pos = geo.attributes.position;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const n = v.clone().normalize();
+    const k = 1
+      + 0.16 * Math.sin(n.x * 4 + n.z * 3 + variant) * Math.cos(n.y * 5 + variant)
+      + 0.06 * Math.sin((n.x + n.y * 1.7 + n.z * 0.6) * 9 + variant * 2);
+    v.multiplyScalar(k);
+    v.y *= 0.82;
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+
+// Granizado: cúpula con vetas rojo y azul
+function slushGeometry() {
+  const g = domeGeo(0.31, 0.2, 0.31);
+  const pos = g.attributes.position;
+  const colors = new Float32Array(pos.count * 3);
+  const red = new THREE.Color(0xDC2626);
+  const blue = new THREE.Color(0x1D4ED8);
+  const c = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    c.copy(red).lerp(blue, 0.5 + 0.5 * Math.sin(x * 16 + z * 7 + Math.sin(y * 20) * 1.2));
+    colors[i * 3] = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  return g;
+}
+
+// Charola con esquinas redondeadas; su cara superior queda en y = 0.06
+function trayGeometry() {
+  const w = 0.95, h = 0.56, r = 0.05;
+  const s = new THREE.Shape();
+  s.moveTo(-w / 2 + r, -h / 2);
+  s.lineTo(w / 2 - r, -h / 2);
+  s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+  s.lineTo(w / 2, h / 2 - r);
+  s.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+  s.lineTo(-w / 2 + r, h / 2);
+  s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+  s.lineTo(-w / 2, -h / 2 + r);
+  s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+  const g = new THREE.ExtrudeGeometry(s, {
+    depth: 0.05,
+    bevelEnabled: true,
+    bevelSize: 0.01,
+    bevelThickness: 0.01,
+    bevelSegments: 2,
+    curveSegments: 6
+  });
+  g.rotateX(-Math.PI / 2);
+  return g;
+}
+
+function chipGeometry() {
+  const s = new THREE.Shape();
+  s.moveTo(0, 0.14);
+  s.lineTo(-0.12, -0.08);
+  s.lineTo(0.12, -0.08);
+  s.closePath();
+  const g = new THREE.ExtrudeGeometry(s, {
+    depth: 0.01,
+    bevelEnabled: true,
+    bevelSize: 0.008,
+    bevelThickness: 0.006,
+    bevelSegments: 1,
+    curveSegments: 1
+  });
+  g.rotateX(-Math.PI / 2);
+  g.center();
+  return g;
+}
+
+function sauceCurve(z0, phase, amp) {
+  const pts = [];
+  for (let i = 0; i <= 12; i++) {
+    pts.push(new THREE.Vector3(-0.36 + i * 0.06, 0, z0 + amp * Math.sin(i * phase)));
+  }
+  return new THREE.CatmullRomCurve3(pts);
+}
+
+const comboSharedGeos = {
+  bucket: bucketGeometry(),
+  bucketRim: new THREE.TorusGeometry(0.465, 0.022, 12, 48),
+  mound: domeGeo(0.44, 0.24, 0.44),
+  kernels: [0, 1, 2, 3].map(kernelGeometry),
+
+  sodaCup: cupGeometry(0.21, 0.31, 0.88),
+  lid: lidGeometry(),
+  lidHole: new THREE.CylinderGeometry(0.03, 0.03, 0.006, 20),
+  collar: new THREE.TorusGeometry(0.335, 0.016, 12, 48),
+  straw: new THREE.TubeGeometry(strawCurve, 40, 0.02, 10, false),
+  clearDome: domeGeo(0.335, 0.2, 0.335),
+  slush: slushGeometry(),
+
+  tray: trayGeometry(),
+  bun: domeGeo(0.44, 0.09, 0.13),
+  sausage: ellipsoidGeo(0.40, 0.065, 0.065),
+  mustard: new THREE.TubeGeometry(sauceCurve(-0.02, 2.2, 0.05), 80, 0.012, 8, false),
+  ketchup: new THREE.TubeGeometry(sauceCurve(0.02, 1.4, 0.03), 80, 0.011, 8, false),
+
+  chip: chipGeometry(),
+  jalapeno: new THREE.CylinderGeometry(0.045, 0.045, 0.016, 20),
+  cheeseBowl: cupGeometry(0.11, 0.14, 0.14),
+  cheeseBowlRim: new THREE.TorusGeometry(0.14, 0.012, 10, 40),
+  cheeseDip: ellipsoidGeo(0.125, 0.035, 0.125),
+
+  baguiBread: domeGeo(0.42, 0.075, 0.13),
+  layer: new THREE.BoxGeometry(0.66, 0.014, 0.18),
+  lettuceTuft: ellipsoidGeo(0.09, 0.03, 0.07),
+  score: new THREE.BoxGeometry(0.03, 0.01, 0.14),
+
+  friesHolder: cupGeometry(0.14, 0.19, 0.34),
+  friesRim: new THREE.TorusGeometry(0.19, 0.012, 10, 40),
+  fry: new THREE.BoxGeometry(0.034, 0.26, 0.034)
+};
+
+const cachedComboMaterials = {
+  bucketTrad: new THREE.MeshStandardMaterial({ map: wrapTexture(popcornBucketCanvas('trad')), bumpMap: grainTex, bumpScale: 0.6, roughness: 0.65, side: THREE.DoubleSide }),
+  bucketMix: new THREE.MeshStandardMaterial({ map: wrapTexture(popcornBucketCanvas('mix')), bumpMap: grainTex, bumpScale: 0.6, roughness: 0.65, side: THREE.DoubleSide }),
+  bucketVIP: new THREE.MeshStandardMaterial({ map: wrapTexture(popcornBucketCanvas('vip')), bumpMap: grainTex, bumpScale: 0.4, roughness: 0.38, metalness: 0.2, side: THREE.DoubleSide }),
+
+  cupLarge: new THREE.MeshPhysicalMaterial({ map: wrapTexture(cupCanvas('large')), roughness: 0.32, clearcoat: 0.7, clearcoatRoughness: 0.15, side: THREE.DoubleSide }),
+  cupJumbo: new THREE.MeshPhysicalMaterial({ map: wrapTexture(cupCanvas('jumbo')), roughness: 0.32, clearcoat: 0.7, clearcoatRoughness: 0.15, side: THREE.DoubleSide }),
+  cupVIP: new THREE.MeshPhysicalMaterial({ map: wrapTexture(cupCanvas('vip')), roughness: 0.3, metalness: 0.15, clearcoat: 0.8, side: THREE.DoubleSide }),
+  cupIcee: new THREE.MeshPhysicalMaterial({ map: wrapTexture(cupCanvas('icee')), roughness: 0.25, clearcoat: 0.8, side: THREE.DoubleSide }),
+
+  goldFoil: new THREE.MeshStandardMaterial({ color: 0xE5B24C, roughness: 0.28, metalness: 0.8, bumpMap: grainTex, bumpScale: 0.1 }),
+  plasticLid: new THREE.MeshPhysicalMaterial({ color: 0xFDFBF4, roughness: 0.18, clearcoat: 1, side: THREE.DoubleSide }),
+  lidHole: new THREE.MeshStandardMaterial({ color: 0x2A1A0E, roughness: 0.8 }),
+  clearDome: new THREE.MeshPhysicalMaterial({ color: 0xE0F2FE, roughness: 0.08, clearcoat: 1, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false }),
+  redStraw: new THREE.MeshPhysicalMaterial({ color: 0xDC2626, roughness: 0.25, clearcoat: 0.8 }),
+  goldStraw: new THREE.MeshPhysicalMaterial({ color: 0xF3C969, roughness: 0.25, metalness: 0.6 }),
+  slush: new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.3, clearcoat: 0.6 }),
+
+  kernelButter: new THREE.MeshStandardMaterial({ color: 0xFDE047, roughness: 0.55, bumpMap: grainTex, bumpScale: 0.8 }),
+  kernelCheddar: new THREE.MeshStandardMaterial({ color: 0xF59E0B, roughness: 0.5, bumpMap: grainTex, bumpScale: 0.8 }),
+  kernelCaramel: new THREE.MeshPhysicalMaterial({ color: 0xB45309, roughness: 0.35, clearcoat: 0.6, bumpMap: grainTex, bumpScale: 0.8 }),
+
+  trayCardboard: new THREE.MeshStandardMaterial({ map: plainTexture(cardboardCanvas('#5A3414')), bumpMap: grainTex, bumpScale: 1.2, roughness: 0.85 }),
+  trayVIP: new THREE.MeshStandardMaterial({ color: 0x16100B, roughness: 0.35, metalness: 0.35, bumpMap: grainTex, bumpScale: 0.3 }),
+  bowlPaper: new THREE.MeshStandardMaterial({ color: 0xF3E9D2, roughness: 0.75, bumpMap: grainTex, bumpScale: 0.4, side: THREE.DoubleSide }),
+  friesHolder: new THREE.MeshStandardMaterial({ color: 0x16100B, roughness: 0.4, bumpMap: grainTex, bumpScale: 0.3, side: THREE.DoubleSide }),
+  fries: [0xFBBF24, 0xF59E0B, 0xFCD34D].map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.45, bumpMap: grainTex, bumpScale: 0.6 })),
+
+  bunBread: new THREE.MeshStandardMaterial({ map: plainTexture(breadCanvas('#D97706', 31)), bumpMap: grainTex, bumpScale: 0.8, roughness: 0.7, side: THREE.DoubleSide }),
+  baguiCrust: new THREE.MeshStandardMaterial({ map: plainTexture(breadCanvas('#B8601A', 41)), bumpMap: grainTex, bumpScale: 0.8, roughness: 0.7, side: THREE.DoubleSide }),
+  sausageMeat: new THREE.MeshPhysicalMaterial({ map: plainTexture(sausageCanvas()), roughness: 0.4, clearcoat: 0.35 }),
+  mustardYellow: new THREE.MeshPhysicalMaterial({ color: 0xFACC15, roughness: 0.2, clearcoat: 1 }),
+  ketchupRed: new THREE.MeshPhysicalMaterial({ color: 0xDC2626, roughness: 0.2, clearcoat: 1 }),
+  nachoCorn: new THREE.MeshStandardMaterial({ color: 0xF59E0B, roughness: 0.6, bumpMap: grainTex, bumpScale: 0.8, side: THREE.DoubleSide }),
+  meltedCheese: new THREE.MeshPhysicalMaterial({ map: plainTexture(cheeseCanvas()), roughness: 0.15, clearcoat: 1 }),
+  jalapenoGreen: new THREE.MeshStandardMaterial({ color: 0x15803D, roughness: 0.45, bumpMap: grainTex, bumpScale: 0.3 }),
+  hamPink: new THREE.MeshStandardMaterial({ color: 0xFB7185, roughness: 0.5 }),
+  lettuceGreen: new THREE.MeshStandardMaterial({ map: plainTexture(lettuceCanvas()), roughness: 0.6, side: THREE.DoubleSide }),
+  flour: new THREE.MeshStandardMaterial({ color: 0xFDFBF4, roughness: 0.9 })
+};
+
+/* ---------- Constructores de cada combo ---------- */
+
+function build3DPopcornBucket(isVIP = false, isMix = false) {
+  const g = new THREE.Group();
+  const body = isVIP
+    ? cachedComboMaterials.bucketVIP
+    : (isMix ? cachedComboMaterials.bucketMix : cachedComboMaterials.bucketTrad);
+  comboAdd(g, comboSharedGeos.bucket, body);
+
+  const rim = comboAdd(g, comboSharedGeos.bucketRim, cachedComboMaterials.goldFoil, 0, 0.47, 0);
+  rim.rotation.x = Math.PI / 2;
+
+  comboAdd(g, comboSharedGeos.mound, cachedComboMaterials.kernelButter, 0, 0.46, 0);
+
+  const palette = isVIP
+    ? [cachedComboMaterials.kernelButter, cachedComboMaterials.kernelCaramel]
+    : (isMix
+      ? [cachedComboMaterials.kernelButter, cachedComboMaterials.kernelCheddar, cachedComboMaterials.kernelCaramel]
+      : [cachedComboMaterials.kernelButter, cachedComboMaterials.kernelCheddar]);
+
+  POPCORN_LAYOUT.forEach(k => {
+    const m = comboAdd(g, comboSharedGeos.kernels[k.v], palette[k.c % palette.length], k.x, k.y, k.z);
+    m.rotation.set(k.rot[0], k.rot[1], k.rot[2]);
+    m.scale.setScalar(k.s);
+  });
+  return g;
+}
+
+function build3DSodaCup(style = 'large') {
+  const g = new THREE.Group();
+  const cupMat = style === 'vip'
+    ? cachedComboMaterials.cupVIP
+    : (style === 'jumbo' ? cachedComboMaterials.cupJumbo : cachedComboMaterials.cupLarge);
+  comboAdd(g, comboSharedGeos.sodaCup, cupMat);
+  comboAdd(g, comboSharedGeos.lid, cachedComboMaterials.plasticLid);
+  comboAdd(g, comboSharedGeos.lidHole, cachedComboMaterials.lidHole, 0.06, 0.536, 0);
+
+  const collar = comboAdd(g, comboSharedGeos.collar, cachedComboMaterials.goldFoil, 0, 0.425, 0);
+  collar.rotation.x = Math.PI / 2;
+
+  const strawMat = style === 'vip' ? cachedComboMaterials.goldStraw : cachedComboMaterials.redStraw;
+  comboAdd(g, comboSharedGeos.straw, strawMat);
+
+  if (style === 'jumbo') g.scale.set(1.12, 1.14, 1.12);
+  return g;
+}
+
+function build3DIceeCup() {
+  const g = new THREE.Group();
+  comboAdd(g, comboSharedGeos.sodaCup, cachedComboMaterials.cupIcee);
+  comboAdd(g, comboSharedGeos.slush, cachedComboMaterials.slush, 0, 0.44, 0);
+  comboAdd(g, comboSharedGeos.clearDome, cachedComboMaterials.clearDome, 0, 0.44, 0);
+
+  const collar = comboAdd(g, comboSharedGeos.collar, cachedComboMaterials.goldFoil, 0, 0.44, 0);
+  collar.rotation.x = Math.PI / 2;
+
+  comboAdd(g, comboSharedGeos.straw, cachedComboMaterials.redStraw);
+  g.scale.set(1.06, 1.08, 1.06);
+  return g;
+}
+
+function build3DHotdogTray() {
+  const g = new THREE.Group();
+  comboAdd(g, comboSharedGeos.tray, cachedComboMaterials.trayCardboard);
+  comboAdd(g, comboSharedGeos.bun, cachedComboMaterials.bunBread, 0, 0.06, 0);
+  comboAdd(g, comboSharedGeos.sausage, cachedComboMaterials.sausageMeat, 0, 0.12, 0);
+  comboAdd(g, comboSharedGeos.mustard, cachedComboMaterials.mustardYellow, 0, 0.19, 0);
+  comboAdd(g, comboSharedGeos.ketchup, cachedComboMaterials.ketchupRed, 0, 0.195, 0);
+  return g;
+}
+
+function build3DNachosTray() {
+  const g = new THREE.Group();
+  comboAdd(g, comboSharedGeos.tray, cachedComboMaterials.trayCardboard);
+
+  const bowlX = 0.27, bowlZ = 0.04;
+  comboAdd(g, comboSharedGeos.cheeseBowl, cachedComboMaterials.bowlPaper, bowlX, 0.13, bowlZ);
+  const rim = comboAdd(g, comboSharedGeos.cheeseBowlRim, cachedComboMaterials.goldFoil, bowlX, 0.20, bowlZ);
+  rim.rotation.x = Math.PI / 2;
+  comboAdd(g, comboSharedGeos.cheeseDip, cachedComboMaterials.meltedCheese, bowlX, 0.185, bowlZ);
+
+  const rnd = makeSeededRandom(77);
+  for (let i = 0; i < 22; i++) {
+    const chip = comboAdd(g, comboSharedGeos.chip, cachedComboMaterials.nachoCorn,
+      -0.36 + rnd() * 0.36, 0.075 + (i >> 3) * 0.026, (rnd() - 0.5) * 0.36);
+    chip.rotation.set((rnd() - 0.5) * 0.5, rnd() * Math.PI * 2, (rnd() - 0.5) * 0.5);
+  }
+  for (let j = 0; j < 6; j++) {
+    const jal = comboAdd(g, comboSharedGeos.jalapeno, cachedComboMaterials.jalapenoGreen,
+      -0.36 + rnd() * 0.34, 0.12 + rnd() * 0.03, (rnd() - 0.5) * 0.3);
+    jal.rotation.set((rnd() - 0.5) * 0.6, rnd() * Math.PI * 2, (rnd() - 0.5) * 0.6);
+  }
+  return g;
+}
+
+function build3DBaguiWithFriesVIP() {
+  const g = new THREE.Group();
+  const tray = comboAdd(g, comboSharedGeos.tray, cachedComboMaterials.trayVIP);
+  tray.scale.set(1.12, 1, 1.08);
+
+  // Bagui por capas: pan, jamón, queso, lechuga y pan superior
+  const bagui = new THREE.Group();
+  bagui.position.set(-0.14, 0.06, 0.02);
+  comboAdd(bagui, comboSharedGeos.baguiBread, cachedComboMaterials.baguiCrust, 0, 0, 0);
+  comboAdd(bagui, comboSharedGeos.layer, cachedComboMaterials.hamPink, 0, 0.078, 0);
+  const cheese = comboAdd(bagui, comboSharedGeos.layer, cachedComboMaterials.meltedCheese, 0, 0.092, 0);
+  cheese.rotation.y = 0.04;
+
+  for (let i = 0; i < 6; i++) {
+    const tuft = comboAdd(bagui, comboSharedGeos.lettuceTuft, cachedComboMaterials.lettuceGreen,
+      -0.27 + i * 0.108, 0.10, i % 2 ? 0.03 : -0.03);
+    tuft.rotation.y = i * 0.7;
+  }
+
+  comboAdd(bagui, comboSharedGeos.baguiBread, cachedComboMaterials.baguiCrust, 0, 0.10, 0);
+  [-0.2, 0, 0.2].forEach(x => {
+    const s = comboAdd(bagui, comboSharedGeos.score, cachedComboMaterials.flour, x, 0.175, 0);
+    s.rotation.y = 0.5;
+  });
+  g.add(bagui);
+
+  // Cajita de papas con borde dorado
+  const fries = new THREE.Group();
+  fries.position.set(0.34, 0.23, -0.02);
+  comboAdd(fries, comboSharedGeos.friesHolder, cachedComboMaterials.friesHolder);
+  const ring = comboAdd(fries, comboSharedGeos.friesRim, cachedComboMaterials.goldFoil, 0, 0.17, 0);
+  ring.rotation.x = Math.PI / 2;
+
+  const rnd = makeSeededRandom(5);
+  for (let f = 0; f < 26; f++) {
+    const a = rnd() * Math.PI * 2;
+    const r = 0.02 + rnd() * 0.11;
+    const stick = comboAdd(fries, comboSharedGeos.fry, cachedComboMaterials.fries[f % 3],
+      Math.cos(a) * r, 0.04 + rnd() * 0.1, Math.sin(a) * r);
+    stick.rotation.set(Math.sin(a) * 0.15, rnd() * Math.PI, Math.cos(a) * 0.15);
+  }
+  g.add(fries);
+  return g;
+}
+
+function registerComboPart(partMesh, defPos, defRot, pricePos, priceRot) {
+  partMesh.position.set(defPos[0], defPos[1], defPos[2]);
+  partMesh.rotation.set(defRot[0], defRot[1], defRot[2]);
+  partMesh.userData.defPos = defPos;
+  partMesh.userData.defRot = defRot;
+  partMesh.userData.pricePos = pricePos;
+  partMesh.userData.priceRot = priceRot;
+  return partMesh;
+}
+
+function createCombo3DGroup(comboData, idx) {
+  const rootGroup = new THREE.Group();
+  rootGroup.userData = { category: 'combos', itemIndex: idx };
+
+  const floatWrapper = new THREE.Group();
+  rootGroup.add(floatWrapper);
+
+  const parts = [];
+  const type = comboData.comboType;
+
+  if (type === 'jumbo_trad') {
+    // Palomitas mix (2 sabores) + Refresco jumbo
+    const popMix = registerComboPart(
+      build3DPopcornBucket(false, true),
+      [-0.42, -0.08, 0.06], [0.06, 0.22, 0.04],
+      [-0.64, -0.04, 0.18], [0.12, 0.35, 0.08]
+    );
+    const sodaJumbo = registerComboPart(
+      build3DSodaCup('jumbo'),
+      [0.48, -0.06, -0.04], [0.04, -0.24, -0.05],
+      [0.68, 0.02, 0.14], [0.10, -0.36, -0.10]
+    );
+    parts.push(popMix, sodaJumbo);
+  } else if (type === 'hotdog_trad') {
+    // Palomitas grandes + Refresco grande + Hotdog grande
+    const pop = registerComboPart(
+      build3DPopcornBucket(false, false),
+      [-0.48, 0.04, -0.14], [0.04, 0.20, 0.03],
+      [-0.72, 0.12, -0.05], [0.08, 0.32, 0.06]
+    );
+    const soda = registerComboPart(
+      build3DSodaCup('large'),
+      [0.52, 0.04, -0.14], [0.04, -0.22, -0.04],
+      [0.74, 0.12, -0.05], [0.08, -0.34, -0.08]
+    );
+    const hotdog = registerComboPart(
+      build3DHotdogTray(),
+      [0.02, -0.42, 0.42], [0.16, -0.08, 0.0],
+      [0.0, -0.46, 0.68], [0.28, 0.0, 0.02]
+    );
+    parts.push(pop, soda, hotdog);
+  } else if (type === 'nachos_gde') {
+    // Palomitas grandes + Refresco grande + Nachos grandes
+    const pop = registerComboPart(
+      build3DPopcornBucket(false, false),
+      [-0.48, 0.04, -0.14], [0.04, 0.20, 0.03],
+      [-0.72, 0.12, -0.05], [0.08, 0.32, 0.06]
+    );
+    const soda = registerComboPart(
+      build3DSodaCup('large'),
+      [0.52, 0.04, -0.14], [0.04, -0.22, -0.04],
+      [0.74, 0.12, -0.05], [0.08, -0.34, -0.08]
+    );
+    const nachos = registerComboPart(
+      build3DNachosTray(),
+      [0.02, -0.42, 0.42], [0.18, 0.08, 0.0],
+      [0.0, -0.46, 0.68], [0.30, 0.0, -0.02]
+    );
+    parts.push(pop, soda, nachos);
+  } else if (type === 'ice_gde') {
+    // Palomitas grandes + ICE grande
+    const pop = registerComboPart(
+      build3DPopcornBucket(false, false),
+      [-0.42, -0.08, 0.06], [0.06, 0.22, 0.04],
+      [-0.64, -0.02, 0.18], [0.12, 0.34, 0.08]
+    );
+    const icee = registerComboPart(
+      build3DIceeCup(),
+      [0.46, -0.08, -0.02], [0.04, -0.22, -0.05],
+      [0.66, 0.0, 0.16], [0.10, -0.35, -0.09]
+    );
+    parts.push(pop, icee);
+  } else if (type === 'jumbo_vip') {
+    // Palomitas grandes VIP + Refresco grande VIP
+    const popVIP = registerComboPart(
+      build3DPopcornBucket(true, false),
+      [-0.42, -0.08, 0.06], [0.06, 0.22, 0.04],
+      [-0.64, -0.02, 0.18], [0.12, 0.34, 0.08]
+    );
+    const sodaVIP = registerComboPart(
+      build3DSodaCup('vip'),
+      [0.46, -0.08, -0.02], [0.04, -0.22, -0.05],
+      [0.66, 0.0, 0.16], [0.10, -0.35, -0.09]
+    );
+    parts.push(popVIP, sodaVIP);
+  } else if (type === 'bagui_vip') {
+    // Palomitas grandes VIP + Refresco grande VIP + Bagui clásico con papas
+    const popVIP = registerComboPart(
+      build3DPopcornBucket(true, false),
+      [-0.50, 0.04, -0.16], [0.04, 0.20, 0.03],
+      [-0.74, 0.12, -0.06], [0.08, 0.32, 0.06]
+    );
+    const sodaVIP = registerComboPart(
+      build3DSodaCup('vip'),
+      [0.54, 0.04, -0.16], [0.04, -0.22, -0.04],
+      [0.76, 0.12, -0.06], [0.08, -0.34, -0.08]
+    );
+    const bagui = registerComboPart(
+      build3DBaguiWithFriesVIP(),
+      [0.0, -0.42, 0.44], [0.18, -0.06, 0.0],
+      [0.0, -0.45, 0.70], [0.30, 0.0, 0.0]
+    );
+    parts.push(popVIP, sodaVIP, bagui);
+  }
+
+  parts.forEach(p => floatWrapper.add(p));
+  rootGroup.userData.floatWrapper = floatWrapper;
+  rootGroup.userData.parts = parts;
+
+  // Posición inicial oculta debajo del escenario mientras arranca en Boletos
+  rootGroup.position.set(0, -10, -4);
+  rootGroup.scale.set(0.001, 0.001, 0.001);
+
+  scene.add(rootGroup);
+  return rootGroup;
+}
+
+const comboModels = COMBOS.map((data, idx) => createCombo3DGroup(data, idx));
+const allInteractiveModels = [...ticketModels, ...comboModels];
+
+function animateComboPose(group, modePose, dur = 0.52) {
+  const parts = group.userData.parts;
+  if (!parts) return;
+
+  parts.forEach(part => {
+    const targetP = modePose === 'price' ? part.userData.pricePos : part.userData.defPos;
+    const targetR = modePose === 'price' ? part.userData.priceRot : part.userData.defRot;
+    gsap.to(part.position, {
+      x: targetP[0],
+      y: targetP[1],
+      z: targetP[2],
+      duration: dur,
+      ease: modePose === 'price' ? "back.out(1.4)" : "power3.out",
+      overwrite: "auto"
+    });
+    gsap.to(part.rotation, {
+      x: targetR[0],
+      y: targetR[1],
+      z: targetR[2],
+      duration: dur,
+      ease: "expo.out",
+      overwrite: "auto"
+    });
+  });
+}
+
+/* ============================================================================
+   ETIQUETAS Y CÁPSULA DIVISORIA "COMBOS" EN 3. COLECCIÓN (CON SCROLL VERTICAL)
+   ============================================================================ */
+const ticketLineupLabels = TICKETS.map((data, idx) => {
   const lbl = document.createElement('div');
   lbl.className = 'lineup-item-label';
   lbl.textContent = data.name;
   lbl.onclick = (e) => {
     e.stopPropagation();
-    selectTicketFromLineup(idx);
+    selectItemFromLineup('tickets', idx);
   };
   lineupLabelsContainer.appendChild(lbl);
   return lbl;
 });
 
-function selectTicketFromLineup(idx) {
+// Cápsula divisoria translúcida "Combos" en el centro debajo de los boletos
+const combosDividerEl = document.createElement('div');
+combosDividerEl.className = 'lineup-section-capsule';
+combosDividerEl.textContent = 'Combos';
+lineupLabelsContainer.appendChild(combosDividerEl);
+
+const comboLineupLabels = COMBOS.map((data, idx) => {
+  const lbl = document.createElement('div');
+  lbl.className = 'lineup-item-label';
+  lbl.textContent = data.name;
+  lbl.onclick = (e) => {
+    e.stopPropagation();
+    selectItemFromLineup('combos', idx);
+  };
+  lineupLabelsContainer.appendChild(lbl);
+  return lbl;
+});
+
+const dividerWorldPos = new THREE.Vector3(0, -0.58, 2.0);
+
+function selectItemFromLineup(category, idx) {
   if (currentMode !== 'lineup') return;
+  activeCategory = category;
   currentIndex = idx;
   currentStep = 0;
+  syncCarouselCategoryButtonUI();
   setMode('detail');
 }
 
 const projVec = new THREE.Vector3();
+
+function projectElementToScreen(el, wx, wy, wz) {
+  projVec.set(wx, wy, wz);
+  projVec.project(camera);
+  const sx = (projVec.x * 0.5 + 0.5) * cachedVpWidth;
+  const sy = (-(projVec.y * 0.5) + 0.5) * cachedVpHeight;
+
+  // Atenúa suavemente si se acerca al borde superior de la barra de navegación
+  const topFade = sy < 86 ? Math.max(0, (sy - 52) / 34) : (sy > cachedVpHeight - 16 ? 0 : 1);
+  el.style.opacity = topFade.toFixed(2);
+  el.style.pointerEvents = topFade > 0.35 ? 'auto' : 'none';
+  el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, -50%)`;
+}
+
 function updateLineupLabelsScreenPositions() {
   if (currentMode !== 'lineup') return;
   const useCompact = isCompactView();
-  const yOffset = useCompact ? -0.46 : -0.66;
+  const ticketYOffset = useCompact ? -0.45 : -0.62;
+  const comboYOffset = useCompact ? -0.50 : -0.68;
 
   for (let i = 0; i < ticketModels.length; i++) {
     const item = ticketModels[i];
-    const lbl = lineupLabelElements[i];
-    projVec.set(item.position.x, item.position.y + yOffset, item.position.z);
-    projVec.project(camera);
-
-    const sx = (projVec.x * 0.5 + 0.5) * cachedVpWidth;
-    const sy = (-(projVec.y * 0.5) + 0.5) * cachedVpHeight;
-
-    lbl.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, -50%)`;
+    projectElementToScreen(ticketLineupLabels[i], item.position.x, item.position.y + ticketYOffset, item.position.z);
   }
+
+  // Proyección de la cápsula divisoria "Combos"
+  projVec.copy(dividerWorldPos);
+  projVec.project(camera);
+  const divX = (projVec.x * 0.5 + 0.5) * cachedVpWidth;
+  const divY = (-(projVec.y * 0.5) + 0.5) * cachedVpHeight;
+  const divFade = divY < 86 ? Math.max(0, (divY - 52) / 34) : 1;
+  combosDividerEl.style.opacity = divFade.toFixed(2);
+  combosDividerEl.style.transform = `translate3d(${divX.toFixed(1)}px, ${divY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+
+  for (let j = 0; j < comboModels.length; j++) {
+    const item = comboModels[j];
+    projectElementToScreen(comboLineupLabels[j], item.position.x, item.position.y + comboYOffset, item.position.z);
+  }
+
+  // Actualizar posición del indicador de la barra de scroll lateral
+  const thumbEl = document.getElementById('lineup-scroll-thumb');
+  if (thumbEl && maxCollectionScrollY > 0) {
+    const ratio = Math.max(0, Math.min(1, collectionScrollY / maxCollectionScrollY));
+    const maxTrackMove = useCompact ? (95 - 28) : (130 - 38);
+    thumbEl.style.transform = `translate3d(0, ${(ratio * maxTrackMove).toFixed(1)}px, 0)`;
+  }
+}
+
+function scrollCollectionBy(deltaWorldY) {
+  if (currentMode !== 'lineup') return;
+  collectionTargetScrollY = Math.max(0, Math.min(maxCollectionScrollY, collectionTargetScrollY + deltaWorldY));
 }
 
 function animateTicketPairPose(group, modePose, dur = 0.52) {
@@ -2133,7 +3282,7 @@ function animateTicketPairPose(group, modePose, dur = 0.52) {
       ease: "power3.inOut",
       overwrite: "auto",
       onComplete: () => {
-        if (isSingleTicket2D && currentMode === 'detail' && currentStep === 1 && currentIndex === 0) {
+        if (activeCategory === 'tickets' && isSingleTicket2D && currentMode === 'detail' && currentStep === 1 && currentIndex === 0) {
           ticketB.visible = false;
         }
       }
@@ -2160,7 +3309,7 @@ function animateTicketPairPose(group, modePose, dur = 0.52) {
 }
 
 function toggleSingleTicket2D(forceState) {
-  if (currentIndex !== 0 || currentMode !== 'detail' || currentStep !== 1) return;
+  if (activeCategory !== 'tickets' || currentIndex !== 0 || currentMode !== 'detail' || currentStep !== 1) return;
 
   isSingleTicket2D = typeof forceState === 'boolean' ? forceState : !isSingleTicket2D;
   renderDetailPanelContent(false);
@@ -2202,26 +3351,64 @@ function toggleScreenFormat() {
   updatePositions(0.45);
 }
 
-function getBaseScale(isFront) {
+function getActiveDataList() {
+  return activeCategory === 'tickets' ? TICKETS : COMBOS;
+}
+
+function getActiveModelList() {
+  return activeCategory === 'tickets' ? ticketModels : comboModels;
+}
+
+function syncCarouselCategoryButtonUI() {
+  const btn = document.getElementById('carousel-combos-btn');
+  const lbl = document.getElementById('carousel-combos-label');
+  if (!btn || !lbl) return;
+
+  // El botón en forma de cápsula dice "Combos" y se ilumina cuando el carrusel de Combos está activo
+  lbl.textContent = "Combos";
+  btn.classList.toggle('active-cat', activeCategory === 'combos');
+}
+
+// Cambia mediante animación fluida entre los 4 Boletos y los 6 Combos en el Carrusel
+function toggleCarouselCategory() {
+  activeCategory = activeCategory === 'tickets' ? 'combos' : 'tickets';
+  currentIndex = 0;
+  isSingleTicket2D = false;
+  syncCarouselCategoryButtonUI();
+  updatePositions(0.62);
+}
+
+function getBaseScale(isFront, cat = activeCategory) {
   const useCompact = isCompactView();
+  const isCombo = cat === 'combos';
 
   if (currentMode === 'detail') {
-    return useCompact ? 0.64 : 0.90;
+    return isCombo ? (useCompact ? 0.72 : 0.98) : (useCompact ? 0.64 : 0.90);
   } else if (currentMode === 'lineup') {
-    return useCompact ? 0.46 : 0.66;
+    return isCombo ? (useCompact ? 0.50 : 0.68) : (useCompact ? 0.45 : 0.64);
   } else {
-    return isFront ? (useCompact ? 0.66 : 0.88) : (useCompact ? 0.40 : 0.58);
+    if (isCombo) {
+      return isFront ? (useCompact ? 0.72 : 0.94) : (useCompact ? 0.38 : 0.54);
+    } else {
+      return isFront ? (useCompact ? 0.66 : 0.88) : (useCompact ? 0.40 : 0.58);
+    }
   }
 }
 
 function updatePositions(dur = 0.52) {
-  const tData = TICKETS[currentIndex];
-  document.getElementById('flavor-name').textContent = tData.name;
-  document.getElementById('flavor-banner').style.background = tData.bannerBg;
-  document.getElementById('brand-sub').style.color = tData.accent;
-  if (bgRadialGlow) bgRadialGlow.style.color = tData.bgRadial;
-  ringMat.color.set(tData.accent);
-  rimLight.color.set(tData.accent);
+  const activeData = getActiveDataList();
+  const activeModels = getActiveModelList();
+  const inactiveModels = activeCategory === 'tickets' ? comboModels : ticketModels;
+
+  if (currentIndex >= activeData.length) currentIndex = 0;
+  const itemData = activeData[currentIndex];
+
+  document.getElementById('flavor-name').textContent = itemData.name;
+  document.getElementById('flavor-banner').style.background = itemData.bannerBg;
+  document.getElementById('brand-sub').style.color = itemData.accent;
+  if (bgRadialGlow) bgRadialGlow.style.color = itemData.bgRadial;
+  ringMat.color.set(itemData.accent);
+  rimLight.color.set(itemData.accent);
 
   const useCompact = isCompactView();
   camera.fov = useCompact ? 45 : 36;
@@ -2240,34 +3427,60 @@ function updatePositions(dur = 0.52) {
     });
     gsap.to(camera.position, {
       x: 0,
-      y: 0.15,
       z: useCompact ? 13.5 : 11.2,
       duration: dur,
       ease: "expo.out",
       overwrite: "auto"
     });
 
-    const radiusX = useCompact ? 1.45 : 2.85;
-    const radiusZ = useCompact ? 2.0 : 2.6;
+    const isCombo = activeCategory === 'combos';
+    const radiusX = isCombo ? (useCompact ? 1.65 : 3.25) : (useCompact ? 1.45 : 2.85);
+    const radiusZ = isCombo ? (useCompact ? 2.15 : 2.75) : (useCompact ? 2.0 : 2.6);
 
-    ticketModels.forEach((item, i) => {
-      animateTicketPairPose(item, 'default', dur);
-      const off = (i - currentIndex + ticketModels.length) % ticketModels.length;
-      const ang = (off / ticketModels.length) * Math.PI * 2;
+    // Retirar suavemente los modelos de la categoría inactiva
+    inactiveModels.forEach((item, i) => {
+      if (item.userData.category === 'tickets') animateTicketPairPose(item, 'default', 0.35);
+      else animateComboPose(item, 'default', 0.35);
+
+      gsap.to(item.position, {
+        x: (i - 1.5) * 2.2,
+        y: -7.5,
+        z: -3.5,
+        duration: dur * 0.85,
+        ease: "power3.inOut",
+        overwrite: "auto"
+      });
+      gsap.to(item.scale, {
+        x: 0.001,
+        y: 0.001,
+        z: 0.001,
+        duration: dur * 0.75,
+        ease: "power3.inOut",
+        overwrite: "auto"
+      });
+    });
+
+    // Posicionar en carrusel los modelos de la categoría activa (4 Boletos o 6 Combos)
+    activeModels.forEach((item, i) => {
+      if (isCombo) animateComboPose(item, 'default', dur);
+      else animateTicketPairPose(item, 'default', dur);
+
+      const off = (i - currentIndex + activeModels.length) % activeModels.length;
+      const ang = (off / activeModels.length) * Math.PI * 2;
       const front = off === 0;
-      const sc = getBaseScale(front);
+      const sc = getBaseScale(front, activeCategory);
 
       gsap.to(item.position, {
         x: Math.sin(ang) * radiusX,
-        y: front ? (useCompact ? 0.16 : 0.10) : (useCompact ? 0.30 : 0.25),
+        y: front ? (useCompact ? 0.14 : 0.08) : (useCompact ? 0.30 : 0.25),
         z: Math.cos(ang) * radiusZ,
         duration: dur,
         ease: "expo.out",
         overwrite: "auto"
       });
       gsap.to(item.rotation, {
-        x: front ? 0.04 : 0.06,
-        y: -ang * 0.65,
+        x: front ? 0.05 : 0.06,
+        y: -ang * 0.62,
         z: 0,
         duration: dur,
         ease: "expo.out",
@@ -2285,55 +3498,97 @@ function updatePositions(dur = 0.52) {
   } else if (currentMode === 'detail') {
     gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.3, overwrite: "auto" });
 
-    ticketModels.forEach((item, i) => {
+    inactiveModels.forEach((item, i) => {
+      gsap.to(item.position, { x: (i - 2) * 5.5, y: -8.5, z: -4, duration: 0.35, overwrite: "auto" });
+      gsap.to(item.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, overwrite: "auto" });
+    });
+
+    activeModels.forEach((item, i) => {
       if (i === currentIndex) {
-        const targetX = useCompact ? 0.0 : 0.32;
+        const targetX = useCompact ? 0.0 : 0.34;
         const targetY = useCompact ? 0.78 : 0.14;
         const targetZ = useCompact ? 3.8 : 4.35;
-        const sc = getBaseScale(true);
+        const sc = getBaseScale(true, activeCategory);
         gsap.to(item.position, { x: targetX, y: targetY, z: targetZ, duration: dur, ease: "expo.out", overwrite: "auto" });
         gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "expo.out", overwrite: "auto" });
       } else {
-        animateTicketPairPose(item, 'default', 0.35);
+        if (activeCategory === 'tickets') animateTicketPairPose(item, 'default', 0.35);
+        else animateComboPose(item, 'default', 0.35);
         gsap.to(item.position, { x: (i - currentIndex) * 6.5, y: -8.0, z: -4, duration: 0.4, overwrite: "auto" });
+        gsap.to(item.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, overwrite: "auto" });
       }
     });
     inspectStep(currentStep);
   } else if (currentMode === 'lineup') {
     isSingleTicket2D = false;
     gsap.to(pedestalGroup.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.3, overwrite: "auto" });
-    gsap.to(camera.position, { x: 0, y: 0.15, z: useCompact ? 13.4 : 11.4, duration: dur, ease: "expo.out", overwrite: "auto" });
+    gsap.to(camera.position, { x: 0, z: useCompact ? 13.4 : 11.4, duration: dur, ease: "expo.out", overwrite: "auto" });
 
-    const sc = getBaseScale(false);
+    const scTickets = getBaseScale(false, 'tickets');
+    const scCombos = getBaseScale(false, 'combos');
+
     if (useCompact) {
-      const coords = [
-        { x: -0.82, y: 0.84, z: 1.8 },
-        { x: 0.82, y: 0.84, z: 1.8 },
-        { x: -0.82, y: -0.58, z: 1.8 },
-        { x: 0.82, y: -0.58, z: 1.8 }
+      // Modo Celular 9:16: 4 Boletos arriba (2x2), Cápsula "Combos" al centro, 6 Combos abajo (2x3)
+      const tCoords = [
+        { x: -0.82, y: 0.96, z: 1.8 },
+        { x: 0.82, y: 0.96, z: 1.8 },
+        { x: -0.82, y: -0.38, z: 1.8 },
+        { x: 0.82, y: -0.38, z: 1.8 }
       ];
       ticketModels.forEach((item, i) => {
         animateTicketPairPose(item, 'default', dur);
-        gsap.to(item.position, { x: coords[i].x, y: coords[i].y, z: coords[i].z, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.position, { x: tCoords[i].x, y: tCoords[i].y, z: tCoords[i].z, duration: dur, ease: "expo.out", overwrite: "auto" });
         gsap.to(item.rotation, { x: 0.04, y: -0.14, z: 0, duration: dur, ease: "expo.out", overwrite: "auto" });
-        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: scTickets, y: scTickets, z: scTickets, duration: dur, ease: "expo.out", overwrite: "auto" });
+      });
+
+      dividerWorldPos.set(0, -1.28, 1.8);
+
+      const cCoords = [
+        { x: -0.82, y: -2.18, z: 1.8 },
+        { x: 0.82, y: -2.18, z: 1.8 },
+        { x: -0.82, y: -3.65, z: 1.8 },
+        { x: 0.82, y: -3.65, z: 1.8 },
+        { x: -0.82, y: -5.12, z: 1.8 },
+        { x: 0.82, y: -5.12, z: 1.8 }
+      ];
+      comboModels.forEach((item, j) => {
+        animateComboPose(item, 'default', dur);
+        gsap.to(item.position, { x: cCoords[j].x, y: cCoords[j].y, z: cCoords[j].z, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.rotation, { x: 0.06, y: -0.16, z: 0, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: scCombos, y: scCombos, z: scCombos, duration: dur, ease: "expo.out", overwrite: "auto" });
       });
     } else {
-      const spacing = 2.18;
-      const startX = -((ticketModels.length - 1) * spacing) / 2;
+      // Modo Horizontal: 4 Boletos arriba, Cápsula "Combos" al centro, 6 Combos abajo (2 filas de 3)
+      const spacingT = 2.16;
+      const startXT = -((ticketModels.length - 1) * spacingT) / 2;
       ticketModels.forEach((item, i) => {
         animateTicketPairPose(item, 'default', dur);
-        gsap.to(item.position, { x: startX + i * spacing, y: 0.22, z: 2.0, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.position, { x: startXT + i * spacingT, y: 0.52, z: 2.0, duration: dur, ease: "expo.out", overwrite: "auto" });
         gsap.to(item.rotation, { x: 0.04, y: -0.15, z: 0, duration: dur, ease: "expo.out", overwrite: "auto" });
-        gsap.to(item.scale, { x: sc, y: sc, z: sc, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: scTickets, y: scTickets, z: scTickets, duration: dur, ease: "expo.out", overwrite: "auto" });
+      });
+
+      dividerWorldPos.set(0, -0.58, 2.0);
+
+      const cCols = [-2.45, 0, 2.45];
+      const cRows = [-1.62, -3.42];
+      comboModels.forEach((item, j) => {
+        const col = j % 3;
+        const row = Math.floor(j / 3);
+        animateComboPose(item, 'default', dur);
+        gsap.to(item.position, { x: cCols[col], y: cRows[row], z: 2.0, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.rotation, { x: 0.06, y: -0.16, z: 0, duration: dur, ease: "expo.out", overwrite: "auto" });
+        gsap.to(item.scale, { x: scCombos, y: scCombos, z: scCombos, duration: dur, ease: "expo.out", overwrite: "auto" });
       });
     }
   }
 }
 
-function changeTicket(dir) {
+function changeItem(dir) {
   isSingleTicket2D = false;
-  currentIndex = (currentIndex + dir + ticketModels.length) % ticketModels.length;
+  const activeModels = getActiveModelList();
+  currentIndex = (currentIndex + dir + activeModels.length) % activeModels.length;
   updatePositions(0.48);
 }
 
@@ -2344,18 +3599,22 @@ function setMode(m) {
   currentMode = m;
   isSingleTicket2D = false;
   if (m === 'detail') currentStep = 0;
+  if (m !== 'lineup') {
+    collectionTargetScrollY = 0;
+    collectionScrollY = 0;
+  }
 
   document.querySelectorAll('header .nav-btn').forEach((b) => {
     b.classList.toggle('active', b.getAttribute('data-mode') === m);
   });
 
-  // El menú inferior (#carousel-ui) solo se muestra en 1. CARRUSEL y se oculta en Información y Colección
   const showCarouselUI = (m === 'carousel');
   document.getElementById('carousel-ui').style.opacity = showCarouselUI ? '1' : '0';
   document.getElementById('carousel-ui').style.pointerEvents = showCarouselUI ? 'auto' : 'none';
+  document.getElementById('carousel-side-switch').classList.toggle('hidden', !showCarouselUI);
 
-  // Las etiquetas debajo de cada boleto solo se muestran en 3. COLECCIÓN
   lineupLabelsContainer.classList.toggle('visible', m === 'lineup');
+  document.getElementById('lineup-scroll-ui').classList.toggle('visible', m === 'lineup');
 
   document.getElementById('detail-panel').classList.toggle('visible', m === 'detail');
   document.getElementById('side-controls').classList.toggle('visible', m === 'detail');
@@ -2387,29 +3646,42 @@ function createAddOrStepperHTML(skuId) {
 }
 
 function renderDetailPanelContent(animateTransition = true) {
-  const ticketData = TICKETS[currentIndex];
+  const activeData = getActiveDataList();
+  const itemData = activeData[currentIndex];
   const tagEl = document.getElementById('detail-tag');
   const titleEl = document.getElementById('detail-title');
   const listEl = document.getElementById('detail-list');
 
-  tagEl.textContent = currentStep === 0 ? "INFORMACIÓN DEL BOLETO" : "PRECIOS OFICIALES VANTICK";
-  titleEl.textContent = ticketData.name;
+  const isCombo = activeCategory === 'combos';
+  tagEl.textContent = currentStep === 0
+    ? (isCombo ? "INFORMACIÓN DEL COMBO" : "INFORMACIÓN DEL BOLETO")
+    : "PRECIOS OFICIALES VANTICK";
+  titleEl.textContent = itemData.name;
   listEl.innerHTML = '';
 
   if (currentStep === 0) {
-    INFO_BULLETS.forEach(text => {
+    const bullets = isCombo
+      ? [
+          itemData.contentDesc,
+          ...(itemData.isVIP ? ["Combo exclusivo VIP"] : []),
+          ...COMBO_COMMON_BULLETS
+        ]
+      : TICKET_INFO_BULLETS;
+
+    bullets.forEach(text => {
       const li = document.createElement('li');
       li.className = 'menu-info-item';
       li.innerHTML = `
         <div class="menu-info-left">
-          <span class="feature-dot" style="background:${ticketData.accent}; box-shadow:0 0 8px ${ticketData.accent};"></span>
+          <span class="feature-dot" style="background:${itemData.accent}; box-shadow:0 0 8px ${itemData.accent};"></span>
           <span>${text}</span>
         </div>
       `;
       listEl.appendChild(li);
     });
   } else {
-    if (currentIndex === 0) {
+    if (!isCombo && currentIndex === 0) {
+      // Boletos a sala 2D (Opción de 2 boletos por $125 o botón de 1 boleto por $65)
       const liPairPrice = document.createElement('li');
       liPairPrice.className = 'menu-info-item clickable-pair';
       liPairPrice.title = "Seleccionar paquete de 2 boletos";
@@ -2418,8 +3690,8 @@ function renderDetailPanelContent(animateTransition = true) {
       };
       liPairPrice.innerHTML = `
         <div class="menu-info-left">
-          <span class="feature-dot" style="background:${ticketData.accent}; box-shadow:0 0 8px ${ticketData.accent};"></span>
-          <span>${ticketData.prices[0]}</span>
+          <span class="feature-dot" style="background:${itemData.accent}; box-shadow:0 0 8px ${itemData.accent};"></span>
+          <span>${itemData.prices[0]}</span>
         </div>
         ${isSingleTicket2D ? '<span class="pair-return-hint">Ver 2</span>' : ''}
       `;
@@ -2438,7 +3710,7 @@ function renderDetailPanelContent(animateTransition = true) {
         <button type="button" class="single-ticket-cta-btn ${isSingleTicket2D ? 'active' : ''}" id="single-ticket-2d-btn" onclick="toggleSingleTicket2D()">
           <span class="single-btn-left">
             <span class="single-btn-icon">🎟️</span>
-            <span>${ticketData.prices[1]}</span>
+            <span>${itemData.prices[1]}</span>
           </span>
           <span class="single-btn-badge" id="single-ticket-2d-badge">${isSingleTicket2D ? 'MOSTRANDO 1 ✓' : 'VER 1 BOLETO'}</span>
         </button>
@@ -2452,13 +3724,14 @@ function renderDetailPanelContent(animateTransition = true) {
         listEl.appendChild(liSingleAdd);
       }
     } else {
-      const skuObj = ticketData.skus[0];
+      // Resto de Boletos y todos los 6 Combos de comida
+      const skuObj = itemData.skus[0];
       const liPrice = document.createElement('li');
       liPrice.className = 'menu-info-item';
       liPrice.innerHTML = `
         <div class="menu-info-left">
-          <span class="feature-dot" style="background:${ticketData.accent}; box-shadow:0 0 8px ${ticketData.accent};"></span>
-          <span>${ticketData.prices[0]}</span>
+          <span class="feature-dot" style="background:${itemData.accent}; box-shadow:0 0 8px ${itemData.accent};"></span>
+          <span>${itemData.prices[0]}</span>
         </div>
       `;
       listEl.appendChild(liPrice);
@@ -2480,8 +3753,10 @@ function inspectStep(s) {
   if (s === 0) isSingleTicket2D = false;
   currentStep = s;
 
-  const item = ticketModels[currentIndex];
+  const activeModels = getActiveModelList();
+  const item = activeModels[currentIndex];
   const useCompact = isCompactView();
+  const isCombo = activeCategory === 'combos';
 
   document.querySelectorAll('.step-btn').forEach((b, i) => b.classList.toggle('active', i === s));
 
@@ -2490,17 +3765,25 @@ function inspectStep(s) {
   const baseY = useCompact ? 0.78 : 0.14;
 
   if (s === 0) {
-    animateTicketPairPose(item, 'default', 0.52);
+    if (isCombo) animateComboPose(item, 'default', 0.52);
+    else animateTicketPairPose(item, 'default', 0.52);
+
     const targetCamZ = useCompact ? 12.6 : 10.4;
-    gsap.to(item.rotation, { x: 0.04, y: -0.16, z: 0.0, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    gsap.to(item.rotation, { x: isCombo ? 0.08 : 0.04, y: -0.16, z: 0.0, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     gsap.to(item.position, { y: baseY, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
   } else {
-    if (currentIndex === 0 && isSingleTicket2D) {
+    if (!isCombo && currentIndex === 0 && isSingleTicket2D) {
       animateTicketPairPose(item, 'single', 0.52);
       const targetCamZ = useCompact ? 11.2 : 9.15;
       gsap.to(item.rotation, { x: -0.05, y: 0.22, z: 0.02, duration: 0.55, ease: "expo.out", overwrite: "auto" });
       gsap.to(item.position, { y: baseY + 0.05, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+      gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    } else if (isCombo) {
+      animateComboPose(item, 'price', 0.55);
+      const targetCamZ = useCompact ? 11.7 : 9.6;
+      gsap.to(item.rotation, { x: 0.12, y: 0.28, z: 0.04, duration: 0.58, ease: "back.out(1.3)", overwrite: "auto" });
+      gsap.to(item.position, { y: baseY + 0.06, duration: 0.55, ease: "expo.out", overwrite: "auto" });
       gsap.to(camera.position, { z: targetCamZ, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     } else {
       animateTicketPairPose(item, 'price', 0.55);
@@ -2513,7 +3796,7 @@ function inspectStep(s) {
 }
 
 /* ============================================================================
-   LÓGICA DEL CARRITO, BOLETO VOLADOR, SCROLL INTELIGENTE Y WHATSAPP BUSINESS
+   LÓGICA DEL CARRITO, ICONO VOLADOR 2D, SCROLL INTELIGENTE Y WHATSAPP BUSINESS
    ============================================================================ */
 
 function getTotalCartItemsCount() {
@@ -2567,8 +3850,37 @@ function animateCartTotalMoney() {
   });
 }
 
-function build2DTicketThumbSVG(sku, isFlying = false) {
+// Genera miniatura 2D tanto para Boletos como para Combos de comida
+function build2DItemThumbSVG(sku, isFlying = false) {
   const gradId = `thumbGrad_${sku.id}_${isFlying ? 'fly' : 'list'}`;
+
+  if (sku.category === 'combos') {
+    const isIcee = sku.comboType === 'ice_gde';
+    const cupColor = isIcee ? '#0284C7' : sku.primaryBrown;
+    return `
+      <svg viewBox="0 0 120 74" width="100%" height="100%">
+        <defs>
+          <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${sku.primaryBrown}"/>
+            <stop offset="100%" stop-color="${sku.secondaryBrown}"/>
+          </linearGradient>
+        </defs>
+        <!-- Palomitas en la cima -->
+        <circle cx="34" cy="18" r="8" fill="#FDE047"/>
+        <circle cx="45" cy="15" r="9" fill="#F59E0B"/>
+        <circle cx="56" cy="18" r="8" fill="#FDE047"/>
+        <!-- Cubeta de palomitas -->
+        <polygon points="22,22 68,22 61,66 29,66" fill="url(#${gradId})" stroke="${sku.foilGold}" stroke-width="2.2"/>
+        <line x1="36" y1="23" x2="38" y2="65" stroke="#FDFBF4" stroke-width="2.5" opacity="0.65"/>
+        <line x1="54" y1="23" x2="52" y2="65" stroke="#FDFBF4" stroke-width="2.5" opacity="0.65"/>
+        <!-- Popote y vaso de bebida -->
+        <polyline points="88,24 93,8 103,6" fill="none" stroke="#DC2626" stroke-width="3.2" stroke-linecap="round"/>
+        <polygon points="72,26 104,26 99,66 77,66" fill="${cupColor}" stroke="${sku.foilGold}" stroke-width="2"/>
+        <rect x="70" y="22" width="36" height="5" rx="2.5" fill="#FDFBF4"/>
+      </svg>
+    `;
+  }
+
   const secondTicketLayer = !sku.isSingle
     ? `<path d="M 12,4 H 108 A 5,5 0 0 1 113,9 V 51 A 5,5 0 0 1 108,56 H 12 A 5,5 0 0 1 7,51 V 9 A 5,5 0 0 1 12,4 Z"
              transform="rotate(-6 60 32) translate(-3, -4)"
@@ -2608,13 +3920,13 @@ function spawnFlyingTicketToCart(skuId, sourceElement) {
   const destRect = cartBtn.getBoundingClientRect();
 
   const startX = srcRect.left - vpRect.left + srcRect.width / 2 - 29;
-  const startY = srcRect.top - vpRect.top + srcRect.height / 2 - 17;
+  const startY = srcRect.top - vpRect.top + srcRect.height / 2 - 18;
   const endX = destRect.left - vpRect.left + destRect.width / 2 - 29;
-  const endY = destRect.top - vpRect.top + destRect.height / 2 - 17;
+  const endY = destRect.top - vpRect.top + destRect.height / 2 - 18;
 
   const flyer = document.createElement('div');
   flyer.className = 'flying-ticket-token';
-  flyer.innerHTML = build2DTicketThumbSVG(sku, true);
+  flyer.innerHTML = build2DItemThumbSVG(sku, true);
   viewport.appendChild(flyer);
 
   const motion = { t: 0 };
@@ -2717,7 +4029,7 @@ function renderCartItemsList() {
     card.id = `cart-card-${skuId}`;
     card.innerHTML = `
       <div class="cart-item-thumb">
-        ${build2DTicketThumbSVG(sku, false)}
+        ${build2DItemThumbSVG(sku, false)}
       </div>
       <div class="cart-item-info">
         <div class="cart-item-name">${sku.name}</div>
@@ -2843,7 +4155,6 @@ function openCartModal() {
   gsap.killTweensOf([backdrop, modal]);
   gsap.to(backdrop, { opacity: 1, duration: 0.22, ease: "power2.out" });
 
-  // Expansión acelerada por GPU (únicamente transform y opacity para mantener 120 FPS)
   gsap.fromTo(
     modal,
     {
@@ -2912,7 +4223,6 @@ function handleBackdropClick(e) {
   }
 }
 
-// El botón "Agregar" del carrito vacío ahora redirige directamente a 3. COLECCIÓN
 function goToCollectionFromEmptyCart() {
   closeCartModal(false);
   if (currentMode !== 'lineup') {
@@ -2943,15 +4253,48 @@ function sendCartToWhatsApp() {
   window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 }
 
+/* ============================================================================
+   INTERACCIÓN TÁCTIL, SWIPE EN CARRUSEL, SCROLL EN COLECCIÓN Y RAYCASTER 3D
+   ============================================================================ */
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+let isPointerDown = false;
 let touchStartX = 0;
 let touchStartY = 0;
+let lastTouchY = 0;
+let pointerMovedDistance = 0;
 
 container.addEventListener('pointerdown', (e) => {
+  isPointerDown = true;
   touchStartX = e.clientX;
   touchStartY = e.clientY;
+  lastTouchY = e.clientY;
+  pointerMovedDistance = 0;
 }, { passive: true });
+
+container.addEventListener('pointermove', (e) => {
+  if (!isPointerDown || isCartOpen) return;
+  const dy = e.clientY - lastTouchY;
+  lastTouchY = e.clientY;
+  pointerMovedDistance = Math.hypot(e.clientX - touchStartX, e.clientY - touchStartY);
+
+  // Deslizamiento vertical fluido hacia abajo/arriba en 3. COLECCIÓN
+  if (currentMode === 'lineup') {
+    const scrollFactor = isCompactView() ? 0.011 : 0.0085;
+    collectionTargetScrollY = Math.max(0, Math.min(maxCollectionScrollY, collectionTargetScrollY - dy * scrollFactor));
+  }
+}, { passive: true });
+
+window.addEventListener('pointerup', () => {
+  isPointerDown = false;
+}, { passive: true });
+
+// Soporte de rueda de ratón o trackpad en 3. COLECCIÓN
+container.addEventListener('wheel', (e) => {
+  if (currentMode !== 'lineup' || isCartOpen) return;
+  e.preventDefault();
+  collectionTargetScrollY = Math.max(0, Math.min(maxCollectionScrollY, collectionTargetScrollY + e.deltaY * 0.0042));
+}, { passive: false });
 
 container.addEventListener('pointerup', (e) => {
   if (isCartOpen) return;
@@ -2960,9 +4303,12 @@ container.addEventListener('pointerup', (e) => {
   const deltaY = e.clientY - touchStartY;
 
   if (Math.abs(deltaX) > 42 && Math.abs(deltaX) > Math.abs(deltaY) && currentMode === 'carousel') {
-    changeTicket(deltaX < 0 ? 1 : -1);
+    changeItem(deltaX < 0 ? 1 : -1);
     return;
   }
+
+  // Si el usuario estaba deslizando verticalmente la colección, no disparar clic accidental
+  if (currentMode === 'lineup' && pointerMovedDistance > 16) return;
 
   if (currentMode !== 'carousel' && currentMode !== 'lineup') return;
 
@@ -2971,18 +4317,20 @@ container.addEventListener('pointerup', (e) => {
   pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(pointer, camera);
-  const intersects = raycaster.intersectObjects(ticketModels, true);
+  const targetsToTest = currentMode === 'lineup' ? allInteractiveModels : getActiveModelList();
+  const intersects = raycaster.intersectObjects(targetsToTest, true);
 
   if (intersects.length > 0) {
     let obj = intersects[0].object;
-    while (obj.parent && obj.userData.ticketIndex === undefined) {
+    while (obj.parent && obj.userData.itemIndex === undefined) {
       obj = obj.parent;
     }
-    if (obj.userData.ticketIndex !== undefined) {
-      const clickedIndex = obj.userData.ticketIndex;
+    if (obj.userData.itemIndex !== undefined) {
+      const clickedIndex = obj.userData.itemIndex;
+      const clickedCat = obj.userData.category;
 
       if (currentMode === 'lineup') {
-        selectTicketFromLineup(clickedIndex);
+        selectItemFromLineup(clickedCat, clickedIndex);
       } else if (currentMode === 'carousel') {
         if (clickedIndex === currentIndex) {
           currentStep = 0;
@@ -3002,12 +4350,13 @@ function animate() {
   requestAnimationFrame(animate);
   const t = clock.getElapsedTime();
 
+  // Animación de levitación en Boletos
   for (let i = 0; i < ticketModels.length; i++) {
     const item = ticketModels[i];
     const fw = item.userData.floatWrapper;
     if (fw) {
       fw.position.y = Math.sin(t * 2.2 + i) * 0.032;
-      if (currentMode === 'detail' && i === currentIndex && currentStep === 1) {
+      if (currentMode === 'detail' && activeCategory === 'tickets' && i === currentIndex && currentStep === 1) {
         fw.rotation.z = Math.sin(t * 2.4) * 0.022;
       } else {
         fw.rotation.z = 0;
@@ -3015,10 +4364,38 @@ function animate() {
     }
   }
 
+  // Animación atractiva de levitación y giro suave en los 6 Combos 3D
+  for (let j = 0; j < comboModels.length; j++) {
+    const item = comboModels[j];
+    const fw = item.userData.floatWrapper;
+    if (fw) {
+      fw.position.y = Math.sin(t * 2.3 + j * 1.1) * 0.038;
+      if (currentMode === 'detail' && activeCategory === 'combos' && j === currentIndex) {
+        fw.rotation.y = Math.sin(t * 1.5) * 0.14;
+      } else if (currentMode === 'carousel' && activeCategory === 'combos' && j === currentIndex) {
+        fw.rotation.y = Math.sin(t * 1.4) * 0.10;
+      } else {
+        fw.rotation.y = Math.sin(t * 1.2 + j) * 0.05;
+      }
+    }
+  }
+
+  // Interpolación suave del scroll vertical en 3. COLECCIÓN
+  if (currentMode === 'lineup') {
+    collectionScrollY += (collectionTargetScrollY - collectionScrollY) * 0.16;
+    camera.position.y = cameraBaseY - collectionScrollY;
+    cameraTarget.set(0, 0.05 - collectionScrollY, 1.5);
+  } else {
+    camera.position.y = cameraBaseY;
+    cameraTarget.set(0, 0.05, 1.5);
+  }
+
   camera.lookAt(cameraTarget);
+
   if (currentMode === 'lineup') {
     updateLineupLabelsScreenPositions();
   }
+
   renderer.render(scene, camera);
 }
 
@@ -3038,6 +4415,7 @@ if (typeof ResizeObserver !== 'undefined') {
   new ResizeObserver(() => handleResize()).observe(container);
 }
 
+syncCarouselCategoryButtonUI();
 updatePositions(0);
 animate();
 </script>
